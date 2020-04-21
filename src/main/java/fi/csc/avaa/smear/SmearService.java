@@ -8,8 +8,8 @@ import io.vertx.mutiny.sqlclient.RowSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class SmearService {
@@ -19,11 +19,17 @@ public class SmearService {
 
     @CacheResult(cacheName = "foo-cache")
     public Uni<String> getFoo() {
-        Uni<RowSet<Row>> uni = client.query("SELECT * FROM test");
-        return uni.map(rowSet -> {
-            List<String> foo = new ArrayList<>();
-            rowSet.forEach(row -> foo.add(row.getString("foo")));
-            return foo.get(0);
-        });
+        return client
+                .query("SELECT * FROM test")
+                .map(rowSet ->
+                        toStream(rowSet)
+                                .map(row -> row.getString("foo"))
+                                .findFirst()
+                                .orElseThrow()
+                );
+    }
+
+    private static Stream<Row> toStream(RowSet<Row> rowSet) {
+        return StreamSupport.stream(rowSet.spliterator(), false);
     }
 }
