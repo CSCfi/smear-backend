@@ -19,12 +19,9 @@ Be aware that it’s not an _über-jar_ as the dependencies are copied into the 
 
 The application is now runnable using `java -jar target/smear-backend-1.0-SNAPSHOT-runner.jar`.
 
-## Creating a native executable
+## Deploying to OpenShift
 
-You can create a native executable using: `./mvnw package -Pnative`.
+The application can be deployed to OpenShift with `./mvnw clean package -Dquarkus.kubernetes.deploy=true`.
+This will build and push the image to the registy and then deploy the app.
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
-
-You can then execute your native executable with: `./target/smear-backend-1.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+To only build and push the image run `./mvnw clean package -Dquarkus.container-image.build=true`.
