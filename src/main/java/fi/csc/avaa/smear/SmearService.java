@@ -1,5 +1,6 @@
 package fi.csc.avaa.smear;
 
+import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 import io.vertx.mutiny.sqlclient.Row;
@@ -16,6 +17,7 @@ public class SmearService {
     @Inject
     MySQLPool client;
 
+    @CacheResult(cacheName = "foo-cache")
     public Uni<String> getFoo() {
         Uni<RowSet<Row>> uni = client.query("SELECT * FROM test");
         return uni.map(rowSet -> {
