@@ -21,7 +21,10 @@ The application is now runnable using `java -jar target/smear-backend-1.0-SNAPSH
 
 ## Deploying to OpenShift
 
+Create a secret named `smear-backend-db-secrets` containing the database settings 
+(see `src/main/resources/application.properties`).
+
 The application can be deployed to OpenShift with `./mvnw clean package -Dquarkus.kubernetes.deploy=true`.
-This will build and push the image to the registy and then deploy the app.
+This will build and push the image to the registry, then deploy the app.
 
 To only build and push the image run `./mvnw clean package -Dquarkus.container-image.build=true`.
