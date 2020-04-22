@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear;
+package fi.csc.avaa.smear.dao;
 
+import fi.csc.avaa.smear.dto.Station;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
@@ -8,24 +9,25 @@ import io.vertx.mutiny.sqlclient.RowSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @ApplicationScoped
-public class SmearService {
+public class SmearDao {
 
     @Inject
     MySQLPool client;
 
-    @CacheResult(cacheName = "foo-cache")
-    public Uni<String> getFoo() {
+    @CacheResult(cacheName = "station-cache")
+    public Uni<List<Station>> getStations() {
         return client
-                .query("SELECT * FROM test")
+                .query("SELECT stationid, name FROM station")
                 .map(rowSet ->
                         toStream(rowSet)
-                                .map(row -> row.getString("foo"))
-                                .findFirst()
-                                .orElseThrow()
+                                .map(Station::from)
+                                .collect(Collectors.toList())
                 );
     }
 
