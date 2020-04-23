@@ -1,7 +1,7 @@
 package fi.csc.avaa.smear.resource;
 
 import fi.csc.avaa.smear.constants.Endpoints;
-import fi.csc.avaa.smear.dao.SmearDao;
+import fi.csc.avaa.smear.dao.StationDao;
 import fi.csc.avaa.smear.dto.Station;
 import io.smallrye.mutiny.Uni;
 
@@ -17,10 +17,10 @@ import java.util.List;
 public class StationResource {
 
     @Inject
-    SmearDao smearDao;
+    StationDao stationDao;
 
     @GET
     public Uni<List<Station>> stations() {
-        return smearDao.getStations();
+        return stationDao.getStations();
     }
 }
