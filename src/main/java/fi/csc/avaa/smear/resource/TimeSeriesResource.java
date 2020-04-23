@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
 import io.smallrye.mutiny.Uni;
@@ -14,7 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -23,27 +22,27 @@ public class TimeSeriesResource {
 
     @Inject
     TimeSeriesDao timeSeriesDao;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Map<String, String>> timeSeries(
-            @NotEmpty @QueryParam("variables") List<String> variables,
-            @NotEmpty @QueryParam("table") String table,
+            @NotNull @NotEmpty @QueryParam("variables") List<String> variables,
+            @NotNull @NotEmpty @QueryParam("table") String table,
             @QueryParam("tablevariables") List<String> tablevariables,
-            @NotNull @QueryParam("from")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date from,
-            @NotNull @QueryParam("to")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date to,
-            @NotEmpty @QueryParam("quality") String quality,
-            @NotEmpty @QueryParam("averaging") String averaging,
-            @NotEmpty @QueryParam("type") String type,
-            @NotEmpty @QueryParam("cuv_no") String cuv_no
+            @NotNull @NotEmpty @QueryParam("from") String from,
+            @NotNull @NotEmpty @QueryParam("to") String to,
+            @NotNull @NotEmpty @QueryParam("quality") String quality,
+            @NotNull @NotEmpty @QueryParam("averaging") String averaging,
+            @NotNull @NotEmpty @QueryParam("type") String type,
+            @NotNull @NotEmpty @QueryParam("cuv_no") String cuv_no
     ) {
+        System.out.println(table);
         return timeSeriesDao.getTimeSeries(
                 variables,
                 table,
                 tablevariables,
-                from,
-                to,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
                 quality,
                 averaging,
                 type,
@@ -55,17 +54,15 @@ public class TimeSeriesResource {
     @Path("/csv")
     @Produces("text/csv")
     public Response timeSeriesCsv(
-            @NotEmpty @QueryParam("variables") List<String> variables,
-            @NotEmpty @QueryParam("table") String table,
+            @NotNull @NotEmpty @QueryParam("variables") List<String> variables,
+            @NotNull @NotEmpty @QueryParam("table") String table,
             @QueryParam("tablevariables") List<String> tablevariables,
-            @NotNull @QueryParam("from")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date from,
-            @NotNull @QueryParam("to")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date to,
-            @NotEmpty @QueryParam("quality") String quality,
-            @NotEmpty @QueryParam("averaging") String averaging,
-            @NotEmpty @QueryParam("type") String type,
-            @NotEmpty @QueryParam("cuv_no") String cuv_no
+            @NotNull @NotEmpty @QueryParam("from") String from,
+            @NotNull @NotEmpty @QueryParam("to") String to,
+            @NotNull @NotEmpty @QueryParam("quality") String quality,
+            @NotNull @NotEmpty @QueryParam("averaging") String averaging,
+            @NotNull @NotEmpty @QueryParam("type") String type,
+            @NotNull @NotEmpty @QueryParam("cuv_no") String cuv_no
     ) {
         // TODO
         return Response.ok("hello,foo,bar")
@@ -77,17 +74,15 @@ public class TimeSeriesResource {
     @Path("/tsv")
     @Produces(MediaType.TEXT_PLAIN)
     public Response timeSeriesTxt(
-            @NotEmpty @QueryParam("variables") List<String> variables,
-            @NotEmpty @QueryParam("table") String table,
+            @NotNull @NotEmpty @QueryParam("variables") List<String> variables,
+            @NotNull @NotEmpty @QueryParam("table") String table,
             @QueryParam("tablevariables") List<String> tablevariables,
-            @NotNull @QueryParam("from")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date from,
-            @NotNull @QueryParam("to")
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date to,
-            @NotEmpty @QueryParam("quality") String quality,
-            @NotEmpty @QueryParam("averaging") String averaging,
-            @NotEmpty @QueryParam("type") String type,
-            @NotEmpty @QueryParam("cuv_no") String cuv_no
+            @NotNull @NotEmpty @QueryParam("from") String from,
+            @NotNull @NotEmpty @QueryParam("to") String to,
+            @NotNull @NotEmpty @QueryParam("quality") String quality,
+            @NotNull @NotEmpty @QueryParam("averaging") String averaging,
+            @NotNull @NotEmpty @QueryParam("type") String type,
+            @NotNull @NotEmpty @QueryParam("cuv_no") String cuv_no
     ) {
         // TODO
         return Response.ok("hello\tfoo\tbar")

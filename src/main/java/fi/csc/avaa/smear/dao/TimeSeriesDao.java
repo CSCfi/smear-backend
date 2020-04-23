@@ -5,7 +5,7 @@ import io.vertx.mutiny.mysqlclient.MySQLPool;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +20,15 @@ public class TimeSeriesDao extends SmearDao {
             List<String> variables,
             String table,
             List<String> tablevariables,
-            Date from,
-            Date to,
+            LocalDateTime from,
+            LocalDateTime to,
             String quality,
             String averaging,
             String type,
             String cuv_no
     ) {
         return client
-                .query("SELECT * FROM stations WHERE 0=1")
+                .query("SHOW DATABASES")
                 .map(rowSet -> {
                     Map<String, String> map = new HashMap<>();
                     map.put("foo", "bar");
