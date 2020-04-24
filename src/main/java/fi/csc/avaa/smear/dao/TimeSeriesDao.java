@@ -1,13 +1,12 @@
 package fi.csc.avaa.smear.dao;
 
+import fi.csc.avaa.smear.resource.parameter.TimeSeriesParameters;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -16,17 +15,7 @@ public class TimeSeriesDao extends SmearDao {
     @Inject
     MySQLPool client;
 
-    public Uni<Map<String, String>> getTimeSeries(
-            List<String> variables,
-            String table,
-            List<String> tablevariables,
-            LocalDateTime from,
-            LocalDateTime to,
-            String quality,
-            String averaging,
-            String type,
-            String cuv_no
-    ) {
+    public Uni<Map<String, String>> getTimeSeries(TimeSeriesParameters parameters) {
         return client
                 .query("SHOW DATABASES")
                 .map(rowSet -> {
