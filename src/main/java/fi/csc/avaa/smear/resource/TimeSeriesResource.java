@@ -19,12 +19,12 @@ import java.util.Map;
 public class TimeSeriesResource {
 
     @Inject
-    TimeSeriesDao timeSeriesDao;
+    TimeSeriesDao dao;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Map<String, String>> timeSeries(@BeanParam @Valid TimeSeriesParameters params) {
-        return timeSeriesDao.getTimeSeries(params);
+        return dao.find(params);
     }
 
     @GET

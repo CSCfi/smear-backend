@@ -17,10 +17,10 @@ import java.util.List;
 public class StationResource {
 
     @Inject
-    StationDao stationDao;
+    StationDao dao;
 
     @GET
     public Uni<List<Station>> stations() {
-        return stationDao.getStations();
+        return dao.findAll();
     }
 }

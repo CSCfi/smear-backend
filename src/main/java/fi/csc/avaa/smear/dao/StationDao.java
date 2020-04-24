@@ -17,7 +17,7 @@ public class StationDao extends SmearDao {
     MySQLPool client;
 
     @CacheResult(cacheName = "station-cache")
-    public Uni<List<Station>> getStations() {
+    public Uni<List<Station>> findAll() {
         return client
                 .query("SELECT stationid, name FROM station")
                 .map(rowSet ->

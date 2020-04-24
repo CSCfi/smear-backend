@@ -15,7 +15,7 @@ public class TimeSeriesDao extends SmearDao {
     @Inject
     MySQLPool client;
 
-    public Uni<Map<String, String>> getTimeSeries(TimeSeriesParameters parameters) {
+    public Uni<Map<String, String>> find(TimeSeriesParameters parameters) {
         return client
                 .query("SHOW DATABASES")
                 .map(rowSet -> {
