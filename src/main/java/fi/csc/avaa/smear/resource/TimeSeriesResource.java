@@ -1,6 +1,6 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.resource.parameter.TimeSeriesParameters;
+import fi.csc.avaa.smear.parameter.TimeSeriesParameters;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
 import io.smallrye.mutiny.Uni;

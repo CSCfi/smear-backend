@@ -1,4 +1,4 @@
-package fi.csc.avaa.smear.resource.parameter;
+package fi.csc.avaa.smear.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

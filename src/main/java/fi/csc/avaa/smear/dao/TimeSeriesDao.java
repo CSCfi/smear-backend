@@ -1,6 +1,6 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.resource.parameter.TimeSeriesParameters;
+import fi.csc.avaa.smear.parameter.TimeSeriesParameters;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 

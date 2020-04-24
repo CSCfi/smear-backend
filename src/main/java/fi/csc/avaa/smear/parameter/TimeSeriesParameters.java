@@ -1,4 +1,6 @@
-package fi.csc.avaa.smear.resource.parameter;
+package fi.csc.avaa.smear.parameter;
+
+import fi.csc.avaa.smear.validation.ValidIsoDate;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -8,9 +10,9 @@ import java.util.List;
 
 public class TimeSeriesParameters {
 
+    @QueryParam("variables")
     @NotNull
     @NotEmpty
-    @QueryParam("variables")
     public List<String> variables;
 
     @QueryParam("table")

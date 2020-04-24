@@ -1,4 +1,4 @@
-package fi.csc.avaa.smear;
+package fi.csc.avaa.smear.config;
 
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
