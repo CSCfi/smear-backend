@@ -1,6 +1,6 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.parameter.TimeSeriesParameters;
+import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 
@@ -15,7 +15,7 @@ public class TimeSeriesDao extends SmearDao {
     @Inject
     MySQLPool client;
 
-    public Uni<Map<String, String>> find(TimeSeriesParameters parameters) {
+    public Uni<Map<String, String>> find(TimeSeriesSearch parameters) {
         return client
                 .query("SHOW DATABASES")
                 .map(rowSet -> {

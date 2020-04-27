@@ -8,9 +8,9 @@ import javax.ws.rs.QueryParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class TimeSeriesParameters {
+public class TimeSeriesSearch {
 
-    @QueryParam("variables")
+    @QueryParam("variable")
     @NotNull
     @NotEmpty
     public List<String> variables;
@@ -20,7 +20,7 @@ public class TimeSeriesParameters {
     @NotEmpty
     public String table;
 
-    @QueryParam("tablevariables")
+    @QueryParam("tablevariable")
     public List<String> tablevariables;
 
     @QueryParam("from")
