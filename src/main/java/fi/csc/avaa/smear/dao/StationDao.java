@@ -10,8 +10,10 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.dao.Utils.toStream;
+
 @ApplicationScoped
-public class StationDao extends SmearDao {
+public class StationDao {
 
     @Inject
     MySQLPool client;

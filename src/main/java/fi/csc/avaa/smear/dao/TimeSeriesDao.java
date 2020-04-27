@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
-public class TimeSeriesDao extends SmearDao {
+public class TimeSeriesDao {
 
     @Inject
     MySQLPool client;

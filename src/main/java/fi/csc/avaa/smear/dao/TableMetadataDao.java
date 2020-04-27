@@ -12,13 +12,15 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.dao.Utils.toStream;
+
 @ApplicationScoped
-public class TableMetadataDao extends SmearDao {
+public class TableMetadataDao {
 
     @Inject
     MySQLPool client;
 
-    @CacheResult(cacheName = "all-table-metadata-cache")
+    @CacheResult(cacheName = "table-metadata-list-cache")
     public Uni<List<TableMetadata>> findAll() {
         return client
                 .preparedQuery("SELECT * FROM TableMetadata")
