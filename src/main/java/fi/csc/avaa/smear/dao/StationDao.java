@@ -31,10 +31,9 @@ public class StationDao {
                 .from("station");
         return client
                 .query(query.getSQL())
-                .map(rowSet ->
-                        toStream(rowSet)
-                                .map(Station::from)
-                                .collect(Collectors.toList())
+                .map(rowSet -> toStream(rowSet)
+                        .map(Station::from)
+                        .collect(Collectors.toList())
                 );
     }
 }

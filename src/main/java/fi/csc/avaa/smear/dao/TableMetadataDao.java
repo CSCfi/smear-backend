@@ -4,7 +4,6 @@ import fi.csc.avaa.smear.dto.TableMetadata;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.DSLContext;
 import org.jooq.Query;
@@ -47,10 +46,10 @@ public class TableMetadataDao {
                 .where(field("tableID").eq(id));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                .map(RowSet::iterator)
-                .map(iter -> iter.hasNext()
-                        ? TableMetadata.from(iter.next())
-                        : null
+                .map(rowSet -> toStream(rowSet)
+                        .map(TableMetadata::from)
+                        .findFirst()
+                        .orElseThrow()
                 );
     }
 }

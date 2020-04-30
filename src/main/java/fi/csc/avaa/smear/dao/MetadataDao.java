@@ -4,12 +4,13 @@ import fi.csc.avaa.smear.dto.Metadata;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.RowSet;
 import org.jooq.DSLContext;
 import org.jooq.Query;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 
 @ApplicationScoped
 public class MetadataDao {
@@ -27,10 +28,10 @@ public class MetadataDao {
                 .from("Metadata");
         return client
                 .query(query.getSQL())
-                .map(RowSet::iterator)
-                .map(iter -> iter.hasNext()
-                        ? Metadata.from(iter.next())
-                        : null
+                .map(rowSet -> toStream(rowSet)
+                        .map(Metadata::from)
+                        .findFirst()
+                        .orElseThrow()
                 );
     }
 }

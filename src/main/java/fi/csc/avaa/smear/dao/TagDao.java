@@ -38,4 +38,18 @@ public class TagDao {
                         .collect(Collectors.toList())
                 );
     }
+
+    public Uni<Tag> findById(Integer id) {
+        Query query = create
+                .select()
+                .from("Tags")
+                .where(field("tagId").eq(id));
+        return client
+                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                .map(rowSet -> toStream(rowSet)
+                        .map(Tag::from)
+                        .findFirst()
+                        .orElseThrow()
+                );
+    }
 }
