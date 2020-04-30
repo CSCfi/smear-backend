@@ -1,6 +1,6 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.dto.Tag;
+import fi.csc.avaa.smear.dto.Event;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -16,7 +16,7 @@ import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.impl.DSL.field;
 
 @ApplicationScoped
-public class TagDao {
+public class EventDao {
 
     @Inject
     MySQLPool client;
@@ -24,30 +24,30 @@ public class TagDao {
     @Inject
     DSLContext create;
 
-    public Uni<List<Tag>> findByVariableIds(List<String> variableIds) {
+    public Uni<List<Event>> findByVariableIds(List<String> variableIds) {
         Query query = create
                 .select()
-                .from("Tags")
-                .join("variableTags")
-                .on(field("Tags.tagID").eq(field("variableTags.TagID")))
-                .where(field("variableTags.variableID").in(variableIds));
+                .from("Events")
+                .join("variableEvent")
+                .on(field("Events.eventID").eq(field("variableEvent.eventID")))
+                .where(field("variableEvent.variableID").in(variableIds));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
-                        .map(Tag::from)
+                        .map(Event::from)
                         .collect(Collectors.toList())
                 );
     }
 
-    public Uni<Tag> findById(Integer id) {
+    public Uni<Event> findById(Integer id) {
         Query query = create
                 .select()
-                .from("Tags")
-                .where(field("tagID").eq(id));
+                .from("Events")
+                .where(field("eventID").eq(id));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
-                        .map(Tag::from)
+                        .map(Event::from)
                         .findFirst()
                         .orElseThrow()
                 );

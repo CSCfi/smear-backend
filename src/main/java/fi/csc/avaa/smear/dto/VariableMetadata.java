@@ -8,7 +8,7 @@ public class VariableMetadata {
 
     public Long id;
     public Long tableId;
-    public String variable;
+    public String name;
     public String description;
     public String type;
     public String unit;
@@ -29,7 +29,7 @@ public class VariableMetadata {
         VariableMetadata variableMetadata = new VariableMetadata();
         variableMetadata.id = row.getLong("variableID");
         variableMetadata.tableId = row.getLong("tableID");
-        variableMetadata.variable = row.getString("variable");
+        variableMetadata.name = row.getString("variable");
         variableMetadata.description = row.getString("description");
         variableMetadata.type = row.getString("type");
         variableMetadata.unit = row.getString("unit");
