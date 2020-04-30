@@ -12,13 +12,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path(Endpoints.METADATA)
+@Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
 
     @Inject
     MetadataDao dao;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Metadata> metadata() {
         return dao.getMetadata();
     }
