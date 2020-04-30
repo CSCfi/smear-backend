@@ -3,6 +3,7 @@ package fi.csc.avaa.smear.dao;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
+import org.jooq.DSLContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,6 +15,9 @@ public class TimeSeriesDao {
 
     @Inject
     MySQLPool client;
+
+    @Inject
+    DSLContext create;
 
     public Uni<Map<String, String>> find(TimeSeriesSearch parameters) {
         return client

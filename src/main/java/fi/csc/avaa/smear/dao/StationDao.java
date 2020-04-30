@@ -6,8 +6,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 import org.jooq.DSLContext;
 import org.jooq.Query;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +21,8 @@ public class StationDao {
     @Inject
     MySQLPool client;
 
-    private final DSLContext create = DSL.using(SQLDialect.MYSQL);
+    @Inject
+    DSLContext create;
 
     @CacheResult(cacheName = "station-cache")
     public Uni<List<Station>> findAll() {

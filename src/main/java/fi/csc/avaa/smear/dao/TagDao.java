@@ -3,12 +3,9 @@ package fi.csc.avaa.smear.dao;
 import fi.csc.avaa.smear.dto.Tag;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.DSLContext;
 import org.jooq.Query;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,7 +21,8 @@ public class TagDao {
     @Inject
     MySQLPool client;
 
-    private final DSLContext create = DSL.using(SQLDialect.MYSQL);
+    @Inject
+    DSLContext create;
 
     public Uni<List<Tag>> findByVariableIds(List<String> variableIds) {
         Query query = create

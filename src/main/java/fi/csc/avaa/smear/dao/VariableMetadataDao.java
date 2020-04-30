@@ -9,7 +9,6 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Query;
-import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,7 +26,8 @@ public class VariableMetadataDao {
     @Inject
     MySQLPool client;
 
-    private final DSLContext create = DSL.using(SQLDialect.MYSQL);
+    @Inject
+    DSLContext create;
 
     @CacheResult(cacheName = "variable-metadata-cache")
     public Uni<VariableMetadata> findById(Long id) {
