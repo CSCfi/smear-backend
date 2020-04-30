@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class TableMetadata {
 
-    public Long tableId;
+    public Long id;
     public Long stationId;
     public String identifier;
     public String name;
@@ -17,7 +17,7 @@ public class TableMetadata {
 
     public static TableMetadata from(Row row) {
         TableMetadata tableMetadata = new TableMetadata();
-        tableMetadata.tableId = row.getLong("tableID");
+        tableMetadata.id = row.getLong("tableID");
         tableMetadata.stationId = row.getLong("stationID");
         tableMetadata.identifier = row.getString("identifier");
         tableMetadata.name = row.getString("name");

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class VariableMetadata {
 
-    public Long variableId;
+    public Long id;
     public Long tableId;
     public String variable;
     public String description;
@@ -27,7 +27,7 @@ public class VariableMetadata {
 
     public static VariableMetadata from(Row row) {
         VariableMetadata variableMetadata = new VariableMetadata();
-        variableMetadata.variableId = row.getLong("variableID");
+        variableMetadata.id = row.getLong("variableID");
         variableMetadata.tableId = row.getLong("tableID");
         variableMetadata.variable = row.getString("variable");
         variableMetadata.description = row.getString("description");
