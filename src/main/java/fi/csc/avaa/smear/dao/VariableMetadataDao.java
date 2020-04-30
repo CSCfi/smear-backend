@@ -27,14 +27,13 @@ public class VariableMetadataDao {
     @Inject
     MySQLPool client;
 
-    private final String table = "VariableMetadata";
     private final DSLContext create = DSL.using(SQLDialect.MYSQL);
 
     @CacheResult(cacheName = "variable-metadata-cache")
     public Uni<VariableMetadata> findById(Long id) {
         Query query = create
                 .select()
-                .from(table)
+                .from("VariableMetadata")
                 .where(field("variableID").eq(id));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
@@ -46,7 +45,22 @@ public class VariableMetadataDao {
     }
 
     public Uni<List<VariableMetadata>> search(VariableMetadataSearch search) {
+        Query query = search.tablevariables.isEmpty()
+                ? getSearchQuery(search)
+                : getTableVariableQuery(search);
+        return client
+                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                .map(rowSet -> toStream(rowSet)
+                        .map(VariableMetadata::from)
+                        .collect(Collectors.toList())
+                );
+    }
+
+    private Query getSearchQuery(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
+        if (!search.variableIds.isEmpty()) {
+            conditions.add(field("variableID").in(search.variableIds));
+        }
         if (!search.variables.isEmpty()) {
             conditions.add(field("variable").in(search.variables));
         }
@@ -60,15 +74,23 @@ public class VariableMetadataDao {
             search.sources.forEach(source ->
                     conditions.add(field("source").like("%" + source + "%")));
         }
-        Query query = create
+        return create
                 .select()
-                .from(table)
+                .from("VariableMetadata")
                 .where(conditions);
-        return client
-                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                .map(rowSet -> toStream(rowSet)
-                        .map(VariableMetadata::from)
-                        .collect(Collectors.toList())
-                );
+    }
+
+    private Query getTableVariableQuery(VariableMetadataSearch search) {
+        Condition conditions = search.getTableVariablePairs()
+                .stream()
+                .map(e -> field("TableMetadata.name").eq(e[0])
+                        .and(field("VariableMetadata.variable").eq(e[1])))
+                .reduce(DSL.noCondition(), Condition::or);
+        return create
+                .select()
+                .from("VariableMetadata")
+                .join("TableMetadata")
+                .on(field("TableMetadata.tableID").eq(field("VariableMetadata.tableID")))
+                .where(conditions);
     }
 }

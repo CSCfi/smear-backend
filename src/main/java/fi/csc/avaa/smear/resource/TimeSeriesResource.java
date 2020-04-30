@@ -1,8 +1,8 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
+import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.smallrye.mutiny.Uni;
 
 import javax.inject.Inject;

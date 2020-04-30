@@ -19,14 +19,13 @@ public class MetadataDao {
     @Inject
     MySQLPool client;
 
-    private final String table = "Metadata";
     private final DSLContext create = DSL.using(SQLDialect.MYSQL);
 
     @CacheResult(cacheName = "metadata-cache")
     public Uni<Metadata> getMetadata() {
         Query query = create
                 .select()
-                .from(table);
+                .from("Metadata");
         return client
                 .query(query.getSQL())
                 .map(RowSet::iterator)

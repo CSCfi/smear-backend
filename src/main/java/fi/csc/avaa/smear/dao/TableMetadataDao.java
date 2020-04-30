@@ -25,14 +25,13 @@ public class TableMetadataDao {
     @Inject
     MySQLPool client;
 
-    private final String table = "TableMetadata";
     private final DSLContext create = DSL.using(SQLDialect.MYSQL);
 
     @CacheResult(cacheName = "table-metadata-list-cache")
     public Uni<List<TableMetadata>> findAll() {
         Query query = create
                 .select()
-                .from(table);
+                .from("TableMetadata");
         return client
                 .preparedQuery(query.getSQL())
                 .map(rowSet -> toStream(rowSet)
@@ -45,7 +44,7 @@ public class TableMetadataDao {
     public Uni<TableMetadata> findById(Long id) {
         Query query = create
                 .select()
-                .from(table)
+                .from("TableMetadata")
                 .where(field("tableID").eq(id));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))

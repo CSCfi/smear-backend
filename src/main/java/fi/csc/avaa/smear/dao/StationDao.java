@@ -23,14 +23,13 @@ public class StationDao {
     @Inject
     MySQLPool client;
 
-    private final String table = "station";
     private final DSLContext create = DSL.using(SQLDialect.MYSQL);
 
     @CacheResult(cacheName = "station-cache")
     public Uni<List<Station>> findAll() {
         Query query = create
                 .select(field("stationid"), field("name"))
-                .from(table);
+                .from("station");
         return client
                 .query(query.getSQL())
                 .map(rowSet ->
