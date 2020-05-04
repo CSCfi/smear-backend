@@ -11,11 +11,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = VariableMetadataSearchValidator.class)
+@Constraint(validatedBy = TimeSeriesSearchValidator.class)
 @Documented
-public @interface ValidVariableMetadataSearch {
+public @interface ValidTimeSeriesSearch {
 
-    String message() default "Either search parameters or table+variable combination must be provided (not both)";
+    String message() default "Either one or more tablevariables (tablevariable=HYY_META.Pamb0) " +
+            "or a single table + variables combination (table=HYY_META&variable=Pamb0) " +
+            "must be provided (but not both)";
 
     Class<?>[] groups() default {};
 

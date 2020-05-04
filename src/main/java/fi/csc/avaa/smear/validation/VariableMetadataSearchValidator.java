@@ -7,7 +7,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class VariableMetadataValidator
+public class VariableMetadataSearchValidator
         implements ConstraintValidator<ValidVariableMetadataSearch, VariableMetadataSearch> {
 
     @Override

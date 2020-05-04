@@ -1,6 +1,7 @@
 package fi.csc.avaa.smear.parameter;
 
 import fi.csc.avaa.smear.validation.ValidIsoDate;
+import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -8,17 +9,14 @@ import javax.ws.rs.QueryParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@ValidTimeSeriesSearch
 public class TimeSeriesSearch {
 
-    @QueryParam("variable")
-    @NotNull
-    @NotEmpty
-    public List<String> variables;
-
     @QueryParam("table")
-    @NotNull
-    @NotEmpty
     public String table;
+
+    @QueryParam("variable")
+    public List<String> variables;
 
     @QueryParam("tablevariable")
     public List<String> tablevariables;
