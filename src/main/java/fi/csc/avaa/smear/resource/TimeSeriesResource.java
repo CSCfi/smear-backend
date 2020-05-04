@@ -1,8 +1,8 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.parameter.TimeSeriesParameters;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
+import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.smallrye.mutiny.Uni;
 
 import javax.inject.Inject;
@@ -19,18 +19,18 @@ import java.util.Map;
 public class TimeSeriesResource {
 
     @Inject
-    TimeSeriesDao timeSeriesDao;
+    TimeSeriesDao dao;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Map<String, String>> timeSeries(@BeanParam @Valid TimeSeriesParameters params) {
-        return timeSeriesDao.getTimeSeries(params);
+    public Uni<Map<String, String>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
+        return dao.find(params);
     }
 
     @GET
     @Path("/csv")
     @Produces("text/csv")
-    public Response timeSeriesCsv(@BeanParam @Valid TimeSeriesParameters params) {
+    public Response timeSeriesCsv(@BeanParam @Valid TimeSeriesSearch params) {
         return Response.ok("hello,foo,bar")
                 .header("Content-Disposition", "attachment; filename=smeardata.csv")
                 .build();
@@ -39,7 +39,7 @@ public class TimeSeriesResource {
     @GET
     @Path("/tsv")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response timeSeriesTxt(@BeanParam @Valid TimeSeriesParameters params) {
+    public Response timeSeriesTxt(@BeanParam @Valid TimeSeriesSearch params) {
         return Response.ok("hello\tfoo\tbar")
                 .header("Content-Disposition", "attachment; filename=smeardata.txt")
                 .build();
