@@ -15,9 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ValidTimeSeriesSearch {
 
-    String message() default "Either one or more tablevariables (tablevariable=HYY_META.Pamb0) " +
-            "or a single table + variables combination (table=HYY_META&variable=Pamb0) " +
-            "must be provided (but not both)";
+    String message() default "";
 
     Class<?>[] groups() default {};
 

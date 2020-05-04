@@ -13,7 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
+import java.util.List;
 
 @Path(Endpoints.TIMESERIES)
 public class TimeSeriesResource {
@@ -23,8 +23,8 @@ public class TimeSeriesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Map<String, String>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
-        return dao.find(params);
+    public Uni<List<String>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
+        return dao.search(params);
     }
 
     @GET

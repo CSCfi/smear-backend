@@ -1,5 +1,7 @@
 package fi.csc.avaa.smear.parameter;
 
+import fi.csc.avaa.smear.constants.AggregationInterval;
+import fi.csc.avaa.smear.constants.AggregationType;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 
@@ -36,15 +38,11 @@ public class TimeSeriesSearch {
     @NotEmpty
     public String quality;
 
-    @QueryParam("averaging")
-    @NotNull
-    @NotEmpty
-    public String averaging;
+    @QueryParam("aggregation_type")
+    public String aggregationTypeStr;
 
-    @QueryParam("type")
-    @NotNull
-    @NotEmpty
-    public String type;
+    @QueryParam("aggregation_interval")
+    public String aggregationIntervalStr;
 
     @QueryParam("cuv_no")
     @NotNull
@@ -57,5 +55,13 @@ public class TimeSeriesSearch {
 
     public LocalDateTime getToDateTime() {
         return LocalDateTime.parse(to);
+    }
+
+    public AggregationType getAggregationType() {
+        return AggregationType.from(aggregationTypeStr.toUpperCase());
+    }
+
+    public AggregationInterval getAggregationInterval() {
+        return AggregationInterval.from(aggregationIntervalStr.toUpperCase());
     }
 }
