@@ -18,9 +18,10 @@ public class VariableMetadataSearchValidator
                 search.categories,
                 search.sources,
                 search.tableIds
-        )
-                .allMatch(List::isEmpty);
+        ).allMatch(List::isEmpty);
+
         boolean hasTableVariableParameters = search.tablevariables.isEmpty();
+
         return (hasSearchParameters && !hasTableVariableParameters)
                 || (!hasSearchParameters && hasTableVariableParameters);
     }

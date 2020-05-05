@@ -34,8 +34,7 @@ public class TableMetadataDao {
                 .preparedQuery(query.getSQL())
                 .map(rowSet -> toStream(rowSet)
                         .map(TableMetadata::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 
     @CacheResult(cacheName = "table-metadata-cache")
@@ -49,7 +48,6 @@ public class TableMetadataDao {
                 .map(rowSet -> toStream(rowSet)
                         .map(TableMetadata::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 }

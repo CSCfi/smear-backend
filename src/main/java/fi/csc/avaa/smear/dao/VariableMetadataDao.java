@@ -40,8 +40,7 @@ public class VariableMetadataDao {
                 .map(rowSet -> toStream(rowSet)
                         .map(VariableMetadata::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 
     public Uni<List<VariableMetadata>> search(VariableMetadataSearch search) {
@@ -52,8 +51,7 @@ public class VariableMetadataDao {
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
                         .map(VariableMetadata::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 
     private Query getSearchQuery(VariableMetadataSearch search) {

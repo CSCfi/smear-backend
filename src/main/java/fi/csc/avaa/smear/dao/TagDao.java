@@ -35,8 +35,7 @@ public class TagDao {
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
                         .map(Tag::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 
     public Uni<Tag> findById(Integer id) {
@@ -49,7 +48,6 @@ public class TagDao {
                 .map(rowSet -> toStream(rowSet)
                         .map(Tag::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 }

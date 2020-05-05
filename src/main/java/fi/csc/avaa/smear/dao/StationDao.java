@@ -33,7 +33,6 @@ public class StationDao {
                 .query(query.getSQL())
                 .map(rowSet -> toStream(rowSet)
                         .map(Station::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 }

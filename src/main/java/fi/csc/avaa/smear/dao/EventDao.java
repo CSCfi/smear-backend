@@ -35,8 +35,7 @@ public class EventDao {
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
                         .map(Event::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 
     public Uni<Event> findById(Integer id) {
@@ -49,7 +48,6 @@ public class EventDao {
                 .map(rowSet -> toStream(rowSet)
                         .map(Event::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 }
