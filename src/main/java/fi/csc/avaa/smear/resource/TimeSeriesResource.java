@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 
 @Path(Endpoints.TIMESERIES)
 public class TimeSeriesResource {
@@ -23,7 +24,7 @@ public class TimeSeriesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<String>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
+    public Uni<List<Map<String, Object>>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
         return dao.search(params);
     }
 

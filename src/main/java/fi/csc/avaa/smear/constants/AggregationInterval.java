@@ -8,9 +8,7 @@ import java.util.Map;
 public enum AggregationInterval {
 
     INTERVAL_30MIN("30MIN", 30),
-    // ???
-    INTERVAL_60MIN("60MIN", 60),
-    INTERVAL_1HOUR("1HOUR", 60);
+    INTERVAL_60MIN("60MIN", 60);
 
     private final String queryParam;
     private final int minutes;
