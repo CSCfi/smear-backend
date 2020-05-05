@@ -7,9 +7,11 @@ import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ValidTimeSeriesSearch
 public class TimeSeriesSearch {
@@ -21,7 +23,7 @@ public class TimeSeriesSearch {
     public List<String> variables;
 
     @QueryParam("tablevariable")
-    public List<String> tablevariables;
+    public List<@Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tablevariables;
 
     @QueryParam("from")
     @NotNull
@@ -48,6 +50,13 @@ public class TimeSeriesSearch {
     @NotNull
     @NotEmpty
     public String cuv_no;
+
+    public List<String[]> getTableVariablePairs() {
+        return tablevariables
+                .stream()
+                .map(s -> s.split("\\."))
+                .collect(Collectors.toList());
+    }
 
     public LocalDateTime getFromDateTime() {
         return LocalDateTime.parse(from);
