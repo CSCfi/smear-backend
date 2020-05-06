@@ -31,7 +31,6 @@ public class MetadataDao {
                 .map(rowSet -> toStream(rowSet)
                         .map(Metadata::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 }

@@ -35,21 +35,19 @@ public class TagDao {
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
                         .map(Tag::from)
-                        .collect(Collectors.toList())
-                );
+                        .collect(Collectors.toList()));
     }
 
     public Uni<Tag> findById(Integer id) {
         Query query = create
                 .select()
                 .from("Tags")
-                .where(field("tagId").eq(id));
+                .where(field("tagID").eq(id));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
                         .map(Tag::from)
                         .findFirst()
-                        .orElseThrow()
-                );
+                        .orElseThrow());
     }
 }

@@ -1,7 +1,6 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.dto.TableMetadata;
-import io.quarkus.cache.CacheResult;
+import fi.csc.avaa.smear.dto.Event;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -17,7 +16,7 @@ import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.impl.DSL.field;
 
 @ApplicationScoped
-public class TableMetadataDao {
+public class EventDao {
 
     @Inject
     MySQLPool client;
@@ -25,28 +24,29 @@ public class TableMetadataDao {
     @Inject
     DSLContext create;
 
-    @CacheResult(cacheName = "table-metadata-list-cache")
-    public Uni<List<TableMetadata>> findAll() {
+    public Uni<List<Event>> findByVariableIds(List<String> variableIds) {
         Query query = create
                 .select()
-                .from("TableMetadata");
-        return client
-                .preparedQuery(query.getSQL())
-                .map(rowSet -> toStream(rowSet)
-                        .map(TableMetadata::from)
-                        .collect(Collectors.toList()));
-    }
-
-    @CacheResult(cacheName = "table-metadata-cache")
-    public Uni<TableMetadata> findById(Long id) {
-        Query query = create
-                .select()
-                .from("TableMetadata")
-                .where(field("tableID").eq(id));
+                .from("Events")
+                .join("variableEvent")
+                .on(field("Events.eventID").eq(field("variableEvent.eventID")))
+                .where(field("variableEvent.variableID").in(variableIds));
         return client
                 .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                 .map(rowSet -> toStream(rowSet)
-                        .map(TableMetadata::from)
+                        .map(Event::from)
+                        .collect(Collectors.toList()));
+    }
+
+    public Uni<Event> findById(Integer id) {
+        Query query = create
+                .select()
+                .from("Events")
+                .where(field("eventID").eq(id));
+        return client
+                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                .map(rowSet -> toStream(rowSet)
+                        .map(Event::from)
                         .findFirst()
                         .orElseThrow());
     }
