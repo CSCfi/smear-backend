@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class TimeSeries {
+public class TimeSeriesBuilder {
 
     private final Set<String> allColnames = new TreeSet<>();
     private final Map<String, Map<String, Double>> timeSeries = new TreeMap<>();
@@ -24,7 +24,17 @@ public class TimeSeries {
                         .put(colname, row.getDouble(colname)));
     }
 
-    public Map<String, Map<String, Double>> get() {
+    public Map<String, Map<String, Double>> build() {
+        fillNullValues();
         return timeSeries;
+    }
+
+    private void fillNullValues() {
+        timeSeries.values().forEach(samples ->
+                allColnames.forEach(column -> {
+                    if (!samples.containsKey(column)) {
+                        samples.put(column, null);
+                    }
+                }));
     }
 }

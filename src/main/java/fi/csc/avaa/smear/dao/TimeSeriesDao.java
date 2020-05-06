@@ -2,7 +2,7 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.constants.AggregationInterval;
 import fi.csc.avaa.smear.constants.AggregationType;
-import fi.csc.avaa.smear.dto.TimeSeries;
+import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.quarkus.cache.CacheResult;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
@@ -57,7 +57,7 @@ public class TimeSeriesDao {
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
-        TimeSeries timeSeries = new TimeSeries();
+        TimeSeriesBuilder builder = new TimeSeriesBuilder();
         search.getTablesAndColumns().forEach((tableName, columns) -> {
             Query query = createQuery(tableName, columns,
                     search.getFromTimestamp(), search.getToTimestamp(),
@@ -67,9 +67,9 @@ public class TimeSeriesDao {
                     .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                     .map(DaoUtils::toStream)
                     .await().indefinitely()
-                    .forEach(row -> timeSeries.add(row, columns));
+                    .forEach(row -> builder.add(row, columns));
         });
-        return timeSeries.get();
+        return builder.build();
     }
 
     private Query createQuery(String tableName,
