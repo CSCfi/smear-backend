@@ -45,9 +45,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
             if (!AggregationType.getQueryParams().contains(search.aggregationTypeStr)) {
                 return constraintViolation(ctx, unknownAggregationType);
             }
-            if (search.aggregationIntervalStr == null) {
-                return constraintViolation(ctx, aggregationIntervalRequired);
-            }
+        }
+        if (search.aggregationIntervalStr != null) {
             if (!AggregationInterval.getQueryParams().contains(search.aggregationIntervalStr)) {
                 return constraintViolation(ctx, unknownAggregationInterval);
             }

@@ -97,10 +97,14 @@ public class TimeSeriesSearch {
     }
 
     public AggregationType getAggregationType() {
-        return AggregationType.from(aggregationTypeStr.toUpperCase());
+        return aggregationTypeStr != null
+                ? AggregationType.from(aggregationTypeStr.toUpperCase())
+                : AggregationType.NONE;
     }
 
     public AggregationInterval getAggregationInterval() {
-        return AggregationInterval.from(aggregationIntervalStr.toUpperCase());
+        return aggregationIntervalStr != null
+                ? AggregationInterval.from(aggregationIntervalStr.toUpperCase())
+                : AggregationInterval.INTERVAL_30MIN;
     }
 }
