@@ -26,11 +26,11 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
 
     private boolean validateTableAndVariableParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
         if (search.table == null || search.table.isEmpty()) {
-            if (search.tablevariables.isEmpty()) {
+            if (search.tableVariables.isEmpty()) {
                 return constraintViolation(ctx, tableAndVariableMsg);
             }
         } else {
-            if (!search.tablevariables.isEmpty()) {
+            if (!search.tableVariables.isEmpty()) {
                 return constraintViolation(ctx, tableAndVariableMsg);
             }
             if (search.variables.isEmpty()) {

@@ -10,8 +10,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @ValidTimeSeriesSearch
 public class TimeSeriesSearch {
@@ -23,7 +25,7 @@ public class TimeSeriesSearch {
     public List<String> variables;
 
     @QueryParam("tablevariable")
-    public List<@Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tablevariables;
+    public List<@Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
 
     @QueryParam("from")
     @NotNull
@@ -51,11 +53,22 @@ public class TimeSeriesSearch {
     @NotEmpty
     public String cuv_no;
 
-    public List<String[]> getTableVariablePairs() {
-        return tablevariables
-                .stream()
-                .map(s -> s.split("\\."))
-                .collect(Collectors.toList());
+    public Map<String, List<String>> getTablesAndVariables() {
+        Map<String, List<String>> map = new HashMap<>();
+        if (table != null && !table.isEmpty()) {
+            map.put(table, variables);
+        } else {
+            tableVariables
+                    .stream()
+                    .map(s -> s.split("\\."))
+                    .forEach(tableVariablePair -> {
+                        if (!map.containsKey(tableVariablePair[0])) {
+                            map.put(tableVariablePair[0], new ArrayList<>());
+                        }
+                        map.get(tableVariablePair[0]).add(tableVariablePair[1]);
+                    });
+        }
+        return map;
     }
 
     public Timestamp getFromTimestamp() {
