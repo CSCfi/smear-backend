@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static fi.csc.avaa.smear.dao.DaoUtils.timestampDiff;
-import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.field;
@@ -46,27 +45,22 @@ public class TimeSeriesDao {
     @Inject
     DSLContext create;
 
-    private static final String COL_SAMPTIME = "samptime";
-
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
-        Field<Timestamp> samptime = field(COL_SAMPTIME, TIMESTAMP);
+        Field<Timestamp> samptime = field("samptime", TIMESTAMP);
         TimeSeries timeSeries = new TimeSeries();
-        search.getTablesAndVariables().forEach((tablename, variables) -> {
-            Table<Record> table = table(tablename);
-            Map<String, String> columnNames = variables
+        search.getTablesAndVariables().forEach((tableName, variables) -> {
+            Table<Record> table = table(tableName);
+            List<String> columns = variables
                     .stream()
-                    .collect(Collectors.toMap(
-                            variable -> variable,
-                            variable -> String.format("%s.%s", table, variable)));
+                    .map(variable -> String.format("%s.%s", tableName, variable))
+                    .collect(Collectors.toList());
 
             List<SelectFieldOrAsterisk> fields = new ArrayList<>();
             fields.add(samptime);
-            fields.addAll(variables
+            fields.addAll(columns
                     .stream()
-                    .map(variable ->
-                            avg(field(variable, FLOAT))
-                                    .as(columnNames.get(variable)))
+                    .map(column -> avg(field(column, FLOAT)).as(column))
                     .collect(Collectors.toList()));
 
             Field<Integer> timestampDiff = timestampDiff(MINUTE, field("'1990-1-1'", TIMESTAMP), samptime);
@@ -82,7 +76,7 @@ public class TimeSeriesDao {
                     .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                     .map(DaoUtils::toStream)
                     .await().indefinitely()
-                    .forEach(row -> timeSeries.add(row, columnNames.values()));
+                    .forEach(row -> timeSeries.add(row, columns));
         });
         return timeSeries.get();
     }
