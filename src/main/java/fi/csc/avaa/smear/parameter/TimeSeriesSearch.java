@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ValidTimeSeriesSearch
 public class TimeSeriesSearch {
@@ -64,7 +65,7 @@ public class TimeSeriesSearch {
     public String quality;
 
     @Parameter(description = "Type of the sample time aggregation. " +
-            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR.",
+            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX.",
             example = "NONE")
     @QueryParam("aggregation_type")
     public String aggregationTypeStr;
@@ -79,22 +80,24 @@ public class TimeSeriesSearch {
     @QueryParam("cuv_no")
     public List<String> cuv_no;
 
-    public Map<String, List<String>> getTablesAndVariables() {
-        Map<String, List<String>> map = new HashMap<>();
+    public Map<String, List<String>> getTablesAndColumns() {
+        Map<String, List<String>> tablesAndColumns = new HashMap<>();
         if (table != null && !table.isEmpty()) {
-            map.put(table, variables);
-        } else {
-            tableVariables
+            List<String> columns = variables
                     .stream()
-                    .map(s -> s.split("\\."))
-                    .forEach(tableVariablePair -> {
-                        if (!map.containsKey(tableVariablePair[0])) {
-                            map.put(tableVariablePair[0], new ArrayList<>());
-                        }
-                        map.get(tableVariablePair[0]).add(tableVariablePair[1]);
-                    });
+                    .map(variable -> String.format("%s.%s", table, variable))
+                    .collect(Collectors.toList());
+            tablesAndColumns.put(table, columns);
+        } else {
+            tableVariables.forEach(column -> {
+                String tableName = column.split("\\.")[0];
+                if (!tablesAndColumns.containsKey(tableName)) {
+                    tablesAndColumns.put(tableName, new ArrayList<>());
+                }
+                tablesAndColumns.get(tableName).add(column);
+            });
         }
-        return map;
+        return tablesAndColumns;
     }
 
     public Timestamp getFromTimestamp() {

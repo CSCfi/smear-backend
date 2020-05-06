@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public enum AggregationType {
 
-    NONE, ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR;
+    NONE, ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX;
 
     private static final List<String> queryParams = Arrays.stream(values())
             .map(Enum::name)
