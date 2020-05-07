@@ -46,7 +46,6 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
   HYY_TREE special case
   HYYSLOWQueries
   AvailabilityQueries
-  Table name validation (must exist)
  */
 @ApplicationScoped
 public class TimeSeriesDao {

@@ -8,6 +8,7 @@ import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import lombok.EqualsAndHashCode;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -81,20 +82,24 @@ public class TimeSeriesSearch {
     @QueryParam("cuv_no")
     public List<String> cuv_no;
 
+    private Map<String, List<String>> tableToVariables;
+
     public Map<String, List<String>> getTableToVariables() {
-        Map<String, List<String>> tableToVariables = new HashMap<>();
-        if (table != null && !table.isEmpty()) {
-            tableToVariables.put(table, variables);
-        } else {
-            tableVariables.forEach(pair -> {
-                String[] split = pair.split("\\.");
-                String tableName = split[0];
-                String variableName = split[1];
-                if (!tableToVariables.containsKey(tableName)) {
-                    tableToVariables.put(tableName, new ArrayList<>());
-                }
-                tableToVariables.get(tableName).add(variableName);
-            });
+        if (tableToVariables == null) {
+            tableToVariables = new HashMap<>();
+            if (table != null && !table.isEmpty()) {
+                tableToVariables.put(table, variables);
+            } else {
+                tableVariables.forEach(pair -> {
+                    String[] split = pair.split("\\.");
+                    String tableName = split[0];
+                    String variableName = split[1];
+                    if (!tableToVariables.containsKey(tableName)) {
+                        tableToVariables.put(tableName, new ArrayList<>());
+                    }
+                    tableToVariables.get(tableName).add(variableName);
+                });
+            }
         }
         return tableToVariables;
     }
