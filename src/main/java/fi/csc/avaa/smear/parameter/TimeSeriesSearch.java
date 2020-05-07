@@ -5,8 +5,10 @@ import fi.csc.avaa.smear.constants.AggregationType;
 import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
+import lombok.EqualsAndHashCode;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @ValidTimeSeriesSearch
+@EqualsAndHashCode
 public class TimeSeriesSearch {
 
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
@@ -31,13 +34,13 @@ public class TimeSeriesSearch {
             "At least one is required if the table parameter is not empty.",
             example = "Pamb0")
     @QueryParam("variable")
-    public List<String> variables;
+    public List<@NotEmpty String> variables;
 
     @Parameter(description = "Name of table and variable separated by a period " +
             "Multiple tablevariable parameters can be used.",
             example = "HYY_META.Pamb0")
     @QueryParam("tablevariable")
-    public List<@Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
+    public List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
 
     @Parameter(description = "Time series start time in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-11T00:00:00.989",

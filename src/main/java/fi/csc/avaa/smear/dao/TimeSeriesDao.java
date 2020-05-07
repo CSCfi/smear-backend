@@ -46,6 +46,7 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
   HYY_TREE special case
   HYYSLOWQueries
   AvailabilityQueries
+  Table name validation (must exist)
  */
 @ApplicationScoped
 public class TimeSeriesDao {
@@ -102,7 +103,7 @@ public class TimeSeriesDao {
 
     private Field<? extends Number> toField(String variable, Quality quality, AggregationType aggregationType) {
         Field<Double> field = quality.equals(Quality.CHECKED)
-                ? qualityCheckedField(variable)
+                ? toQualityCheckedField(variable)
                 : field(variable, FLOAT);
         switch (aggregationType) {
             case ARITHMETIC:
@@ -120,7 +121,7 @@ public class TimeSeriesDao {
         }
     }
 
-    private Field<Double> qualityCheckedField(String variable) {
+    private Field<Double> toQualityCheckedField(String variable) {
         Field<Integer> emepField = field(String.format("%s_EMEP", variable), INTEGER);
         Field<Double> varField = field(variable, FLOAT);
         return case_()
