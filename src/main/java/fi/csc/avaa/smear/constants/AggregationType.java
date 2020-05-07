@@ -12,7 +12,9 @@ public enum AggregationType {
     SUM(true),
     MEDIAN(false),
     MIN(true),
-    MAX(true);
+    MAX(true),
+    AVAILABILITY(false),
+    CIRCULAR(false);
 
     private final boolean groupedByInterval;
 

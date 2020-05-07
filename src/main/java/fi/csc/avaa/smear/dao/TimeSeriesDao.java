@@ -28,6 +28,7 @@ import static fi.csc.avaa.smear.dao.DaoUtils.timestampDiff;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.case_;
+import static org.jooq.impl.DSL.count;
 import static org.jooq.impl.DSL.exp;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.floor;
@@ -45,7 +46,6 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
  TODO:
   HYY_TREE special case
   HYYSLOWQueries
-  AvailabilityQueries
  */
 @ApplicationScoped
 public class TimeSeriesDao {
@@ -107,14 +107,16 @@ public class TimeSeriesDao {
         switch (aggregationType) {
             case ARITHMETIC:
                 return avg(field);
+            case AVAILABILITY:
+                return count(field).div(count());
             case GEOMETRIC:
                 return exp(avg(ln(field)));
-            case SUM:
-                return sum(field);
             case MIN:
                 return min(field);
             case MAX:
                 return max(field);
+            case SUM:
+                return sum(field);
             default:
                 return field;
         }
