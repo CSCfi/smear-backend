@@ -2,11 +2,11 @@ package fi.csc.avaa.smear.parameter;
 
 import fi.csc.avaa.smear.constants.AggregationInterval;
 import fi.csc.avaa.smear.constants.AggregationType;
+import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ValidTimeSeriesSearch
 public class TimeSeriesSearch {
@@ -56,13 +55,12 @@ public class TimeSeriesSearch {
     @ValidIsoDate
     public String to;
 
-    @Parameter(description = "Should the time series data be quality checked or not. Valid values: ANY, CHECKED.",
+    @Parameter(description = "Should the time series data be quality checked or not. " +
+            "Valid values: ANY (default), CHECKED.",
             example = "ANY",
             required = true)
     @QueryParam("quality")
-    @NotNull
-    @NotEmpty
-    public String quality;
+    public String qualityStr;
 
     @Parameter(description = "Type of the sample time aggregation. " +
             "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX.",
@@ -80,24 +78,22 @@ public class TimeSeriesSearch {
     @QueryParam("cuv_no")
     public List<String> cuv_no;
 
-    public Map<String, List<String>> getTablesAndColumns() {
-        Map<String, List<String>> tablesAndColumns = new HashMap<>();
+    public Map<String, List<String>> getTableToVariables() {
+        Map<String, List<String>> tableToVariables = new HashMap<>();
         if (table != null && !table.isEmpty()) {
-            List<String> columns = variables
-                    .stream()
-                    .map(variable -> String.format("%s.%s", table, variable))
-                    .collect(Collectors.toList());
-            tablesAndColumns.put(table, columns);
+            tableToVariables.put(table, variables);
         } else {
-            tableVariables.forEach(column -> {
-                String tableName = column.split("\\.")[0];
-                if (!tablesAndColumns.containsKey(tableName)) {
-                    tablesAndColumns.put(tableName, new ArrayList<>());
+            tableVariables.forEach(pair -> {
+                String[] split = pair.split("\\.");
+                String tableName = split[0];
+                String variableName = split[1];
+                if (!tableToVariables.containsKey(tableName)) {
+                    tableToVariables.put(tableName, new ArrayList<>());
                 }
-                tablesAndColumns.get(tableName).add(column);
+                tableToVariables.get(tableName).add(variableName);
             });
         }
-        return tablesAndColumns;
+        return tableToVariables;
     }
 
     public Timestamp getFromTimestamp() {
@@ -106,6 +102,12 @@ public class TimeSeriesSearch {
 
     public Timestamp getToTimestamp() {
         return Timestamp.valueOf(to.replace('T', ' '));
+    }
+
+    public Quality getQuality() {
+        return qualityStr != null
+                ? Quality.from(qualityStr.toUpperCase())
+                : Quality.ANY;
     }
 
     public AggregationType getAggregationType() {

@@ -6,7 +6,23 @@ import java.util.stream.Collectors;
 
 public enum AggregationType {
 
-    NONE, ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX;
+    NONE(false),
+    ARITHMETIC(true),
+    GEOMETRIC(true),
+    SUM(true),
+    MEDIAN(false),
+    MIN(true),
+    MAX(true);
+
+    private final boolean groupedByInterval;
+
+    AggregationType(boolean groupedByInterval) {
+        this.groupedByInterval = groupedByInterval;
+    }
+
+    public boolean isGroupedByInterval() {
+        return groupedByInterval;
+    }
 
     private static final List<String> queryParams = Arrays.stream(values())
             .map(Enum::name)
