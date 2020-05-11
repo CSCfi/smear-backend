@@ -3,7 +3,6 @@ package fi.csc.avaa.smear.dto;
 import fi.csc.avaa.smear.constants.Aggregation;
 import fi.csc.avaa.smear.constants.AggregationInterval;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.RowSet;
 
 import java.time.LocalDateTime;
@@ -18,6 +17,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static fi.csc.avaa.smear.constants.Aggregation.CIRCULAR;
+import static fi.csc.avaa.smear.constants.Aggregation.MEDIAN;
 
 public class TimeSeriesBuilder {
 
@@ -45,13 +47,13 @@ public class TimeSeriesBuilder {
         allColumns.addAll(variableToColumn.values());
 
         if (aggregation.isGroupedManually()) {
-            groupAndAdd(rowSet, variableToColumn);
+            groupAndAddToSeries(rowSet, variableToColumn);
         } else {
-            add(rowSet, variableToColumn);
+            addToSeries(rowSet, variableToColumn);
         }
     }
 
-    private void add(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
+    private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
             String samptime = row.getLocalDateTime("samptime").toString();
             if (!timeSeries.containsKey(samptime)) {
@@ -62,15 +64,14 @@ public class TimeSeriesBuilder {
         });
     }
 
-    private void groupAndAdd(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
-        RowIterator<Row> rowIterator = rowSet.iterator();
-        Row firstRow = rowIterator.next();
-        LocalDateTime aggregateSamptime = roundToNearestMinute(firstRow.getLocalDateTime("samptime"))
-                .plusMinutes(aggregationInterval.getMinutes());
+    private void groupAndAddToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
+        LocalDateTime aggregateSamptime = null;
         Map<String, List<Double>> variableToValues = new HashMap<>();
-
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
+        for (Row row : rowSet) {
+            if (aggregateSamptime == null) {
+                aggregateSamptime = roundToNearestMinute(row.getLocalDateTime("samptime"))
+                        .plusMinutes(aggregationInterval.getMinutes());
+            }
             LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime("samptime"));
             Iterator<Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
@@ -87,14 +88,7 @@ public class TimeSeriesBuilder {
                     if (!timeSeries.containsKey(key)) {
                         timeSeries.put(key, new HashMap<>());
                     }
-                    if (aggregation.equals(Aggregation.MEDIAN)) {
-                        timeSeries.get(key).put(column, medianOf(values));
-                    } else if (aggregation.equals(Aggregation.CIRCULAR)) {
-                        timeSeries.get(key).put(column, circularMeanOf(values));
-                    } else {
-                        throw new IllegalStateException(
-                                String.format("Unknown manual aggregation type %s", aggregation.name()));
-                    }
+                    timeSeries.get(key).put(column, aggregateOf(values));
                     if (!variableIterator.hasNext()) {
                         aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
                     }
@@ -112,6 +106,17 @@ public class TimeSeriesBuilder {
         return timestamp.withSecond(0).withNano(0);
     }
 
+    private double aggregateOf(List<Double> values) {
+        if (aggregation.equals(MEDIAN)) {
+            return medianOf(values);
+        } else if (aggregation.equals(CIRCULAR)) {
+            return circularMeanOf(values);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Aggregation not supported: %s", aggregation.name()));
+        }
+    }
+
     private double medianOf(List<Double> values) {
         Collections.sort(values);
         int noOfValues = values.size();
@@ -125,15 +130,12 @@ public class TimeSeriesBuilder {
     private double circularMeanOf(List<Double> values) {
         double s = 0;
         double c = 0;
-
         for (Double value : values) {
             c += Math.cos(Math.toRadians(value));
             s += Math.sin(Math.toRadians(value));
         }
-
         c = c / values.size();
         s = s / values.size();
-
         double sc = s / c;
         double mean = Math.toDegrees(Math.atan(sc));
         if (c < 0) {

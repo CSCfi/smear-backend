@@ -48,9 +48,10 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
 
 /*
  TODO:
-  CIRCULAR
+  AVAILABILITY
   HYY_TREE special case
   HYYSLOWQueries
+  compare responses with production version, fix timestamps
  */
 @ApplicationScoped
 public class TimeSeriesDao {
