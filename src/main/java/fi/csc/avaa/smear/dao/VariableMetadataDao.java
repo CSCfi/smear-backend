@@ -79,10 +79,10 @@ public class VariableMetadataDao {
     }
 
     private Query getTableVariableQuery(VariableMetadataSearch search) {
-        Condition conditions = search.getTableVariablePairs()
+        Condition conditions = search.getTableToVariable().entrySet()
                 .stream()
-                .map(e -> field("TableMetadata.name").eq(e[0])
-                        .and(field("VariableMetadata.variable").eq(e[1])))
+                .map(entry -> field("TableMetadata.name").eq(entry.getKey())
+                        .and(field("VariableMetadata.variable").eq(entry.getValue())))
                 .reduce(DSL.noCondition(), Condition::or);
         return create
                 .select()

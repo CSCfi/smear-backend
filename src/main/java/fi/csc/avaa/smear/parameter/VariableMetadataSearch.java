@@ -1,12 +1,15 @@
 package fi.csc.avaa.smear.parameter;
 
 import fi.csc.avaa.smear.validation.ValidVariableMetadataSearch;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode
 @ValidVariableMetadataSearch
 public class VariableMetadataSearch {
 
@@ -28,10 +31,12 @@ public class VariableMetadataSearch {
     @QueryParam("table_id")
     public List<String> tableIds;
 
-    public List<String[]> getTableVariablePairs() {
+    public Map<String, String> getTableToVariable() {
         return tablevariables
                 .stream()
                 .map(s -> s.split("\\."))
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(
+                        split -> split[0],
+                        split -> split[1]));
     }
 }

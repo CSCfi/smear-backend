@@ -21,8 +21,6 @@ public class TimeSeriesResource {
     @Inject
     TimeSeriesDao dao;
 
-    private static String description = "";
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
@@ -45,6 +43,7 @@ public class TimeSeriesResource {
                     "or via the graphical SMART SMEAR application."
     )
     public Response timeSeriesCsv(@BeanParam @Valid TimeSeriesSearch params) {
+        // TODO
         return Response.ok("hello,foo,bar")
                 .header("Content-Disposition", "attachment; filename=smeardata.csv")
                 .build();
@@ -60,6 +59,7 @@ public class TimeSeriesResource {
                     "or via the graphical SMART SMEAR application."
     )
     public Response timeSeriesTxt(@BeanParam @Valid TimeSeriesSearch params) {
+        // TODO
         return Response.ok("hello\tfoo\tbar")
                 .header("Content-Disposition", "attachment; filename=smeardata.txt")
                 .build();

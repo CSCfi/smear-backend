@@ -50,4 +50,16 @@ public class TableMetadataDao {
                         .findFirst()
                         .orElseThrow());
     }
+
+    @CacheResult(cacheName = "table-name-cache")
+    public Uni<List<String>> findTableNames() {
+        Query query = create
+                .select(field("name"))
+                .from("TableMetadata");
+        return client
+                .query(query.getSQL())
+                .map(rowSet -> toStream(rowSet)
+                        .map(row -> row.getString("name"))
+                        .collect(Collectors.toList()));
+    }
 }

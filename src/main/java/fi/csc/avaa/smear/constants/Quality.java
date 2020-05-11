@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum AggregationType {
+public enum Quality {
 
-    NONE, ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR;
+    ANY, CHECKED;
 
     private static final List<String> queryParams = Arrays.stream(values())
             .map(Enum::name)
@@ -16,7 +16,7 @@ public enum AggregationType {
         return queryParams;
     }
 
-    public static AggregationType from(String queryParam) {
+    public static Quality from(String queryParam) {
         return valueOf(queryParam.toUpperCase());
     }
 }
