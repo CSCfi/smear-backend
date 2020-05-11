@@ -13,12 +13,15 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.LikeEscapeStep;
 import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.SelectHavingStep;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -40,17 +43,19 @@ import static org.jooq.impl.DSL.inline;
 import static org.jooq.impl.DSL.ln;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.min;
+import static org.jooq.impl.DSL.noCondition;
 import static org.jooq.impl.DSL.sum;
 import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.SQLDataType.FLOAT;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.TIMESTAMP;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 
 /*
  TODO:
   AVAILABILITY
   HYY_TREE special case
-  HYYSLOWQueries
+  update openapi documentation (HYY_* queries)
   compare responses with production version, fix timestamps
  */
 @ApplicationScoped
@@ -68,10 +73,17 @@ public class TimeSeriesDao {
     public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
-            Query query = createQuery(tableName, variables, search);
-            RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                    .await().indefinitely();
-            builder.add(rowSet, tableName, variables);
+            if (tableName.equals("HYY_SLOW")) {
+                Query query = createHyySlowQuery(variables, search);
+                RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                        .await().indefinitely();
+                builder.addHyySlowRowSet(rowSet);
+            } else {
+                Query query = createQuery(tableName, variables, search);
+                RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                        .await().indefinitely();
+                builder.add(rowSet, tableName, variables);
+            }
         });
         return builder.build();
     }
@@ -88,6 +100,23 @@ public class TimeSeriesDao {
                 ? baseQuery.groupBy(getAggregateFunction(search.getAggregationInterval()))
                 : baseQuery;
         return query.orderBy(SAMPTIME.asc());
+    }
+
+    private Query createHyySlowQuery(List<String> variables, TimeSeriesSearch search) {
+        Table<Record> table = table("HYY_SLOW");
+        Field<Timestamp> startTime = field("start_time", TIMESTAMP);
+        Field<String> variableName = field("variable", VARCHAR);
+        Field<Double> value = field("value1", FLOAT);
+        Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
+        Condition conditions = variables
+                .stream()
+                .map(variableName::eq)
+                .reduce(noCondition(), Condition::or);
+        return create
+                .select(startTime, variableName, value)
+                .from(table)
+                .where(startTimeInRange)
+                .and(conditions);
     }
 
     private List<SelectFieldOrAsterisk> getFields(List<String> variables, Quality quality,

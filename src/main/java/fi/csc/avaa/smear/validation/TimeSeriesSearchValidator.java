@@ -17,7 +17,7 @@ import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
 
 @Dependent
 public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeSeriesSearch, TimeSeriesSearch> {
-    
+
     @Inject
     TableMetadataDao tableMetadataDao;
 
@@ -29,6 +29,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     private static final String INVALID_AGGREGATION_INTERVAL = "Invalid aggregation interval";
     private static final String INVALID_QUALITY = "Invalid quality";
     private static final String INVALID_TABLES = "Invalid table(s): %s";
+    private static final String AGGREGATION_NOT_SUPPORTED_HYY = "MEDIAN or CIRCULAR aggregation not supported " +
+            "for tables HYY_SLOW and HYY_TREE";
 
     @Override
     public boolean isValid(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
@@ -71,6 +73,12 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
         if (search.aggregationStr != null) {
             if (!Aggregation.getQueryParams().contains(search.aggregationStr)) {
                 return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
+            }
+            // TODO constants
+            if (search.getAggregation().isGroupedManually()
+                    && (search.getTableToVariables().containsKey("HYY_SLOW")
+                    || search.getTableToVariables().containsKey("HYY_TREE"))) {
+                return constraintViolation(ctx, AGGREGATION_NOT_SUPPORTED_HYY);
             }
         }
         if (search.aggregationIntervalStr != null) {

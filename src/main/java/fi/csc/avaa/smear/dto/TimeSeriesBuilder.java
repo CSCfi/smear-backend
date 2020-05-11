@@ -53,6 +53,18 @@ public class TimeSeriesBuilder {
         }
     }
 
+    public void addHyySlowRowSet(RowSet<Row> rowSet) {
+        rowSet.forEach(row -> {
+            String variable = row.getString("variable");
+            String column = String.format("HYY_SLOW.%s", variable);
+            String samptime = row.getLocalDateTime("start_time").toString();
+            if (!timeSeries.containsKey(samptime)) {
+                timeSeries.put(samptime, new TreeMap<>());
+            }
+            timeSeries.get(samptime).put(column, row.getDouble("value1"));
+        });
+    }
+
     private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
             String samptime = row.getLocalDateTime("samptime").toString();
