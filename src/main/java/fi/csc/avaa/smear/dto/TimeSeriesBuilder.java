@@ -83,13 +83,17 @@ public class TimeSeriesBuilder {
                 List<Double> values = variableToValues.get(variable);
                 Double value = row.getDouble(variable);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
+                    String key = aggregateSamptime.toString();
+                    if (!timeSeries.containsKey(key)) {
+                        timeSeries.put(key, new HashMap<>());
+                    }
                     if (aggregation.equals(Aggregation.MEDIAN)) {
-                        String key = aggregateSamptime.toString();
-                        double median = calculateMedian(values);
-                        if (!timeSeries.containsKey(key)) {
-                            timeSeries.put(key, new HashMap<>());
-                        }
-                        timeSeries.get(key).put(column, median);
+                        timeSeries.get(key).put(column, medianOf(values));
+                    } else if (aggregation.equals(Aggregation.CIRCULAR)) {
+                        timeSeries.get(key).put(column, circularMeanOf(values));
+                    } else {
+                        throw new IllegalStateException(
+                                String.format("Unknown manual aggregation type %s", aggregation.name()));
                     }
                     if (!variableIterator.hasNext()) {
                         aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
@@ -108,7 +112,7 @@ public class TimeSeriesBuilder {
         return timestamp.withSecond(0).withNano(0);
     }
 
-    private double calculateMedian(List<Double> values) {
+    private double medianOf(List<Double> values) {
         Collections.sort(values);
         int noOfValues = values.size();
         if (noOfValues % 2 == 0) {
@@ -116,6 +120,28 @@ public class TimeSeriesBuilder {
         } else {
             return values.get(noOfValues / 2);
         }
+    }
+
+    private double circularMeanOf(List<Double> values) {
+        double s = 0;
+        double c = 0;
+
+        for (Double value : values) {
+            c += Math.cos(Math.toRadians(value));
+            s += Math.sin(Math.toRadians(value));
+        }
+
+        c = c / values.size();
+        s = s / values.size();
+
+        double sc = s / c;
+        double mean = Math.toDegrees(Math.atan(sc));
+        if (c < 0) {
+            mean += 180;
+        } else if (s < 0 && c > 0) {
+            mean += 360;
+        }
+        return (double) Math.round(mean * 100) / 100;
     }
 
     private void fillNullValues() {
