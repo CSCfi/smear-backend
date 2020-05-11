@@ -1,11 +1,14 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.constants.AggregationType;
+import fi.csc.avaa.smear.constants.Aggregation;
+import fi.csc.avaa.smear.constants.AggregationInterval;
 import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.quarkus.cache.CacheResult;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
+import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -14,6 +17,7 @@ import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
+import org.jooq.SelectHavingStep;
 import org.jooq.Table;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,6 +48,7 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
 
 /*
  TODO:
+  CIRCULAR
   HYY_TREE special case
   HYYSLOWQueries
  */
@@ -60,51 +65,47 @@ public class TimeSeriesDao {
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
-        TimeSeriesBuilder builder = new TimeSeriesBuilder();
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             Query query = createQuery(tableName, variables, search);
-            client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                    .map(DaoUtils::toStream)
-                    .await().indefinitely()
-                    .forEach(row -> builder.add(row, tableName, variables));
+            RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
+                    .await().indefinitely();
+            builder.add(rowSet, tableName, variables);
         });
         return builder.build();
     }
 
     private Query createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
-        List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregationType());
+        List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
         Condition samptimeInRange = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
         SelectConditionStep<Record> baseQuery = create
                 .select(fields)
                 .from(table)
                 .where(samptimeInRange);
-        if (search.getAggregationType().isGroupedByInterval()) {
-            Field<Integer> timestampDiff = timestampDiff(MINUTE, field("'1990-1-1'", TIMESTAMP), SAMPTIME);
-            int interval = search.getAggregationInterval().getMinutes();
-            return baseQuery.groupBy(floor(timestampDiff.div(interval)));
-        } else {
-            return baseQuery;
-        }
+        SelectHavingStep<Record> query = search.getAggregation().isGroupedInQuery()
+                ? baseQuery.groupBy(getAggregateFunction(search.getAggregationInterval()))
+                : baseQuery;
+        return query.orderBy(SAMPTIME.asc());
     }
 
     private List<SelectFieldOrAsterisk> getFields(List<String> variables, Quality quality,
-                                                  AggregationType aggregationType) {
+                                                  Aggregation aggregation) {
         List<SelectFieldOrAsterisk> fields = new ArrayList<>();
         fields.add(SAMPTIME);
         fields.addAll(variables
                 .stream()
-                .map(variable -> toField(variable, quality, aggregationType)
+                .map(variable -> toField(variable, quality, aggregation)
                         .as(variable))
                 .collect(Collectors.toList()));
         return fields;
     }
 
-    private Field<? extends Number> toField(String variable, Quality quality, AggregationType aggregationType) {
+    private Field<? extends Number> toField(String variable, Quality quality, Aggregation aggregation) {
         Field<Double> field = quality.equals(Quality.CHECKED)
                 ? toQualityCheckedField(variable)
                 : field(variable, FLOAT);
-        switch (aggregationType) {
+        switch (aggregation) {
             case ARITHMETIC:
                 return avg(field);
             case AVAILABILITY:
@@ -128,5 +129,10 @@ public class TimeSeriesDao {
         return case_()
                 .when(emepField.eq(2), varField)
                 .otherwise(inline(null, varField));
+    }
+
+    private Field<Integer> getAggregateFunction(AggregationInterval interval) {
+        Field<Integer> timestampDiff = timestampDiff(MINUTE, field("'1990-1-1'", TIMESTAMP), SAMPTIME);
+        return floor(timestampDiff.div(interval.getMinutes()));
     }
 }

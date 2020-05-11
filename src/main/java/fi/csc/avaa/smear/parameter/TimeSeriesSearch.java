@@ -1,14 +1,13 @@
 package fi.csc.avaa.smear.parameter;
 
+import fi.csc.avaa.smear.constants.Aggregation;
 import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.AggregationType;
 import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import lombok.EqualsAndHashCode;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -26,7 +25,8 @@ public class TimeSeriesSearch {
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
             "If you want to select from multiple tables, please use multiple tablevariable parameters. " +
             "Table names can be found from the tablemetadata endpoint by variables tableIDs. " +
-            "TableID for every variable can be found from variable's metadata record via the variablemetadata endpoint. ",
+            "TableID for every variable can be found from variable's metadata record via the " +
+            "variablemetadata endpoint.",
             example = "HYY_META")
     @QueryParam("table")
     public String table;
@@ -67,10 +67,10 @@ public class TimeSeriesSearch {
     public String qualityStr;
 
     @Parameter(description = "Type of the sample time aggregation. " +
-            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX.",
+            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, AVAILABILITY, CIRCULAR.",
             example = "NONE")
-    @QueryParam("aggregation_type")
-    public String aggregationTypeStr;
+    @QueryParam("aggregation")
+    public String aggregationStr;
 
     @Parameter(description = "Sample time aggregation interval. Valid values: 30MIN (default), 60MIN.",
             example = "30MIN")
@@ -118,10 +118,10 @@ public class TimeSeriesSearch {
                 : Quality.ANY;
     }
 
-    public AggregationType getAggregationType() {
-        return aggregationTypeStr != null
-                ? AggregationType.from(aggregationTypeStr.toUpperCase())
-                : AggregationType.NONE;
+    public Aggregation getAggregation() {
+        return aggregationStr != null
+                ? Aggregation.from(aggregationStr.toUpperCase())
+                : Aggregation.NONE;
     }
 
     public AggregationInterval getAggregationInterval() {

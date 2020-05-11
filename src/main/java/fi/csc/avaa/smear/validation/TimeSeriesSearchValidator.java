@@ -1,7 +1,7 @@
 package fi.csc.avaa.smear.validation;
 
+import fi.csc.avaa.smear.constants.Aggregation;
 import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.AggregationType;
 import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.dao.TableMetadataDao;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
@@ -10,7 +10,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,8 +68,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private boolean validateAggregationParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.aggregationTypeStr != null) {
-            if (!AggregationType.getQueryParams().contains(search.aggregationTypeStr)) {
+        if (search.aggregationStr != null) {
+            if (!Aggregation.getQueryParams().contains(search.aggregationStr)) {
                 return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
             }
         }
