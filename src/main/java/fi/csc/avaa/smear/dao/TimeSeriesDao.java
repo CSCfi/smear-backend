@@ -57,7 +57,6 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 
 /*
  TODO:
-  AVAILABILITY
   update openapi documentation (HYY_* queries)
   compare responses with production version, fix timestamps
  */
