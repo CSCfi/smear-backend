@@ -20,6 +20,13 @@ import java.util.stream.Collectors;
 
 import static fi.csc.avaa.smear.constants.Aggregation.CIRCULAR;
 import static fi.csc.avaa.smear.constants.Aggregation.MEDIAN;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_CUV_NO;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_SAMPTIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_START_TIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
 
 public class TimeSeriesBuilder {
 
@@ -50,22 +57,22 @@ public class TimeSeriesBuilder {
 
     public void addHyySlowRowSet(RowSet<Row> rowSet) {
         rowSet.forEach(row -> {
-            String variable = row.getString("variable");
-            String column = String.format("HYY_SLOW.%s", variable);
-            String samptime = row.getLocalDateTime("start_time").toString();
+            String variable = row.getString(COL_VARIABLE);
+            String column = getColName(TABLE_HYY_SLOW, variable);
+            String samptime = row.getLocalDateTime(COL_START_TIME).toString();
             allColumns.add(column);
             initSamptime(samptime);
-            timeSeries.get(samptime).put(column, row.getDouble("value1"));
+            timeSeries.get(samptime).put(column, row.getDouble(COL_VALUE));
         });
     }
 
     public void addHyyTreeRowSet(RowSet<Row> rowSet, List<String> variables) {
-        Map<String, String> variableToColumn = mapVariablesToColumns("HYY_TREE", variables);
+        Map<String, String> variableToColumn = mapVariablesToColumns(TABLE_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime("samptime").toString();
+            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
             initSamptime(samptime);
-            timeSeries.get(samptime).put(getColName("HYY_TREE", "cuv_no"), row.getInteger("cuv_no"));
+            timeSeries.get(samptime).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptime).put(column, row.getDouble(variable)));
         });
@@ -73,7 +80,7 @@ public class TimeSeriesBuilder {
 
     private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime("samptime").toString();
+            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
             initSamptime(samptime);
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptime).put(column, row.getDouble(variable)));
@@ -93,10 +100,10 @@ public class TimeSeriesBuilder {
         Map<String, List<Double>> variableToValues = new HashMap<>();
         for (Row row : rowSet) {
             if (aggregateSamptime == null) {
-                aggregateSamptime = roundToNearestMinute(row.getLocalDateTime("samptime"))
+                aggregateSamptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME))
                         .plusMinutes(aggregationInterval.getMinutes());
             }
-            LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime("samptime"));
+            LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME));
             Iterator<Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
                 Entry<String, String> entry = variableIterator.next();

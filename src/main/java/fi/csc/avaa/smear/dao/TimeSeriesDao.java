@@ -28,6 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.constants.DBConstants.COL_CUV_NO;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_SAMPTIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_START_TIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
 import static fi.csc.avaa.smear.dao.DaoUtils.timestampDiff;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
@@ -51,8 +58,6 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 /*
  TODO:
   AVAILABILITY
-  HYY_TREE special case
-  move hardcoded table names to constants
   update openapi documentation (HYY_* queries)
   compare responses with production version, fix timestamps
  */
@@ -65,13 +70,13 @@ public class TimeSeriesDao {
     @Inject
     DSLContext create;
 
-    private static final Field<Timestamp> SAMPTIME = field("samptime", TIMESTAMP);
+    private static final Field<Timestamp> SAMPTIME = field(COL_SAMPTIME, TIMESTAMP);
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
-            if (tableName.equals("HYY_SLOW")) {
+            if (tableName.equals(TABLE_HYY_SLOW)) {
                 Query query = createHyySlowQuery(variables, search);
                 RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                         .await().indefinitely();
@@ -80,7 +85,7 @@ public class TimeSeriesDao {
                 Query query = createQuery(tableName, variables, search);
                 RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                         .await().indefinitely();
-                if (tableName.equals("HYY_TREE")) {
+                if (tableName.equals(TABLE_HYY_TREE)) {
                     builder.addHyyTreeRowSet(rowSet, variables);
                 } else {
                     builder.addRowSet(rowSet, tableName, variables);
@@ -94,8 +99,8 @@ public class TimeSeriesDao {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
         Condition conditions = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
-        if (tableName.equals("HYY_TREE")) {
-            Field<Integer> cuvNo = field("cuv_no", INTEGER);
+        if (tableName.equals(TABLE_HYY_TREE)) {
+            Field<Integer> cuvNo = field(COL_CUV_NO, INTEGER);
             fields.add(cuvNo);
             conditions = conditions.and(cuvNo.in(search.getCuvNos()));
         }
@@ -111,10 +116,10 @@ public class TimeSeriesDao {
     }
 
     private Query createHyySlowQuery(List<String> variables, TimeSeriesSearch search) {
-        Table<Record> table = table("HYY_SLOW");
-        Field<Timestamp> startTime = field("start_time", TIMESTAMP);
-        Field<String> variableName = field("variable", VARCHAR);
-        Field<Double> value = field("value1", FLOAT);
+        Table<Record> table = table(TABLE_HYY_SLOW);
+        Field<Timestamp> startTime = field(COL_START_TIME, TIMESTAMP);
+        Field<String> variableName = field(COL_VARIABLE, VARCHAR);
+        Field<Double> value = field(COL_VALUE, FLOAT);
         Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
         Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.getAggregationInterval());
         Condition conditions = variables
