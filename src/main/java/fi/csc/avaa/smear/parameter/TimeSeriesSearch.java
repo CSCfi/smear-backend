@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ValidTimeSeriesSearch
 @EqualsAndHashCode
@@ -67,7 +68,8 @@ public class TimeSeriesSearch {
     public String qualityStr;
 
     @Parameter(description = "Type of the sample time aggregation. " +
-            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, AVAILABILITY, CIRCULAR.",
+            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR. " +
+            "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table.",
             example = "NONE")
     @QueryParam("aggregation")
     public String aggregationStr;
@@ -77,10 +79,10 @@ public class TimeSeriesSearch {
     @QueryParam("aggregation_interval")
     public String aggregationIntervalStr;
 
-    @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. At least one " +
-            "parameter is required when selecting from the HYY_SLOW table.")
+    @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
+            "At least one value is required when querying HYY_SLOW table.")
     @QueryParam("cuv_no")
-    public List<String> cuv_no;
+    public List<String> cuvNoStr;
 
     private Map<String, List<String>> tableToVariables;
 
@@ -128,5 +130,12 @@ public class TimeSeriesSearch {
         return aggregationIntervalStr != null
                 ? AggregationInterval.from(aggregationIntervalStr.toUpperCase())
                 : AggregationInterval.INTERVAL_30MIN;
+    }
+
+    public List<Integer> getCuvNos() {
+        return cuvNoStr
+                .stream()
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
     }
 }

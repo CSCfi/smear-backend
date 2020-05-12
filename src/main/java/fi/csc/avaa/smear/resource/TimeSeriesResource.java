@@ -29,7 +29,7 @@ public class TimeSeriesResource {
                     "Information about stored variables can be found via Metadata API " +
                     "or via the graphical SMART SMEAR application."
     )
-    public Map<String, Map<String, Double>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
+    public Map<String, Map<String, Object>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
         return dao.search(params);
     }
 

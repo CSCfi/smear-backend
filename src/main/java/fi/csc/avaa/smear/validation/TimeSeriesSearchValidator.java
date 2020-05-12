@@ -13,6 +13,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
 import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
 
 @Dependent
@@ -29,15 +31,19 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     private static final String INVALID_AGGREGATION_INTERVAL = "Invalid aggregation interval";
     private static final String INVALID_QUALITY = "Invalid quality";
     private static final String INVALID_TABLES = "Invalid table(s): %s";
-    private static final String AGGREGATION_NOT_SUPPORTED_HYY = "MEDIAN or CIRCULAR aggregation not supported " +
+    private static final String HYY_AGGREGATION_NOT_SUPPORTED = "MEDIAN or CIRCULAR aggregation not supported " +
             "for tables HYY_SLOW and HYY_TREE";
+    private static final String HYY_TREE_CUV_NO_REQUIRED = "One or more cuv_no parameters required when " +
+            "querying HYY_TREE";
+    public static final String HYY_TREE_INVALID_CUV_NO = "cuv_no must be an integer";
 
     @Override
     public boolean isValid(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
         return validateTableAndVariableParams(search, ctx)
                 && validateTableNames(search, ctx)
                 && validateAggregationParams(search, ctx)
-                && validateQualityParam(search, ctx);
+                && validateQualityParam(search, ctx)
+                && validateCuvNo(search, ctx);
     }
 
     private boolean validateTableAndVariableParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
@@ -74,11 +80,10 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
             if (!Aggregation.getQueryParams().contains(search.aggregationStr)) {
                 return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
             }
-            // TODO constants
             if (search.getAggregation().isGroupedManually()
-                    && (search.getTableToVariables().containsKey("HYY_SLOW")
-                    || search.getTableToVariables().containsKey("HYY_TREE"))) {
-                return constraintViolation(ctx, AGGREGATION_NOT_SUPPORTED_HYY);
+                    && (search.getTableToVariables().containsKey(TABLE_HYY_SLOW)
+                    || search.getTableToVariables().containsKey(TABLE_HYY_TREE))) {
+                return constraintViolation(ctx, HYY_AGGREGATION_NOT_SUPPORTED);
             }
         }
         if (search.aggregationIntervalStr != null) {
@@ -93,6 +98,20 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
         if (search.qualityStr != null) {
             if (!Quality.getQueryParams().contains(search.qualityStr)) {
                 return constraintViolation(ctx, INVALID_QUALITY);
+            }
+        }
+        return true;
+    }
+
+    private boolean validateCuvNo(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+        if (search.getTableToVariables().containsKey(TABLE_HYY_TREE)) {
+            if (search.cuvNoStr == null || search.cuvNoStr.isEmpty()) {
+                return constraintViolation(ctx, HYY_TREE_CUV_NO_REQUIRED);
+            }
+            try {
+                search.getCuvNos();
+            } catch (NumberFormatException e) {
+                return constraintViolation(ctx, HYY_TREE_INVALID_CUV_NO);
             }
         }
         return true;

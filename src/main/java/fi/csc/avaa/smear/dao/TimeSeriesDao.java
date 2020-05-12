@@ -13,15 +13,12 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.LikeEscapeStep;
 import org.jooq.Query;
 import org.jooq.Record;
+import org.jooq.Record3;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
-import org.jooq.SelectHavingStep;
 import org.jooq.Table;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,6 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.constants.DBConstants.COL_CUV_NO;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_SAMPTIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_START_TIME;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
+import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
 import static fi.csc.avaa.smear.dao.DaoUtils.timestampDiff;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
@@ -53,8 +57,6 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 
 /*
  TODO:
-  AVAILABILITY
-  HYY_TREE special case
   update openapi documentation (HYY_* queries)
   compare responses with production version, fix timestamps
  */
@@ -67,13 +69,13 @@ public class TimeSeriesDao {
     @Inject
     DSLContext create;
 
-    private static final Field<Timestamp> SAMPTIME = field("samptime", TIMESTAMP);
+    private static final Field<Timestamp> SAMPTIME = field(COL_SAMPTIME, TIMESTAMP);
 
     @CacheResult(cacheName = "time-series-search-cache")
-    public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
+    public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
-            if (tableName.equals("HYY_SLOW")) {
+            if (tableName.equals(TABLE_HYY_SLOW)) {
                 Query query = createHyySlowQuery(variables, search);
                 RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                         .await().indefinitely();
@@ -82,7 +84,11 @@ public class TimeSeriesDao {
                 Query query = createQuery(tableName, variables, search);
                 RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                         .await().indefinitely();
-                builder.add(rowSet, tableName, variables);
+                if (tableName.equals(TABLE_HYY_TREE)) {
+                    builder.addHyyTreeRowSet(rowSet, variables);
+                } else {
+                    builder.addRowSet(rowSet, tableName, variables);
+                }
             }
         });
         return builder.build();
@@ -91,32 +97,43 @@ public class TimeSeriesDao {
     private Query createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
-        Condition samptimeInRange = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
-        SelectConditionStep<Record> baseQuery = create
+        Condition conditions = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
+        if (tableName.equals(TABLE_HYY_TREE)) {
+            Field<Integer> cuvNo = field(COL_CUV_NO, INTEGER);
+            fields.add(cuvNo);
+            conditions = conditions.and(cuvNo.in(search.getCuvNos()));
+        }
+        Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.getAggregationInterval());
+        SelectConditionStep<Record> query = create
                 .select(fields)
                 .from(table)
-                .where(samptimeInRange);
-        SelectHavingStep<Record> query = search.getAggregation().isGroupedInQuery()
-                ? baseQuery.groupBy(getAggregateFunction(search.getAggregationInterval()))
-                : baseQuery;
-        return query.orderBy(SAMPTIME.asc());
+                .where(conditions);
+        return (search.getAggregation().isGroupedInQuery()
+                ? query.groupBy(aggregateFunction)
+                : query)
+                .orderBy(SAMPTIME.asc());
     }
 
     private Query createHyySlowQuery(List<String> variables, TimeSeriesSearch search) {
-        Table<Record> table = table("HYY_SLOW");
-        Field<Timestamp> startTime = field("start_time", TIMESTAMP);
-        Field<String> variableName = field("variable", VARCHAR);
-        Field<Double> value = field("value1", FLOAT);
+        Table<Record> table = table(TABLE_HYY_SLOW);
+        Field<Timestamp> startTime = field(COL_START_TIME, TIMESTAMP);
+        Field<String> variableName = field(COL_VARIABLE, VARCHAR);
+        Field<Double> value = field(COL_VALUE, FLOAT);
         Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
+        Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.getAggregationInterval());
         Condition conditions = variables
                 .stream()
                 .map(variableName::eq)
                 .reduce(noCondition(), Condition::or);
-        return create
+        SelectConditionStep<Record3<Timestamp, String, Double>> query = create
                 .select(startTime, variableName, value)
                 .from(table)
                 .where(startTimeInRange)
                 .and(conditions);
+        return (search.getAggregation().isGroupedInQuery()
+                ? query.groupBy(aggregateFunction, variableName)
+                : query)
+                .orderBy(startTime.asc());
     }
 
     private List<SelectFieldOrAsterisk> getFields(List<String> variables, Quality quality,
@@ -161,8 +178,9 @@ public class TimeSeriesDao {
                 .otherwise(inline(null, varField));
     }
 
-    private Field<Integer> getAggregateFunction(AggregationInterval interval) {
-        Field<Integer> timestampDiff = timestampDiff(MINUTE, field("'1990-1-1'", TIMESTAMP), SAMPTIME);
+    private Field<Integer> getAggregateFunction(Field<Timestamp> to, AggregationInterval interval) {
+        Field<Timestamp> from = field("'1990-1-1'", TIMESTAMP);
+        Field<Integer> timestampDiff = timestampDiff(MINUTE, from, to);
         return floor(timestampDiff.div(interval.getMinutes()));
     }
 }
