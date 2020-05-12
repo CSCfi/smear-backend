@@ -13,16 +13,12 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.LikeEscapeStep;
 import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.Record3;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
-import org.jooq.SelectHavingStep;
 import org.jooq.Table;
-import org.jooq.impl.DSL;
-import org.jooq.impl.SQLDataType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -72,7 +68,7 @@ public class TimeSeriesDao {
     private static final Field<Timestamp> SAMPTIME = field("samptime", TIMESTAMP);
 
     @CacheResult(cacheName = "time-series-search-cache")
-    public Map<String, Map<String, Double>> search(TimeSeriesSearch search) {
+    public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals("HYY_SLOW")) {
@@ -84,7 +80,11 @@ public class TimeSeriesDao {
                 Query query = createQuery(tableName, variables, search);
                 RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
                         .await().indefinitely();
-                builder.add(rowSet, tableName, variables);
+                if (tableName.equals("HYY_TREE")) {
+                    builder.addHyyTreeRowSet(rowSet, variables);
+                } else {
+                    builder.addRowSet(rowSet, tableName, variables);
+                }
             }
         });
         return builder.build();
@@ -93,12 +93,17 @@ public class TimeSeriesDao {
     private Query createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
-        Condition samptimeInRange = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
+        Condition conditions = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
+        if (tableName.equals("HYY_TREE")) {
+            Field<Integer> cuvNo = field("cuv_no", INTEGER);
+            fields.add(cuvNo);
+            conditions = conditions.and(cuvNo.in(search.getCuvNos()));
+        }
         Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.getAggregationInterval());
         SelectConditionStep<Record> query = create
                 .select(fields)
                 .from(table)
-                .where(samptimeInRange);
+                .where(conditions);
         return (search.getAggregation().isGroupedInQuery()
                 ? query.groupBy(aggregateFunction)
                 : query)

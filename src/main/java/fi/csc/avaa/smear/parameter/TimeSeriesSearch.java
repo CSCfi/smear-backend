@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ValidTimeSeriesSearch
 @EqualsAndHashCode
@@ -80,7 +81,7 @@ public class TimeSeriesSearch {
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. At least one " +
             "parameter is required when selecting from the HYY_SLOW table.")
     @QueryParam("cuv_no")
-    public List<String> cuv_no;
+    public List<String> cuvNoStr;
 
     private Map<String, List<String>> tableToVariables;
 
@@ -128,5 +129,12 @@ public class TimeSeriesSearch {
         return aggregationIntervalStr != null
                 ? AggregationInterval.from(aggregationIntervalStr.toUpperCase())
                 : AggregationInterval.INTERVAL_30MIN;
+    }
+
+    public List<Integer> getCuvNos() {
+        return cuvNoStr
+                .stream()
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
     }
 }
