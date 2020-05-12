@@ -16,7 +16,7 @@ public class Metadata {
     public String creator;
     public String discipline;
     public LocalDateTime timestamp;
-    
+
     public static Metadata from(Row row) {
         Metadata metadata = new Metadata();
         metadata.title = row.getString("title");

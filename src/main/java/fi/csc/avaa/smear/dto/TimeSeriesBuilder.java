@@ -6,6 +6,7 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class TimeSeriesBuilder {
     private final AggregationInterval aggregationInterval;
     private final Set<String> allColumns = new TreeSet<>();
     private final Map<String, Map<String, Object>> timeSeries = new TreeMap<>();
+    private final DateTimeFormatter samptimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
 
     public TimeSeriesBuilder(Aggregation aggregation, AggregationInterval aggregationInterval) {
         this.aggregation = aggregation;
@@ -59,10 +61,10 @@ public class TimeSeriesBuilder {
         rowSet.forEach(row -> {
             String variable = row.getString(COL_VARIABLE);
             String column = getColName(TABLE_HYY_SLOW, variable);
-            String samptime = row.getLocalDateTime(COL_START_TIME).toString();
             allColumns.add(column);
-            initSamptime(samptime);
-            timeSeries.get(samptime).put(column, row.getDouble(COL_VALUE));
+            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_START_TIME));
+            initSamptime(samptimeStr);
+            timeSeries.get(samptimeStr).put(column, row.getDouble(COL_VALUE));
         });
     }
 
@@ -70,20 +72,20 @@ public class TimeSeriesBuilder {
         Map<String, String> variableToColumn = mapVariablesToColumns(TABLE_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
-            initSamptime(samptime);
-            timeSeries.get(samptime).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
+            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_SAMPTIME));
+            initSamptime(samptimeStr);
+            timeSeries.get(samptimeStr).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptime).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
         });
     }
 
     private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
-            initSamptime(samptime);
+            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_SAMPTIME));
+            initSamptime(samptimeStr);
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptime).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
         });
     }
 

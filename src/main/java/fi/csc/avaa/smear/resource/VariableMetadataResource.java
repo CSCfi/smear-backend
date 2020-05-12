@@ -36,7 +36,7 @@ public class VariableMetadataResource {
     public Uni<List<VariableMetadata>> search(@BeanParam @Valid VariableMetadataSearch search) {
         return dao.search(search);
     }
-/*
+/* TODO
     @GET
     @Produces("text/csv")
     @Path("/search/csv")
