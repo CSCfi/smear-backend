@@ -49,11 +49,19 @@ public final class TimeSeriesTable {
 
     private static List<String> splitDatetime(String isoDateTime) {
         String year = isoDateTime.substring(0, 4);
-        String month = isoDateTime.substring(5, 7);
-        String day = isoDateTime.substring(8, 10);
-        String hour = isoDateTime.substring(11, 13);
-        String minute = isoDateTime.substring(14, 16);
-        String second = isoDateTime.substring(17, 19);
+        String month = removeZero(isoDateTime.substring(5, 7));
+        String day = removeZero(isoDateTime.substring(8, 10));
+        String hour = removeZero(isoDateTime.substring(11, 13));
+        String minute = removeZero(isoDateTime.substring(14, 16));
+        String second = removeZero(isoDateTime.substring(17, 19));
         return Arrays.asList(year, month, day, hour, minute, second);
+    }
+
+    // TODO: remove if not necessary for Highcharts or client requirements
+    private static String removeZero(String s) {
+        if (s.startsWith("0")) {
+            return s.substring(1, 2);
+        }
+        return s;
     }
 }
