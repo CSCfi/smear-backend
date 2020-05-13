@@ -23,7 +23,6 @@ import org.jooq.Table;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

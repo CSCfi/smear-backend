@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class DaoUtils {
+public final class DaoUtils {
 
     protected static Stream<Row> toStream(RowSet<Row> rowSet) {
         return StreamSupport.stream(rowSet.spliterator(), false);

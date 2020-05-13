@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class TimeSeriesTable {
+public final class TimeSeriesTable {
 
     public static String csv(Map<String, Map<String, Object>> timeSeries) {
         return toTable(timeSeries, ",");

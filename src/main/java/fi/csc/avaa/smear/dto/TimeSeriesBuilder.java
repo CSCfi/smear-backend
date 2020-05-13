@@ -6,7 +6,6 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
 import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 public class TimeSeriesBuilder {
 
@@ -35,7 +35,6 @@ public class TimeSeriesBuilder {
     private final AggregationInterval aggregationInterval;
     private final Set<String> allColumns = new TreeSet<>();
     private final Map<String, Map<String, Object>> timeSeries = new TreeMap<>();
-    private final DateTimeFormatter samptimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
 
     public TimeSeriesBuilder(Aggregation aggregation, AggregationInterval aggregationInterval) {
         this.aggregation = aggregation;
@@ -62,7 +61,7 @@ public class TimeSeriesBuilder {
             String variable = row.getString(COL_VARIABLE);
             String column = getColName(TABLE_HYY_SLOW, variable);
             allColumns.add(column);
-            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_START_TIME));
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_START_TIME));
             initSamptime(samptimeStr);
             timeSeries.get(samptimeStr).put(column, row.getDouble(COL_VALUE));
         });
@@ -72,7 +71,7 @@ public class TimeSeriesBuilder {
         Map<String, String> variableToColumn = mapVariablesToColumns(TABLE_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
         rowSet.forEach(row -> {
-            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_SAMPTIME));
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
             initSamptime(samptimeStr);
             timeSeries.get(samptimeStr).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
             variableToColumn.forEach((variable, column) ->
@@ -82,7 +81,7 @@ public class TimeSeriesBuilder {
 
     private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
-            String samptimeStr = samptimeFormatter.format(row.getLocalDateTime(COL_SAMPTIME));
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
             initSamptime(samptimeStr);
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
