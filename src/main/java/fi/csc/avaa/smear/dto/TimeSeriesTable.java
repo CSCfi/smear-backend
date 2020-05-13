@@ -26,7 +26,9 @@ public final class TimeSeriesTable {
                 Map<String, Object> columnToValues = entry.getValue();
                 Set<String> columns = columnToValues.keySet();
                 if (!headerDone) {
-                    builder.append("Year,Month,Day,Hour,Minute,Second,");
+                    String samptimeColumns = String.join(delimiter, "Year", "Month", "Day", "Hour", "Minute", "Second");
+                    builder.append(samptimeColumns);
+                    builder.append(delimiter);
                     builder.append(String.join(delimiter, columns));
                     builder.append("\n");
                     headerDone = true;

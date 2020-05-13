@@ -15,8 +15,10 @@ public final class VariableMetadataTable {
     }
 
     private static String toTable(List<VariableMetadata> result, String delimiter) {
-        StringBuilder builder = new StringBuilder("id,tableId,name,description,unit,title,source," +
-                "periodStart,periodEnd,coverage,rights,mandatory,derivative,timestamp,category\n");
+        String header = String.join(delimiter, "id", "tableId", "name", "description",
+                "unit", "title", "source", "periodStart", "periodEnd", "coverage", "rights", "mandatory",
+                "derivative", "timestamp", "category\n");
+        StringBuilder builder = new StringBuilder(header);
         result.forEach(variableMetadata -> builder.append(toRow(delimiter, variableMetadata)));
         return builder.toString();
     }
