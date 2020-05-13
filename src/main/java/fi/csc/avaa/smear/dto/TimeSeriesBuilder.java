@@ -100,11 +100,10 @@ public class TimeSeriesBuilder {
         LocalDateTime aggregateSamptime = null;
         Map<String, List<Double>> variableToValues = new HashMap<>();
         for (Row row : rowSet) {
-            if (aggregateSamptime == null) {
-                aggregateSamptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME))
-                        .plusMinutes(aggregationInterval.getMinutes());
-            }
             LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME));
+            if (aggregateSamptime == null) {
+                aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
+            }
             Iterator<Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
                 Entry<String, String> entry = variableIterator.next();
@@ -116,9 +115,9 @@ public class TimeSeriesBuilder {
                 List<Double> values = variableToValues.get(variable);
                 Double value = row.getDouble(variable);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
-                    String key = aggregateSamptime.toString();
-                    initSamptime(key);
-                    timeSeries.get(key).put(column, aggregateOf(values));
+                    String samptimeStr = ISO_DATE_TIME.format(aggregateSamptime);
+                    initSamptime(samptimeStr);
+                    timeSeries.get(samptimeStr).put(column, aggregateOf(values));
                     if (!variableIterator.hasNext()) {
                         aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
                     }
