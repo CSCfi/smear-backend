@@ -27,6 +27,7 @@ import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
 import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 public class TimeSeriesBuilder {
 
@@ -59,10 +60,10 @@ public class TimeSeriesBuilder {
         rowSet.forEach(row -> {
             String variable = row.getString(COL_VARIABLE);
             String column = getColName(TABLE_HYY_SLOW, variable);
-            String samptime = row.getLocalDateTime(COL_START_TIME).toString();
             allColumns.add(column);
-            initSamptime(samptime);
-            timeSeries.get(samptime).put(column, row.getDouble(COL_VALUE));
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_START_TIME));
+            initSamptime(samptimeStr);
+            timeSeries.get(samptimeStr).put(column, row.getDouble(COL_VALUE));
         });
     }
 
@@ -70,20 +71,20 @@ public class TimeSeriesBuilder {
         Map<String, String> variableToColumn = mapVariablesToColumns(TABLE_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
-            initSamptime(samptime);
-            timeSeries.get(samptime).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
+            initSamptime(samptimeStr);
+            timeSeries.get(samptimeStr).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptime).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
         });
     }
 
     private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
         rowSet.forEach(row -> {
-            String samptime = row.getLocalDateTime(COL_SAMPTIME).toString();
-            initSamptime(samptime);
+            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
+            initSamptime(samptimeStr);
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptime).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
         });
     }
 
@@ -99,11 +100,10 @@ public class TimeSeriesBuilder {
         LocalDateTime aggregateSamptime = null;
         Map<String, List<Double>> variableToValues = new HashMap<>();
         for (Row row : rowSet) {
-            if (aggregateSamptime == null) {
-                aggregateSamptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME))
-                        .plusMinutes(aggregationInterval.getMinutes());
-            }
             LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME));
+            if (aggregateSamptime == null) {
+                aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
+            }
             Iterator<Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
                 Entry<String, String> entry = variableIterator.next();
@@ -115,9 +115,9 @@ public class TimeSeriesBuilder {
                 List<Double> values = variableToValues.get(variable);
                 Double value = row.getDouble(variable);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
-                    String key = aggregateSamptime.toString();
-                    initSamptime(key);
-                    timeSeries.get(key).put(column, aggregateOf(values));
+                    String samptimeStr = ISO_DATE_TIME.format(aggregateSamptime);
+                    initSamptime(samptimeStr);
+                    timeSeries.get(samptimeStr).put(column, aggregateOf(values));
                     if (!variableIterator.hasNext()) {
                         aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
                     }

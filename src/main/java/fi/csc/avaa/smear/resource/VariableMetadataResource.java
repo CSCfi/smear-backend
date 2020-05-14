@@ -3,6 +3,7 @@ package fi.csc.avaa.smear.resource;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
+import fi.csc.avaa.smear.dto.VariableMetadataTable;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
 import io.smallrye.mutiny.Uni;
 
@@ -23,6 +24,11 @@ public class VariableMetadataResource {
     @Inject
     VariableMetadataDao dao;
 
+    /*
+        TODO:
+        search should return all tables if no table/tablevariable provided?
+     */
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -36,12 +42,20 @@ public class VariableMetadataResource {
     public Uni<List<VariableMetadata>> search(@BeanParam @Valid VariableMetadataSearch search) {
         return dao.search(search);
     }
-/*
+
     @GET
     @Produces("text/csv")
     @Path("/search/csv")
-    public Uni<List<VariableMetadata>> searchCsv(@NotNull @PathParam("id") Long id) {
-        return dao.findById(id);
+    public String searchCsv(@BeanParam @Valid VariableMetadataSearch search) {
+        List<VariableMetadata> result = dao.search(search).await().indefinitely();
+        return VariableMetadataTable.csv(result);
     }
- */
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/search/tsv")
+    public String searchTsv(@BeanParam @Valid VariableMetadataSearch search) {
+        List<VariableMetadata> result = dao.search(search).await().indefinitely();
+        return VariableMetadataTable.tsv(result);
+    }
 }

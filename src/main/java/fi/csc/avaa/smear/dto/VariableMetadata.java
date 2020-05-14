@@ -19,8 +19,8 @@ public class VariableMetadata {
     public Integer coverage;
     public String rights;
     public String category;
-    public Integer mandatory;
-    public Integer derivative;
+    public Boolean mandatory;
+    public Boolean derivative;
     public Integer uiSortOrder;
     public String uiAvgType;
     public LocalDateTime timestamp;
@@ -40,8 +40,8 @@ public class VariableMetadata {
         variableMetadata.coverage = row.getInteger("coverage");
         variableMetadata.rights = row.getString("rights");
         variableMetadata.category = row.getString("category");
-        variableMetadata.mandatory = row.getInteger("mandatory");
-        variableMetadata.derivative = row.getInteger("derivative");
+        variableMetadata.mandatory = row.getInteger("mandatory").equals(1);
+        variableMetadata.derivative = row.getInteger("derivative").equals(1);
         variableMetadata.uiSortOrder = row.getInteger("ui_sort_order");
         variableMetadata.uiAvgType = row.getString("ui_avg_type");
         variableMetadata.timestamp = row.getLocalDateTime("vtimestamp");
