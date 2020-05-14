@@ -25,9 +25,8 @@ public class TimeSeriesSearch {
 
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
             "If you want to select from multiple tables, please use multiple tablevariable parameters. " +
-            "Table names can be found from the tablemetadata endpoint by variables tableIDs. " +
-            "TableID for every variable can be found from variable's metadata record via the " +
-            "variablemetadata endpoint.",
+            "Table names can be queried from the tablemetadata endpoint by a variable's table id. " +
+            "Table ids of variables can be found from the variablemetadata endpoint.",
             example = "HYY_META")
     @QueryParam("table")
     public String table;
@@ -38,8 +37,8 @@ public class TimeSeriesSearch {
     @QueryParam("variable")
     public List<@NotEmpty String> variables;
 
-    @Parameter(description = "Name of table and variable separated by a period " +
-            "Multiple tablevariable parameters can be used.",
+    @Parameter(description = "Name of a table and a variable separated by a period. " +
+            "Multiple parameters can be used.",
             example = "HYY_META.Pamb0")
     @QueryParam("tablevariable")
     public List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
@@ -80,7 +79,8 @@ public class TimeSeriesSearch {
     public String aggregationIntervalStr;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
-            "At least one value is required when querying HYY_SLOW table.")
+            "At least one value is required when querying HYY_SLOW table.",
+            example = "186")
     @QueryParam("cuv_no")
     public List<String> cuvNoStr;
 

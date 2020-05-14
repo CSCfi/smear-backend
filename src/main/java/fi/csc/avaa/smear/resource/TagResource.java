@@ -4,6 +4,8 @@ import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TagDao;
 import fi.csc.avaa.smear.dto.Tag;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotEmpty;
@@ -24,13 +26,34 @@ public class TagResource {
     TagDao dao;
 
     @GET
-    public Uni<List<Tag>> tagsByVariableIds(@NotNull @NotEmpty @QueryParam("variableId") List<String> variableIds) {
+    @Operation(
+            summary = "Fetch tags by variable id",
+            description = "Returns tags linked to a SMEAR variable by the variable's id. Tags are keywords for SMEAR " +
+                    "variables. They are used to link variables/columns to vocabularies or other standards."
+    )
+    public Uni<List<Tag>> tagsByVariableIds(
+            @NotNull
+            @NotEmpty
+            @Parameter(description = "Unique id of a SMEAR variable. Multiple parameters can be used.",
+                    example = "1")
+            @QueryParam("variableId") List<String> variableIds
+    ) {
         return dao.findByVariableIds(variableIds);
     }
 
     @GET
     @Path("/{id}")
-    public Uni<Tag> tag(@NotNull @PathParam("id") Integer id) {
+    @Operation(
+            summary = "Fetch tag by id",
+            description = "Returns a single tag by it's unique id. Tags are keywords for SMEAR variables. They are " +
+                    "used to link variables/columns to vocabularies or other standards."
+    )
+    public Uni<Tag> tag(
+            @NotNull
+            @Parameter(description = "Unique id of a tag",
+                    example = "1")
+            @PathParam("id") Integer id
+    ) {
         return dao.findById(id);
     }
 }

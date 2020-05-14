@@ -24,7 +24,7 @@ public class EventDao {
     @Inject
     DSLContext create;
 
-    public Uni<List<Event>> findByVariableIds(List<String> variableIds) {
+    public Uni<List<Event>> findByVariableIds(List<Integer> variableIds) {
         Query query = create
                 .select()
                 .from("Events")
