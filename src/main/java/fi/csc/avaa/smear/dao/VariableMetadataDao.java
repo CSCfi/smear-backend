@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.lower;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 
 @ApplicationScoped
 public class VariableMetadataDao {
@@ -70,7 +72,8 @@ public class VariableMetadataDao {
         }
         if (!search.sources.isEmpty()) {
             search.sources.forEach(source ->
-                    conditions.add(field("source").like("%" + source + "%")));
+                    conditions.add(lower(field("source", VARCHAR))
+                            .like("%" + source.toLowerCase() + "%")));
         }
         return create
                 .select()

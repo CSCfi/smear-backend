@@ -4,6 +4,8 @@ import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.EventDao;
 import fi.csc.avaa.smear.dto.Event;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotEmpty;
@@ -24,13 +26,37 @@ public class EventResource {
     EventDao dao;
 
     @GET
-    public Uni<List<Event>> eventsByVariableIds(@NotNull @NotEmpty @QueryParam("variableId") List<String> variableIds) {
+    @Operation(
+            summary = "Fetch events by variable id",
+            description = "Returns a list of events linked to a variable. " +
+                    "Events describe changes in time series data. The event types in the SMEAR database are " +
+                    "based on DDI data lifecycle events and ENVRI reference model. The time range of the event " +
+                    "indicates the time frame when the event affects the data."
+    )
+    public Uni<List<Event>> eventsByVariableIds(
+            @NotNull
+            @NotEmpty
+            @Parameter(description = "Unique id of a variable. " +
+                    "Multiple parameters can be used and at least one is required.",
+                    example = "43")
+            @QueryParam("variableId") List<Integer> variableIds
+    ) {
         return dao.findByVariableIds(variableIds);
     }
 
     @GET
     @Path("/{id}")
-    public Uni<Event> event(@NotNull @PathParam("id") Integer id) {
+    @Operation(
+            summary = "Fetch single event by event id",
+            description = "Events describe changes in time series data. The event types in the SMEAR database are " +
+                    "based on DDI data lifecycle events and ENVRI reference model. The time range of the event " +
+                    "indicates the time frame when the event affects the data."
+    )
+    public Uni<Event> event(
+            @NotNull
+            @Parameter(description = "Unique id of an event.", example = "201")
+            @PathParam("id") Integer id
+    ) {
         return dao.findById(id);
     }
 }
