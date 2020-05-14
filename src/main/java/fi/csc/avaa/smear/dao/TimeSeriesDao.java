@@ -6,19 +6,18 @@ import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.quarkus.cache.CacheResult;
-import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
-import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.DatePart;
 import org.jooq.Field;
-import org.jooq.Query;
 import org.jooq.Record;
 import org.jooq.Record3;
+import org.jooq.Result;
+import org.jooq.Select;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,7 +34,6 @@ import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
 import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
-import static fi.csc.avaa.smear.dao.DaoUtils.timestampDiff;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.case_;
@@ -64,9 +62,6 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 public class TimeSeriesDao {
 
     @Inject
-    MySQLPool client;
-
-    @Inject
     DSLContext create;
 
     private static final Field<Timestamp> SAMPTIME = field(COL_SAMPTIME, TIMESTAMP);
@@ -76,25 +71,23 @@ public class TimeSeriesDao {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLE_HYY_SLOW)) {
-                Query query = createHyySlowQuery(variables, search);
-                RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                        .await().indefinitely();
-                builder.addHyySlowRowSet(rowSet);
+                Select<Record3<Timestamp, String, Double>> query = createHyySlowQuery(variables, search);
+                Result<Record3<Timestamp, String, Double>> result = query.fetch();
+                builder.addHyySlowResult(result);
             } else {
-                Query query = createQuery(tableName, variables, search);
-                RowSet<Row> rowSet = client.preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                        .await().indefinitely();
+                Select<Record> query = createQuery(tableName, variables, search);
+                Result<Record> result = query.fetch();
                 if (tableName.equals(TABLE_HYY_TREE)) {
-                    builder.addHyyTreeRowSet(rowSet, variables);
+                    builder.addHyyTreeResult(result, variables);
                 } else {
-                    builder.addRowSet(rowSet, tableName, variables);
+                    builder.addResult(result, tableName, variables);
                 }
             }
         });
         return builder.build();
     }
 
-    private Query createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
+    private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
         Condition conditions = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
@@ -114,7 +107,8 @@ public class TimeSeriesDao {
                 .orderBy(SAMPTIME.asc());
     }
 
-    private Query createHyySlowQuery(List<String> variables, TimeSeriesSearch search) {
+    private Select<Record3<Timestamp, String, Double>> createHyySlowQuery(
+            List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(TABLE_HYY_SLOW);
         Field<Timestamp> startTime = field(COL_START_TIME, TIMESTAMP);
         Field<String> variableName = field(COL_VARIABLE, VARCHAR);
@@ -182,5 +176,10 @@ public class TimeSeriesDao {
         Field<Timestamp> from = field("'1990-1-1'", TIMESTAMP);
         Field<Integer> timestampDiff = timestampDiff(MINUTE, from, to);
         return floor(timestampDiff.div(interval.getMinutes()));
+    }
+
+    // https://github.com/jOOQ/jOOQ/issues/4303
+    private static Field<Integer> timestampDiff(DatePart part, Field<Timestamp> t1, Field<Timestamp> t2) {
+        return DSL.field("timestampdiff({0}, {1}, {2})", Integer.class, DSL.keyword(part.toSQL()), t1, t2);
     }
 }

@@ -1,9 +1,11 @@
 package fi.csc.avaa.smear.dto;
 
-import io.vertx.mutiny.sqlclient.Row;
+import org.jooq.Record;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static org.jooq.impl.DSL.field;
 
 public class Event {
 
@@ -15,15 +17,15 @@ public class Event {
     public LocalDate periodEnd;
     public LocalDateTime timestamp;
 
-    public static Event from(Row row) {
+    public static Event from(Record record) {
         Event event = new Event();
-        event.id = row.getLong("eventID");
-        event.eventType = row.getString("event_type");
-        event.description = row.getString("event");
-        event.responsiblePerson = row.getString("who");
-        event.periodStart = row.getLocalDate("period_start");
-        event.periodEnd = row.getLocalDate("period_end");
-        event.timestamp = row.getLocalDateTime("etimestamp");
+        event.id = record.get(field("eventID"), Long.class);
+        event.eventType = record.get(field("event_type"), String.class);
+        event.description = record.get(field("event"), String.class);
+        event.responsiblePerson = record.get(field("who"), String.class);
+        event.periodStart = record.get(field("period_start"), LocalDate.class);
+        event.periodEnd = record.get(field("period_end"), LocalDate.class);
+        event.timestamp = record.get(field("etimestamp"), LocalDateTime.class);
         return event;
     }
 }

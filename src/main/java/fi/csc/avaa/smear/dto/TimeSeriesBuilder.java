@@ -2,9 +2,11 @@ package fi.csc.avaa.smear.dto;
 
 import fi.csc.avaa.smear.constants.Aggregation;
 import fi.csc.avaa.smear.constants.AggregationInterval;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
+import org.jooq.Record;
+import org.jooq.Record3;
+import org.jooq.Result;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
 import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static org.jooq.impl.DSL.field;
 
 public class TimeSeriesBuilder {
 
@@ -46,45 +49,46 @@ public class TimeSeriesBuilder {
         return timeSeries;
     }
 
-    public void addRowSet(RowSet<Row> rowSet, String tableName, List<String> variables) {
+    public void addResult(Result<Record> result, String tableName, List<String> variables) {
         Map<String, String> variableToColumn = mapVariablesToColumns(tableName, variables);
         allColumns.addAll(variableToColumn.values());
         if (aggregation.isGroupedManually()) {
-            groupAndAddToSeries(rowSet, variableToColumn);
+            groupAndAddToSeries(result, variableToColumn);
         } else {
-            addToSeries(rowSet, variableToColumn);
+            addToSeries(result, variableToColumn);
         }
     }
 
-    public void addHyySlowRowSet(RowSet<Row> rowSet) {
-        rowSet.forEach(row -> {
-            String variable = row.getString(COL_VARIABLE);
+    public void addHyySlowResult(Result<Record3<Timestamp, String, Double>> result) {
+        result.forEach(record -> {
+            String variable = record.get(field(COL_VARIABLE), String.class);
             String column = getColName(TABLE_HYY_SLOW, variable);
             allColumns.add(column);
-            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_START_TIME));
+            String samptimeStr = ISO_DATE_TIME.format(record.get(field(COL_START_TIME), LocalDateTime.class));
             initSamptime(samptimeStr);
-            timeSeries.get(samptimeStr).put(column, row.getDouble(COL_VALUE));
+            timeSeries.get(samptimeStr).put(column, record.get(field(COL_VALUE), Double.class));
         });
     }
 
-    public void addHyyTreeRowSet(RowSet<Row> rowSet, List<String> variables) {
+    public void addHyyTreeResult(Result<Record> result, List<String> variables) {
         Map<String, String> variableToColumn = mapVariablesToColumns(TABLE_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
-        rowSet.forEach(row -> {
-            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
+        result.forEach(record -> {
+            String samptimeStr = ISO_DATE_TIME.format(record.get(field(COL_SAMPTIME), LocalDateTime.class));
             initSamptime(samptimeStr);
-            timeSeries.get(samptimeStr).put(getColName(TABLE_HYY_TREE, COL_CUV_NO), row.getInteger(COL_CUV_NO));
+            timeSeries.get(samptimeStr)
+                    .put(getColName(TABLE_HYY_TREE, COL_CUV_NO), record.get(field(COL_CUV_NO), Integer.class));
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, record.get(field(variable), Double.class)));
         });
     }
 
-    private void addToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
-        rowSet.forEach(row -> {
-            String samptimeStr = ISO_DATE_TIME.format(row.getLocalDateTime(COL_SAMPTIME));
+    private void addToSeries(Result<Record> result, Map<String, String> variableToColumn) {
+        result.forEach(record -> {
+            String samptimeStr = ISO_DATE_TIME.format(record.get(field(COL_SAMPTIME), LocalDateTime.class));
             initSamptime(samptimeStr);
             variableToColumn.forEach((variable, column) ->
-                    timeSeries.get(samptimeStr).put(column, row.getDouble(variable)));
+                    timeSeries.get(samptimeStr).put(column, record.get(field(variable))));
         });
     }
 
@@ -96,11 +100,11 @@ public class TimeSeriesBuilder {
                         variable -> getColName(tableName, variable)));
     }
 
-    private void groupAndAddToSeries(RowSet<Row> rowSet, Map<String, String> variableToColumn) {
+    private void groupAndAddToSeries(Result<Record> result, Map<String, String> variableToColumn) {
         LocalDateTime aggregateSamptime = null;
         Map<String, List<Double>> variableToValues = new HashMap<>();
-        for (Row row : rowSet) {
-            LocalDateTime samptime = roundToNearestMinute(row.getLocalDateTime(COL_SAMPTIME));
+        for (Record record : result) {
+            LocalDateTime samptime = roundToNearestMinute(record.get(field(COL_SAMPTIME), LocalDateTime.class));
             if (aggregateSamptime == null) {
                 aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
             }
@@ -113,7 +117,7 @@ public class TimeSeriesBuilder {
                     variableToValues.put(variable, new ArrayList<>());
                 }
                 List<Double> values = variableToValues.get(variable);
-                Double value = row.getDouble(variable);
+                Double value = record.get(field(variable), Double.class);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
                     String samptimeStr = ISO_DATE_TIME.format(aggregateSamptime);
                     initSamptime(samptimeStr);

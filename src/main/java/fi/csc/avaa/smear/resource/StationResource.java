@@ -3,7 +3,6 @@ package fi.csc.avaa.smear.resource;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.StationDao;
 import fi.csc.avaa.smear.dto.Station;
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.inject.Inject;
@@ -22,7 +21,7 @@ public class StationResource {
 
     @GET
     @Operation(summary = "Fetch list of all SMEAR stations")
-    public Uni<List<Station>> stations() {
+    public List<Station> stations() {
         return dao.findAll();
     }
 }

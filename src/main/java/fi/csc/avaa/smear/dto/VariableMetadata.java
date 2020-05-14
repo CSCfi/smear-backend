@@ -1,8 +1,10 @@
 package fi.csc.avaa.smear.dto;
 
-import io.vertx.mutiny.sqlclient.Row;
+import org.jooq.Record;
 
 import java.time.LocalDateTime;
+
+import static org.jooq.impl.DSL.field;
 
 public class VariableMetadata {
 
@@ -25,26 +27,26 @@ public class VariableMetadata {
     public String uiAvgType;
     public LocalDateTime timestamp;
 
-    public static VariableMetadata from(Row row) {
+    public static VariableMetadata from(Record record) {
         VariableMetadata variableMetadata = new VariableMetadata();
-        variableMetadata.id = row.getLong("variableID");
-        variableMetadata.tableId = row.getLong("tableID");
-        variableMetadata.name = row.getString("variable");
-        variableMetadata.description = row.getString("description");
-        variableMetadata.type = row.getString("type");
-        variableMetadata.unit = row.getString("unit");
-        variableMetadata.title = row.getString("title");
-        variableMetadata.source = row.getString("source");
-        variableMetadata.periodStart = row.getLocalDateTime("period_start");
-        variableMetadata.periodEnd = row.getLocalDateTime("period_end");
-        variableMetadata.coverage = row.getInteger("coverage");
-        variableMetadata.rights = row.getString("rights");
-        variableMetadata.category = row.getString("category");
-        variableMetadata.mandatory = row.getInteger("mandatory").equals(1);
-        variableMetadata.derivative = row.getInteger("derivative").equals(1);
-        variableMetadata.uiSortOrder = row.getInteger("ui_sort_order");
-        variableMetadata.uiAvgType = row.getString("ui_avg_type");
-        variableMetadata.timestamp = row.getLocalDateTime("vtimestamp");
+        variableMetadata.id = record.get(field("variableID"), Long.class);
+        variableMetadata.tableId = record.get(field("tableID"), Long.class);
+        variableMetadata.name = record.get(field("variable"), String.class);
+        variableMetadata.description = record.get(field("description"), String.class);
+        variableMetadata.type = record.get(field("type"), String.class);
+        variableMetadata.unit = record.get(field("unit"), String.class);
+        variableMetadata.title = record.get(field("title"), String.class);
+        variableMetadata.source = record.get(field("source"), String.class);
+        variableMetadata.periodStart = record.get(field("period_start"), LocalDateTime.class);
+        variableMetadata.periodEnd = record.get(field("period_end"), LocalDateTime.class);
+        variableMetadata.coverage = record.get(field("coverage"), Integer.class);
+        variableMetadata.rights = record.get(field("rights"), String.class);
+        variableMetadata.category = record.get(field("category"), String.class);
+        variableMetadata.mandatory = record.get(field("mandatory"), Boolean.class);
+        variableMetadata.derivative = record.get(field("derivative"), Boolean.class);
+        variableMetadata.uiSortOrder = record.get(field("ui_sort_order"), Integer.class);
+        variableMetadata.uiAvgType = record.get(field("ui_avg_type"), String.class);
+        variableMetadata.timestamp = record.get(field("vtimestamp"), LocalDateTime.class);
         return variableMetadata;
     }
 }
