@@ -15,8 +15,13 @@ public class DSLContextConfiguration {
     @Inject
     DataSource smearDataSource;
 
+    private DSLContext dslContext;
+
     @Produces
     public DSLContext dslContext() {
-        return DSL.using(smearDataSource, SQLDialect.MYSQL);
+        if (dslContext == null) {
+            dslContext = DSL.using(smearDataSource, SQLDialect.MYSQL);
+        }
+        return dslContext;
     }
 }

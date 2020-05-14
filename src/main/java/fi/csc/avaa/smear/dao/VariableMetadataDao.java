@@ -6,13 +6,11 @@ import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.SQLDialect;
 import org.jooq.Select;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +21,11 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 @ApplicationScoped
 public class VariableMetadataDao {
 
-
     @Inject
-    DataSource smearDataSource;
-
-
+    DSLContext create;
 
     @CacheResult(cacheName = "variable-metadata-cache")
     public VariableMetadata findById(Long id) {
-        DSLContext create = DSL.using(smearDataSource, SQLDialect.MYSQL);
         return create
                 .select()
                 .from("VariableMetadata")
@@ -47,7 +41,6 @@ public class VariableMetadataDao {
     }
 
     private Select<Record> getSearchQuery(VariableMetadataSearch search) {
-        DSLContext create = DSL.using(smearDataSource, SQLDialect.MYSQL);
         List<Condition> conditions = new ArrayList<>();
         if (!search.variableIds.isEmpty()) {
             conditions.add(field("variableID").in(search.variableIds));
@@ -73,7 +66,6 @@ public class VariableMetadataDao {
     }
 
     private Select<Record> getTableVariableQuery(VariableMetadataSearch search) {
-        DSLContext create = DSL.using(smearDataSource, SQLDialect.MYSQL);
         Condition conditions = search.getTableToVariable().entrySet()
                 .stream()
                 .map(entry -> field("TableMetadata.name").eq(entry.getKey())
