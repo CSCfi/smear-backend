@@ -5,7 +5,6 @@ import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.dto.VariableMetadataTable;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
@@ -33,7 +32,7 @@ public class VariableMetadataResource {
             summary = "Fetch variable metadata by variable id",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
-    public Uni<VariableMetadata> variableMetadata(
+    public VariableMetadata variableMetadata(
             @NotNull
             @Parameter(description = "Unique id of a variable",
                 example = "1")
@@ -53,7 +52,7 @@ public class VariableMetadataResource {
             summary = "Search variable metadata",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
-    public Uni<List<VariableMetadata>> search(@BeanParam @Valid VariableMetadataSearch search) {
+    public List<VariableMetadata> search(@BeanParam @Valid VariableMetadataSearch search) {
         return dao.search(search);
     }
 
@@ -65,8 +64,7 @@ public class VariableMetadataResource {
             description = "Metadata that describes variables stored in the SMEAR database."
     )
     public String searchCsv(@BeanParam @Valid VariableMetadataSearch search) {
-        List<VariableMetadata> result = dao.search(search).await().indefinitely();
-        return VariableMetadataTable.csv(result);
+        return VariableMetadataTable.csv(dao.search(search));
     }
 
     @GET
@@ -77,7 +75,6 @@ public class VariableMetadataResource {
             description = "Metadata that describes variables stored in the SMEAR database."
     )
     public String searchTsv(@BeanParam @Valid VariableMetadataSearch search) {
-        List<VariableMetadata> result = dao.search(search).await().indefinitely();
-        return VariableMetadataTable.tsv(result);
+        return VariableMetadataTable.tsv(dao.search(search));
     }
 }

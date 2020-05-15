@@ -3,21 +3,17 @@ package fi.csc.avaa.smear.dao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
 import io.quarkus.cache.CacheResult;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Query;
+import org.jooq.Record;
+import org.jooq.Select;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.lower;
 import static org.jooq.impl.SQLDataType.VARCHAR;
@@ -26,37 +22,25 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 public class VariableMetadataDao {
 
     @Inject
-    MySQLPool client;
-
-    @Inject
     DSLContext create;
 
     @CacheResult(cacheName = "variable-metadata-cache")
-    public Uni<VariableMetadata> findById(Long id) {
-        Query query = create
+    public VariableMetadata findById(Long id) {
+        return create
                 .select()
                 .from("VariableMetadata")
-                .where(field("variableID").eq(id));
-        return client
-                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                .map(rowSet -> toStream(rowSet)
-                        .map(VariableMetadata::from)
-                        .findFirst()
-                        .orElseThrow());
+                .where(field("variableID").eq(id))
+                .fetchOne(VariableMetadata::from);
     }
 
-    public Uni<List<VariableMetadata>> search(VariableMetadataSearch search) {
-        Query query = search.tablevariables.isEmpty()
+    public List<VariableMetadata> search(VariableMetadataSearch search) {
+        Select<Record> query = search.tablevariables.isEmpty()
                 ? getSearchQuery(search)
                 : getTableVariableQuery(search);
-        return client
-                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                .map(rowSet -> toStream(rowSet)
-                        .map(VariableMetadata::from)
-                        .collect(Collectors.toList()));
+        return query.fetch(VariableMetadata::from);
     }
 
-    private Query getSearchQuery(VariableMetadataSearch search) {
+    private Select<Record> getSearchQuery(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
         if (!search.variableIds.isEmpty()) {
             conditions.add(field("variableID").in(search.variableIds));
@@ -81,7 +65,7 @@ public class VariableMetadataDao {
                 .where(conditions);
     }
 
-    private Query getTableVariableQuery(VariableMetadataSearch search) {
+    private Select<Record> getTableVariableQuery(VariableMetadataSearch search) {
         Condition conditions = search.getTableToVariable().entrySet()
                 .stream()
                 .map(entry -> field("TableMetadata.name").eq(entry.getKey())

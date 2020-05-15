@@ -1,8 +1,10 @@
 package fi.csc.avaa.smear.dto;
 
-import io.vertx.mutiny.sqlclient.Row;
+import org.jooq.Record;
 
 import java.time.LocalDateTime;
+
+import static org.jooq.impl.DSL.field;
 
 public class Metadata {
 
@@ -17,18 +19,18 @@ public class Metadata {
     public String discipline;
     public LocalDateTime timestamp;
 
-    public static Metadata from(Row row) {
+    public static Metadata from(Record record) {
         Metadata metadata = new Metadata();
-        metadata.title = row.getString("title");
-        metadata.rightsCategory = row.getString("rightsCategory");
-        metadata.accessRights = row.getString("access_rights");
-        metadata.project = row.getString("project");
-        metadata.maintainingOrganisation = row.getString("maintainingOrganisation");
-        metadata.contact = row.getString("contact");
-        metadata.ref = row.getString("ref");
-        metadata.creator = row.getString("creator");
-        metadata.discipline = row.getString("discipline");
-        metadata.timestamp = row.getLocalDateTime("timestamp");
+        metadata.title = record.get(field("title"), String.class);
+        metadata.rightsCategory = record.get(field("rightsCategory"), String.class);
+        metadata.accessRights = record.get(field("access_rights"), String.class);
+        metadata.project = record.get(field("project"), String.class);
+        metadata.maintainingOrganisation = record.get(field("maintaining_organisation"), String.class);
+        metadata.contact = record.get(field("contact"), String.class);
+        metadata.ref = record.get(field("ref"), String.class);
+        metadata.creator = record.get(field("creator"), String.class);
+        metadata.discipline = record.get(field("discipline"), String.class);
+        metadata.timestamp = record.get(field("timestamp"), LocalDateTime.class);
         return metadata;
     }
 }

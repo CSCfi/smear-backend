@@ -2,64 +2,44 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.TableMetadata;
 import io.quarkus.cache.CacheResult;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.mysqlclient.MySQLPool;
-import io.vertx.mutiny.sqlclient.Tuple;
 import org.jooq.DSLContext;
-import org.jooq.Query;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static fi.csc.avaa.smear.dao.DaoUtils.toStream;
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 
 @ApplicationScoped
 public class TableMetadataDao {
 
     @Inject
-    MySQLPool client;
-
-    @Inject
     DSLContext create;
 
     @CacheResult(cacheName = "table-metadata-list-cache")
-    public Uni<List<TableMetadata>> findAll() {
-        Query query = create
+    public List<TableMetadata> findAll() {
+        return create
                 .select()
-                .from("TableMetadata");
-        return client
-                .preparedQuery(query.getSQL())
-                .map(rowSet -> toStream(rowSet)
-                        .map(TableMetadata::from)
-                        .collect(Collectors.toList()));
+                .from("TableMetadata")
+                .fetch(TableMetadata::from);
     }
 
     @CacheResult(cacheName = "table-metadata-cache")
-    public Uni<TableMetadata> findById(Long id) {
-        Query query = create
+    public TableMetadata findById(Long id) {
+        return create
                 .select()
                 .from("TableMetadata")
-                .where(field("tableID").eq(id));
-        return client
-                .preparedQuery(query.getSQL(), Tuple.tuple(query.getBindValues()))
-                .map(rowSet -> toStream(rowSet)
-                        .map(TableMetadata::from)
-                        .findFirst()
-                        .orElseThrow());
+                .where(field("tableID").eq(id))
+                .fetchOne(TableMetadata::from);
     }
 
     @CacheResult(cacheName = "table-name-cache")
-    public Uni<List<String>> findTableNames() {
-        Query query = create
+    public List<String> findTableNames() {
+        return create
                 .select(field("name"))
-                .from("TableMetadata");
-        return client
-                .query(query.getSQL())
-                .map(rowSet -> toStream(rowSet)
-                        .map(row -> row.getString("name"))
-                        .collect(Collectors.toList()));
+                .from("TableMetadata")
+                .fetch(record ->
+                        record.get(field("name", VARCHAR)));
     }
 }

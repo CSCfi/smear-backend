@@ -3,7 +3,6 @@ package fi.csc.avaa.smear.resource;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TableMetadataDao;
 import fi.csc.avaa.smear.dto.TableMetadata;
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
@@ -29,7 +28,7 @@ public class TableMetadataResource {
             summary = "Fetch all table metadata",
             description = "Table metadata describes measuring stations (=database tables)."
     )
-    public Uni<List<TableMetadata>> allTableMetadata() {
+    public List<TableMetadata> allTableMetadata() {
         return dao.findAll();
     }
 
@@ -39,7 +38,7 @@ public class TableMetadataResource {
             summary = "Fetch table metadata by table id",
             description = "Table metadata describes measuring stations (=database tables)."
     )
-    public Uni<TableMetadata> tableMetadata(
+    public TableMetadata tableMetadata(
             @NotNull
             @Parameter(description = "A unique table id. The table id of a SMEAR variable can be found via " +
                     "the variable metadata endpoint.",

@@ -6,14 +6,22 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.sql.DataSource;
 
 @Startup
 public class DSLContextConfiguration {
 
-    private final DSLContext dslContext = DSL.using(SQLDialect.MYSQL);
+    @Inject
+    DataSource smearDataSource;
+
+    private DSLContext dslContext;
 
     @Produces
     public DSLContext dslContext() {
+        if (dslContext == null) {
+            dslContext = DSL.using(smearDataSource, SQLDialect.MYSQL);
+        }
         return dslContext;
     }
 }

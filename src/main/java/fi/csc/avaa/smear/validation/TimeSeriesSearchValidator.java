@@ -63,7 +63,7 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private Boolean validateTableNames(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        List<String> validTables = tableMetadataDao.findTableNames().await().indefinitely();
+        List<String> validTables = tableMetadataDao.findTableNames();
         List<String> invalidTables = search.getTableToVariables().keySet()
                 .stream()
                 .filter(tableName -> !validTables.contains(tableName))

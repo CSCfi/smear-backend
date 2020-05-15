@@ -3,7 +3,6 @@ package fi.csc.avaa.smear.resource;
 import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.EventDao;
 import fi.csc.avaa.smear.dto.Event;
-import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
@@ -33,7 +32,7 @@ public class EventResource {
                     "based on DDI data lifecycle events and ENVRI reference model. The time range of the event " +
                     "indicates the time frame when the event affects the data."
     )
-    public Uni<List<Event>> eventsByVariableIds(
+    public List<Event> eventsByVariableIds(
             @NotNull
             @NotEmpty
             @Parameter(description = "Unique id of a variable. " +
@@ -52,7 +51,7 @@ public class EventResource {
                     "based on DDI data lifecycle events and ENVRI reference model. The time range of the event " +
                     "indicates the time frame when the event affects the data."
     )
-    public Uni<Event> event(
+    public Event event(
             @NotNull
             @Parameter(description = "Unique id of an event.", example = "201")
             @PathParam("id") Integer id
