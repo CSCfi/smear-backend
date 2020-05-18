@@ -2,24 +2,24 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
+import fi.csc.avaa.smear.table.VariableMetadataRecord;
 import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.jooq.RecordMapper;
-import org.jooq.Select;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
+import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.lower;
-import static org.jooq.impl.SQLDataType.VARCHAR;
 
 @ApplicationScoped
 public class VariableMetadataDao {
@@ -27,97 +27,90 @@ public class VariableMetadataDao {
     @Inject
     DSLContext create;
 
-    private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
-    {
-        // MySQL accepts datetimes with month/day set to 0 and we have such values in the database
-        // LocalDateTimes cannot be constructed from these
-        String periodStart = record.get(field("period_start"), String.class).replace(' ', 'T');
-        String periodEnd = Optional.of(record.get(field("period_end"), String.class))
-                .map(str -> str.replace(' ', 'T'))
-                .orElse(null);
-        return VariableMetadata.builder()
-                .id(record.get(field("variableID"), Long.class))
-                .tableId(record.get(field("tableID"), Long.class))
-                .name(record.get(field("variable"), String.class))
-                .description(record.get(field("description"), String.class))
-                .type(record.get(field("type"), String.class))
-                .unit(record.get(field("unit"), String.class))
-                .title(record.get(field("title"), String.class))
-                .source(record.get(field("source"), String.class))
-                .periodStart(periodStart)
-                .periodEnd(periodEnd)
-                .coverage(record.get(field("coverage"), Integer.class))
-                .rights(record.get(field("rights"), String.class))
-                .category(record.get(field("category"), String.class))
-                .mandatory(record.get(field("mandatory"), Boolean.class))
-                .derivative(record.get(field("derivative"), Boolean.class))
-                .uiSortOrder(record.get(field("ui_sort_order"), Integer.class))
-                .uiAvgType(record.get(field("ui_avg_type"), String.class))
-                .timestamp(record.get(field("vtimestamp"), LocalDateTime.class))
-                .build();
-    };
+    private final RecordMapper<VariableMetadataRecord, VariableMetadata> recordToVariableMetadata = record ->
+            VariableMetadata.builder()
+                    .id(record.get(VARIABLE_METADATA.ID))
+                    .tableId(record.get(VARIABLE_METADATA.TABLE_ID))
+                    .name(record.get(VARIABLE_METADATA.NAME))
+                    .description(record.get(VARIABLE_METADATA.DESCRIPTION))
+                    .type(record.get(VARIABLE_METADATA.TYPE))
+                    .unit(record.get(VARIABLE_METADATA.UNIT))
+                    .title(record.get(VARIABLE_METADATA.TITLE))
+                    .source(record.get(VARIABLE_METADATA.SOURCE))
+                    .periodStart(record.get(VARIABLE_METADATA.PERIOD_START).replace(' ', 'T'))
+                    .periodEnd(Optional.ofNullable(record.get(VARIABLE_METADATA.PERIOD_END))
+                            .map(str -> str.replace(' ', 'T'))
+                            .orElse(null))
+                    .coverage(record.get(VARIABLE_METADATA.COVERAGE))
+                    .rights(record.get(VARIABLE_METADATA.RIGHTS))
+                    .category(record.get(VARIABLE_METADATA.CATEGORY))
+                    .mandatory(record.get(VARIABLE_METADATA.MANDATORY))
+                    .derivative(record.get(VARIABLE_METADATA.DERIVATIVE))
+                    .uiSortOrder(record.get(VARIABLE_METADATA.UI_SORT_ORDER))
+                    .uiAvgType(record.get(VARIABLE_METADATA.UI_AVG_TYPE))
+                    .timestamp(record.get(VARIABLE_METADATA.TIMESTAMP))
+                    .build();
 
     @CacheResult(cacheName = "variable-metadata-findall-cache")
     public List<VariableMetadata> findAll() {
         return create
-                .select()
-                .from("VariableMetadata")
+                .selectFrom(VARIABLE_METADATA)
                 .fetch(recordToVariableMetadata);
     }
 
     @CacheResult(cacheName = "variable-metadata-cache")
     public VariableMetadata findByVariableId(Long id) {
         return create
-                .select()
-                .from("VariableMetadata")
-                .where(field("variableID").eq(id))
+                .selectFrom(VARIABLE_METADATA)
+                .where(VARIABLE_METADATA.ID.eq(id))
                 .fetchOne(recordToVariableMetadata);
     }
 
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        Select<Record> query = search.tablevariables.isEmpty()
-                ? getSearchQuery(search)
-                : getTableVariableQuery(search);
-        return query.fetch(recordToVariableMetadata);
+        return search.tablevariables.isEmpty()
+                ? findBy(search)
+                : findByTableVariables(search.getTableToVariable());
     }
 
-    private Select<Record> getSearchQuery(VariableMetadataSearch search) {
+    private List<VariableMetadata> findBy(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
         if (!search.variableIds.isEmpty()) {
-            conditions.add(field("variableID").in(search.variableIds));
+            conditions.add(VARIABLE_METADATA.ID.in(search.variableIds));
         }
         if (!search.variables.isEmpty()) {
-            conditions.add(field("variable").in(search.variables));
+            conditions.add(VARIABLE_METADATA.NAME.in(search.variables));
         }
         if (!search.categories.isEmpty()) {
-            conditions.add(field("category").in(search.categories));
+            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.categories));
         }
         if (!search.tableIds.isEmpty()) {
-            conditions.add(field("tableID").in(search.tableIds));
+            conditions.add(VARIABLE_METADATA.TABLE_ID.in(search.tableIds));
         }
         if (!search.sources.isEmpty()) {
             search.sources.forEach(source ->
-                    conditions.add(lower(field("source", VARCHAR))
+                    conditions.add(lower(VARIABLE_METADATA.SOURCE)
                             .like("%" + source.toLowerCase() + "%")));
         }
         return create
-                .select()
-                .from("VariableMetadata")
-                .where(conditions);
+                .selectFrom(VARIABLE_METADATA)
+                .where(conditions)
+                .fetch(recordToVariableMetadata);
     }
 
-    private Select<Record> getTableVariableQuery(VariableMetadataSearch search) {
-        Condition conditions = search.getTableToVariable().entrySet()
+    private List<VariableMetadata> findByTableVariables(Map<String, String> tableToVariable) {
+        Condition conditions = tableToVariable.entrySet()
                 .stream()
                 .map(entry -> field("TableMetadata.name").eq(entry.getKey())
                         .and(field("VariableMetadata.variable").eq(entry.getValue())))
                 .reduce(DSL.noCondition(), Condition::or);
         return create
                 .select()
-                .from("VariableMetadata")
-                .join("TableMetadata")
-                .on(field("TableMetadata.tableID").eq(field("VariableMetadata.tableID")))
-                .where(conditions);
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .where(conditions)
+                .fetchInto(VARIABLE_METADATA)
+                .map(recordToVariableMetadata);
     }
 }

@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.dto.VariableMetadataTable;

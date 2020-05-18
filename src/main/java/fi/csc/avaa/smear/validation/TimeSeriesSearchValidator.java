@@ -1,9 +1,9 @@
 package fi.csc.avaa.smear.validation;
 
-import fi.csc.avaa.smear.constants.Aggregation;
-import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.dao.TableMetadataDao;
+import fi.csc.avaa.smear.parameter.Aggregation;
+import fi.csc.avaa.smear.parameter.AggregationInterval;
+import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 
 import javax.enterprise.context.Dependent;
@@ -13,8 +13,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
-import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_TREE;
 import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
 
 @Dependent

@@ -1,8 +1,5 @@
 package fi.csc.avaa.smear.parameter;
 
-import fi.csc.avaa.smear.constants.Aggregation;
-import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import lombok.EqualsAndHashCode;

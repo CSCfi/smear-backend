@@ -2,8 +2,6 @@ package fi.csc.avaa.smear.dto;
 
 import java.util.List;
 
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
-
 public final class VariableMetadataTable {
 
     public static String csv(List<VariableMetadata> variableMetadataList) {

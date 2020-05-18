@@ -1,16 +1,15 @@
 package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.Metadata;
+import fi.csc.avaa.smear.table.MetadataRecord;
 import io.quarkus.cache.CacheResult;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.jooq.RecordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
 
-import static org.jooq.impl.DSL.field;
+import static fi.csc.avaa.smear.table.MetadataTable.METADATA;
 
 @ApplicationScoped
 public class MetadataDao {
@@ -18,25 +17,24 @@ public class MetadataDao {
     @Inject
     DSLContext create;
 
-    private final RecordMapper<Record, Metadata> recordToMetadata = record ->
+    private final RecordMapper<MetadataRecord, Metadata> recordToMetadata = record ->
             Metadata.builder()
-                    .title(record.get(field("title"), String.class))
-                    .rightsCategory(record.get(field("rightsCategory"), String.class))
-                    .accessRights(record.get(field("access_rights"), String.class))
-                    .project(record.get(field("project"), String.class))
-                    .maintainingOrganisation(record.get(field("maintaining_organisation"), String.class))
-                    .contact(record.get(field("contact"), String.class))
-                    .ref(record.get(field("ref"), String.class))
-                    .creator(record.get(field("creator"), String.class))
-                    .discipline(record.get(field("discipline"), String.class))
-                    .timestamp(record.get(field("timestamp"), LocalDateTime.class))
+                    .title(record.get(METADATA.TITLE))
+                    .rightsCategory(record.get(METADATA.RIGHTS_CATEGORY))
+                    .accessRights(record.get(METADATA.ACCESS_RIGHTS))
+                    .project(record.get(METADATA.PROJECT))
+                    .maintainingOrganisation(record.get(METADATA.MAINTAINING_ORGANISATION))
+                    .contact(record.get(METADATA.CONTACT))
+                    .ref(record.get(METADATA.REF))
+                    .creator(record.get(METADATA.CREATOR))
+                    .discipline(record.get(METADATA.DISCIPLINE))
+                    .timestamp(record.get(METADATA.TIMESTAMP))
                     .build();
 
     @CacheResult(cacheName = "metadata-cache")
     public Metadata getMetadata() {
         return create
-                .select()
-                .from("Metadata")
+                .selectFrom(METADATA)
                 .fetchOne(recordToMetadata);
     }
 }

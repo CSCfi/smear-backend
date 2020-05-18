@@ -1,4 +1,4 @@
-package fi.csc.avaa.smear.constants;
+package fi.csc.avaa.smear.parameter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

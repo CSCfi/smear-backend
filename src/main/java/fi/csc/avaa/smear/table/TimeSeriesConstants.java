@@ -1,6 +1,6 @@
-package fi.csc.avaa.smear.constants;
+package fi.csc.avaa.smear.table;
 
-public abstract class DBConstants {
+public final class TimeSeriesConstants {
 
     public static final String COL_SAMPTIME = "samptime";
 

@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
 import fi.csc.avaa.smear.dto.TimeSeriesTable;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;

@@ -1,9 +1,9 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.constants.Aggregation;
-import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
+import fi.csc.avaa.smear.parameter.Aggregation;
+import fi.csc.avaa.smear.parameter.AggregationInterval;
+import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static fi.csc.avaa.smear.constants.DBConstants.COL_CUV_NO;
-import static fi.csc.avaa.smear.constants.DBConstants.COL_SAMPTIME;
-import static fi.csc.avaa.smear.constants.DBConstants.COL_START_TIME;
-import static fi.csc.avaa.smear.constants.DBConstants.COL_VALUE;
-import static fi.csc.avaa.smear.constants.DBConstants.COL_VARIABLE;
-import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_SLOW;
-import static fi.csc.avaa.smear.constants.DBConstants.TABLE_HYY_TREE;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.COL_CUV_NO;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.COL_SAMPTIME;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.COL_START_TIME;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.COL_VALUE;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.COL_VARIABLE;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_SLOW;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_TREE;
 import static org.jooq.DatePart.MINUTE;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.case_;

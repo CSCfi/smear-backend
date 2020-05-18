@@ -1,6 +1,6 @@
-package fi.csc.avaa.smear.constants;
+package fi.csc.avaa.smear.resource;
 
-public abstract class Endpoints {
+final class Endpoints {
 
     private static final String API = "/api";
     public static final String EVENTS = API + "/event";

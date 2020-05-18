@@ -9,6 +9,6 @@ public class Tag {
 
     private Long id;
     private String vocabulary;
-    private String tag;
+    private String name;
     private String displayKeyword;
 }

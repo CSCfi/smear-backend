@@ -7,6 +7,6 @@ import lombok.Getter;
 @Builder
 public class Station {
 
-    private int id;
+    private Long id;
     private String name;
 }

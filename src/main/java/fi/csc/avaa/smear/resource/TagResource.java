@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.TagDao;
 import fi.csc.avaa.smear.dto.Tag;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -51,7 +50,7 @@ public class TagResource {
             @NotNull
             @Parameter(description = "Unique id of a tag",
                     example = "1")
-            @PathParam("id") Integer id
+            @PathParam("id") Long id
     ) {
         return dao.findById(id);
     }
