@@ -66,7 +66,7 @@ public class TimeSeriesDao {
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
-        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.aggregationInterval);
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLE_HYY_SLOW)) {
                 Select<Record3<Timestamp, String, Double>> query = createHyySlowQuery(variables, search);
@@ -94,7 +94,7 @@ public class TimeSeriesDao {
             fields.add(cuvNo);
             conditions = conditions.and(cuvNo.in(search.getCuvNos()));
         }
-        Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.aggregationInterval);
+        Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.getAggregationInterval());
         SelectConditionStep<Record> query = create
                 .select(fields)
                 .from(table)
@@ -112,7 +112,7 @@ public class TimeSeriesDao {
         Field<String> variableName = field(COL_VARIABLE, VARCHAR);
         Field<Double> value = field(COL_VALUE, FLOAT);
         Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
-        Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.aggregationInterval);
+        Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.getAggregationInterval());
         Condition conditions = variables
                 .stream()
                 .map(variableName::eq)

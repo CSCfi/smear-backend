@@ -68,30 +68,28 @@ public class VariableMetadataDao {
 
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        return search.tablevariables.isEmpty()
+        return search.getTablevariables().isEmpty()
                 ? findBy(search)
                 : findByTableVariables(search.getTableToVariable());
     }
 
     private List<VariableMetadata> findBy(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
-        if (!search.variableIds.isEmpty()) {
-            conditions.add(VARIABLE_METADATA.ID.in(search.variableIds));
+        if (!search.getVariableIds().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.ID.in(search.getVariableIds()));
         }
-        if (!search.variables.isEmpty()) {
-            conditions.add(VARIABLE_METADATA.NAME.in(search.variables));
+        if (!search.getVariables().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.NAME.in(search.getVariables()));
         }
-        if (!search.categories.isEmpty()) {
-            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.categories));
+        if (!search.getCategories().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.getCategories()));
         }
-        if (!search.tableIds.isEmpty()) {
-            conditions.add(VARIABLE_METADATA.TABLE_ID.in(search.tableIds));
+        if (!search.getTableIds().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.TABLE_ID.in(search.getTableIds()));
         }
-        if (!search.sources.isEmpty()) {
-            search.sources.forEach(source ->
-                    conditions.add(lower(VARIABLE_METADATA.SOURCE)
-                            .like("%" + source.toLowerCase() + "%")));
-        }
+        search.getSources().forEach(source ->
+                conditions.add(lower(VARIABLE_METADATA.SOURCE)
+                        .like("%" + source.toLowerCase() + "%")));
         return create
                 .selectFrom(VARIABLE_METADATA)
                 .where(conditions)

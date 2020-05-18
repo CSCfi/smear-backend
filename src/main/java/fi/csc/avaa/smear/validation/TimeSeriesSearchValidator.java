@@ -2,7 +2,6 @@ package fi.csc.avaa.smear.validation;
 
 import fi.csc.avaa.smear.dao.TableMetadataDao;
 import fi.csc.avaa.smear.parameter.Aggregation;
-import fi.csc.avaa.smear.parameter.AggregationInterval;
 import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 
@@ -28,7 +27,6 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
             "(tablevariable=HYY_META.Pamb0) or a single table + variables combination (table=HYY_META&variable=Pamb0) " +
             "must be provided (but not both)";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation type";
-    private static final String INVALID_AGGREGATION_INTERVAL = "Invalid aggregation interval";
     private static final String INVALID_QUALITY = "Invalid quality";
     private static final String INVALID_TABLES = "Invalid table(s): %s";
     private static final String HYY_AGGREGATION_NOT_SUPPORTED = "MEDIAN or CIRCULAR aggregation not supported " +
@@ -47,15 +45,15 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private boolean validateTableAndVariableParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.table == null || search.table.isEmpty()) {
-            if (search.tableVariables.isEmpty()) {
+        if (search.getTable() == null || search.getTable().isEmpty()) {
+            if (search.getTableVariables().isEmpty()) {
                 return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
         } else {
-            if (!search.tableVariables.isEmpty()) {
+            if (!search.getTableVariables().isEmpty()) {
                 return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
-            if (search.variables.isEmpty()) {
+            if (search.getVariables().isEmpty()) {
                 return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
         }
@@ -76,8 +74,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private boolean validateAggregationParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.aggregationStr != null) {
-            if (!Aggregation.getQueryParams().contains(search.aggregationStr)) {
+        if (search.getAggregationStr() != null) {
+            if (!Aggregation.getQueryParams().contains(search.getAggregationStr())) {
                 return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
             }
             if (search.getAggregation().isGroupedManually()
@@ -86,17 +84,12 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
                 return constraintViolation(ctx, HYY_AGGREGATION_NOT_SUPPORTED);
             }
         }
-        if (search.aggregationIntervalStr != null) {
-            if (!AggregationInterval.getQueryParams().contains(search.aggregationIntervalStr)) {
-                return constraintViolation(ctx, INVALID_AGGREGATION_INTERVAL);
-            }
-        }
         return true;
     }
 
     private boolean validateQualityParam(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.qualityStr != null) {
-            if (!Quality.getQueryParams().contains(search.qualityStr)) {
+        if (search.getQualityStr() != null) {
+            if (!Quality.getQueryParams().contains(search.getQualityStr())) {
                 return constraintViolation(ctx, INVALID_QUALITY);
             }
         }
@@ -105,7 +98,7 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
 
     private boolean validateCuvNo(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
         if (search.getTableToVariables().containsKey(TABLE_HYY_TREE)) {
-            if (search.cuvNoStr == null || search.cuvNoStr.isEmpty()) {
+            if (search.getCuvNoStr() == null || search.getCuvNoStr().isEmpty()) {
                 return constraintViolation(ctx, HYY_TREE_CUV_NO_REQUIRED);
             }
             try {

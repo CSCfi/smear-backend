@@ -13,14 +13,14 @@ public class VariableMetadataSearchValidator
     @Override
     public boolean isValid(VariableMetadataSearch search, ConstraintValidatorContext ctx) {
         boolean hasSearchParameters = Stream.of(
-                search.variableIds,
-                search.variables,
-                search.categories,
-                search.sources,
-                search.tableIds
+                search.getVariableIds(),
+                search.getVariables(),
+                search.getCategories(),
+                search.getSources(),
+                search.getTableIds()
         ).allMatch(List::isEmpty);
 
-        boolean hasTableVariableParameters = search.tablevariables.isEmpty();
+        boolean hasTableVariableParameters = search.getTablevariables().isEmpty();
 
         return (hasSearchParameters && !hasTableVariableParameters)
                 || (!hasSearchParameters && hasTableVariableParameters);
