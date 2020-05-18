@@ -5,6 +5,8 @@ import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import lombok.EqualsAndHashCode;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -70,10 +72,13 @@ public class TimeSeriesSearch {
     @QueryParam("aggregation")
     public String aggregationStr;
 
-    @Parameter(description = "Sample time aggregation interval. Valid values: 30MIN (default), 60MIN.",
-            example = "30MIN")
+    @Parameter(description = "Sample time aggregation interval in minutes. Valid range is from 1 to 60.",
+            example = "30")
+    @NotNull
+    @Min(1)
+    @Max(60)
     @QueryParam("aggregation_interval")
-    public String aggregationIntervalStr;
+    public Integer aggregationInterval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
             "At least one value is required when querying HYY_TREE table.",
@@ -121,12 +126,6 @@ public class TimeSeriesSearch {
         return aggregationStr != null
                 ? Aggregation.from(aggregationStr.toUpperCase())
                 : Aggregation.NONE;
-    }
-
-    public AggregationInterval getAggregationInterval() {
-        return aggregationIntervalStr != null
-                ? AggregationInterval.from(aggregationIntervalStr.toUpperCase())
-                : AggregationInterval.INTERVAL_30MIN;
     }
 
     public List<Integer> getCuvNos() {

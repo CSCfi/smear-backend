@@ -13,7 +13,6 @@ public enum Aggregation {
     MEDIAN(Grouping.MANUAL),
     MIN(Grouping.IN_QUERY),
     MAX(Grouping.IN_QUERY),
-    // TODO separate endpoint?
     AVAILABILITY(Grouping.NONE),
     CIRCULAR(Grouping.MANUAL);
 

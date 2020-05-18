@@ -2,7 +2,6 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
 import fi.csc.avaa.smear.parameter.Aggregation;
-import fi.csc.avaa.smear.parameter.AggregationInterval;
 import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import io.quarkus.cache.CacheResult;
@@ -67,7 +66,7 @@ public class TimeSeriesDao {
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
-        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.aggregationInterval);
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLE_HYY_SLOW)) {
                 Select<Record3<Timestamp, String, Double>> query = createHyySlowQuery(variables, search);
@@ -95,7 +94,7 @@ public class TimeSeriesDao {
             fields.add(cuvNo);
             conditions = conditions.and(cuvNo.in(search.getCuvNos()));
         }
-        Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.getAggregationInterval());
+        Field<Integer> aggregateFunction = getAggregateFunction(SAMPTIME, search.aggregationInterval);
         SelectConditionStep<Record> query = create
                 .select(fields)
                 .from(table)
@@ -113,7 +112,7 @@ public class TimeSeriesDao {
         Field<String> variableName = field(COL_VARIABLE, VARCHAR);
         Field<Double> value = field(COL_VALUE, FLOAT);
         Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
-        Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.getAggregationInterval());
+        Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.aggregationInterval);
         Condition conditions = variables
                 .stream()
                 .map(variableName::eq)
@@ -171,10 +170,10 @@ public class TimeSeriesDao {
                 .otherwise(inline(null, varField));
     }
 
-    private Field<Integer> getAggregateFunction(Field<Timestamp> to, AggregationInterval interval) {
+    private Field<Integer> getAggregateFunction(Field<Timestamp> to, Integer interval) {
         Field<Timestamp> from = field("'1990-1-1'", TIMESTAMP);
         Field<Integer> timestampDiff = timestampDiff(MINUTE, from, to);
-        return floor(timestampDiff.div(interval.getMinutes()));
+        return floor(timestampDiff.div(interval));
     }
 
     // https://github.com/jOOQ/jOOQ/issues/4303

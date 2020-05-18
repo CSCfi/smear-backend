@@ -1,7 +1,6 @@
 package fi.csc.avaa.smear.dto;
 
 import fi.csc.avaa.smear.parameter.Aggregation;
-import fi.csc.avaa.smear.parameter.AggregationInterval;
 import org.jooq.Record;
 import org.jooq.Record3;
 import org.jooq.Result;
@@ -35,11 +34,11 @@ import static org.jooq.impl.DSL.field;
 public class TimeSeriesBuilder {
 
     private final Aggregation aggregation;
-    private final AggregationInterval aggregationInterval;
+    private final Integer aggregationInterval;
     private final Set<String> allColumns = new TreeSet<>();
     private final Map<String, Map<String, Object>> timeSeries = new TreeMap<>();
 
-    public TimeSeriesBuilder(Aggregation aggregation, AggregationInterval aggregationInterval) {
+    public TimeSeriesBuilder(Aggregation aggregation, Integer aggregationInterval) {
         this.aggregation = aggregation;
         this.aggregationInterval = aggregationInterval;
     }
@@ -106,7 +105,7 @@ public class TimeSeriesBuilder {
         for (Record record : result) {
             LocalDateTime samptime = roundToNearestMinute(record.get(field(COL_SAMPTIME), LocalDateTime.class));
             if (aggregateSamptime == null) {
-                aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
+                aggregateSamptime = samptime.plusMinutes(aggregationInterval);
             }
             Iterator<Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
@@ -123,7 +122,7 @@ public class TimeSeriesBuilder {
                     initSamptime(samptimeStr);
                     timeSeries.get(samptimeStr).put(column, aggregateOf(values));
                     if (!variableIterator.hasNext()) {
-                        aggregateSamptime = samptime.plusMinutes(aggregationInterval.getMinutes());
+                        aggregateSamptime = samptime.plusMinutes(aggregationInterval);
                     }
                     values.clear();
                 }
