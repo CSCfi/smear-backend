@@ -79,7 +79,7 @@ public class TimeSeriesSearch {
     public String aggregationIntervalStr;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
-            "At least one value is required when querying HYY_SLOW table.",
+            "At least one value is required when querying HYY_TREE table.",
             example = "186")
     @QueryParam("cuv_no")
     public List<String> cuvNoStr;
