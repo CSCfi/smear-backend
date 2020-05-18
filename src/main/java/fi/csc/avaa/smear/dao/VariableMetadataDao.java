@@ -6,11 +6,13 @@ import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.RecordMapper;
 import org.jooq.Select;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,20 +26,42 @@ public class VariableMetadataDao {
     @Inject
     DSLContext create;
 
+    private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
+            VariableMetadata.builder()
+                    .id(record.get(field("variableID"), Long.class))
+                    .tableId(record.get(field("tableID"), Long.class))
+                    .name(record.get(field("variable"), String.class))
+                    .description(record.get(field("description"), String.class))
+                    .type(record.get(field("type"), String.class))
+                    .unit(record.get(field("unit"), String.class))
+                    .title(record.get(field("title"), String.class))
+                    .source(record.get(field("source"), String.class))
+                    .periodStart(record.get(field("period_start"), LocalDateTime.class))
+                    .periodEnd(record.get(field("period_end"), LocalDateTime.class))
+                    .coverage(record.get(field("coverage"), Integer.class))
+                    .rights(record.get(field("rights"), String.class))
+                    .category(record.get(field("category"), String.class))
+                    .mandatory(record.get(field("mandatory"), Boolean.class))
+                    .derivative(record.get(field("derivative"), Boolean.class))
+                    .uiSortOrder(record.get(field("ui_sort_order"), Integer.class))
+                    .uiAvgType(record.get(field("ui_avg_type"), String.class))
+                    .timestamp(record.get(field("vtimestamp"), LocalDateTime.class))
+                    .build();
+
     @CacheResult(cacheName = "variable-metadata-cache")
     public VariableMetadata findById(Long id) {
         return create
                 .select()
                 .from("VariableMetadata")
                 .where(field("variableID").eq(id))
-                .fetchOne(VariableMetadata::from);
+                .fetchOne(recordToVariableMetadata);
     }
 
     public List<VariableMetadata> search(VariableMetadataSearch search) {
         Select<Record> query = search.tablevariables.isEmpty()
                 ? getSearchQuery(search)
                 : getTableVariableQuery(search);
-        return query.fetch(VariableMetadata::from);
+        return query.fetch(recordToVariableMetadata);
     }
 
     private Select<Record> getSearchQuery(VariableMetadataSearch search) {
