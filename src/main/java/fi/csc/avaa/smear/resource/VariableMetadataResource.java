@@ -27,6 +27,16 @@ public class VariableMetadataResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Fetch all variable metadata",
+            description = "Metadata that describes variables stored in the SMEAR database."
+    )
+    public List<VariableMetadata> allVariableMetadata() {
+        return dao.findAll();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @Operation(
             summary = "Fetch variable metadata by variable id",
@@ -38,13 +48,9 @@ public class VariableMetadataResource {
                 example = "1")
             @PathParam("id") Long id
     ) {
-        return dao.findById(id);
+        return dao.findByVariableId(id);
     }
 
-    /*
-        TODO:
-        return all tables if no table/tablevariable provided, separate findall endpoint or both
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/search")

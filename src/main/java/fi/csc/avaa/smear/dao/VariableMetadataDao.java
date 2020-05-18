@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.lower;
@@ -27,29 +28,45 @@ public class VariableMetadataDao {
     DSLContext create;
 
     private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
-            VariableMetadata.builder()
-                    .id(record.get(field("variableID"), Long.class))
-                    .tableId(record.get(field("tableID"), Long.class))
-                    .name(record.get(field("variable"), String.class))
-                    .description(record.get(field("description"), String.class))
-                    .type(record.get(field("type"), String.class))
-                    .unit(record.get(field("unit"), String.class))
-                    .title(record.get(field("title"), String.class))
-                    .source(record.get(field("source"), String.class))
-                    .periodStart(record.get(field("period_start"), LocalDateTime.class))
-                    .periodEnd(record.get(field("period_end"), LocalDateTime.class))
-                    .coverage(record.get(field("coverage"), Integer.class))
-                    .rights(record.get(field("rights"), String.class))
-                    .category(record.get(field("category"), String.class))
-                    .mandatory(record.get(field("mandatory"), Boolean.class))
-                    .derivative(record.get(field("derivative"), Boolean.class))
-                    .uiSortOrder(record.get(field("ui_sort_order"), Integer.class))
-                    .uiAvgType(record.get(field("ui_avg_type"), String.class))
-                    .timestamp(record.get(field("vtimestamp"), LocalDateTime.class))
-                    .build();
+    {
+        // MySQL accepts datetimes with month/day set to 0 and we have such values in the database
+        // LocalDateTimes cannot be constructed from these
+        String periodStart = record.get(field("period_start"), String.class).replace(' ', 'T');
+        String periodEnd = Optional.of(record.get(field("period_end"), String.class))
+                .map(str -> str.replace(' ', 'T'))
+                .orElse(null);
+        return VariableMetadata.builder()
+                .id(record.get(field("variableID"), Long.class))
+                .tableId(record.get(field("tableID"), Long.class))
+                .name(record.get(field("variable"), String.class))
+                .description(record.get(field("description"), String.class))
+                .type(record.get(field("type"), String.class))
+                .unit(record.get(field("unit"), String.class))
+                .title(record.get(field("title"), String.class))
+                .source(record.get(field("source"), String.class))
+                .periodStart(periodStart)
+                .periodEnd(periodEnd)
+                .coverage(record.get(field("coverage"), Integer.class))
+                .rights(record.get(field("rights"), String.class))
+                .category(record.get(field("category"), String.class))
+                .mandatory(record.get(field("mandatory"), Boolean.class))
+                .derivative(record.get(field("derivative"), Boolean.class))
+                .uiSortOrder(record.get(field("ui_sort_order"), Integer.class))
+                .uiAvgType(record.get(field("ui_avg_type"), String.class))
+                .timestamp(record.get(field("vtimestamp"), LocalDateTime.class))
+                .build();
+    };
+
+    @CacheResult(cacheName = "variable-metadata-findall-cache")
+    public List<VariableMetadata> findAll() {
+        return create
+                .select()
+                .from("VariableMetadata")
+                .fetch(recordToVariableMetadata);
+    }
 
     @CacheResult(cacheName = "variable-metadata-cache")
-    public VariableMetadata findById(Long id) {
+    public VariableMetadata findByVariableId(Long id) {
         return create
                 .select()
                 .from("VariableMetadata")
@@ -57,6 +74,7 @@ public class VariableMetadataDao {
                 .fetchOne(recordToVariableMetadata);
     }
 
+    @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
         Select<Record> query = search.tablevariables.isEmpty()
                 ? getSearchQuery(search)

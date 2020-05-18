@@ -24,26 +24,22 @@ public final class VariableMetadataTable {
     }
 
     private static String toRow(String delimiter, VariableMetadata variableMetadata) {
-        String periodStart = ISO_DATE_TIME.format(variableMetadata.periodStart);
-        String periodEnd = variableMetadata.periodEnd != null
-                ? ISO_DATE_TIME.format(variableMetadata.periodStart)
-                : null;
         return String.join(delimiter,
-                variableMetadata.id.toString(),
-                variableMetadata.tableId.toString(),
-                variableMetadata.name,
-                variableMetadata.description,
-                variableMetadata.unit,
-                variableMetadata.title,
-                variableMetadata.source,
-                periodStart,
-                periodEnd,
-                variableMetadata.coverage.toString(),
-                variableMetadata.rights,
-                variableMetadata.mandatory.toString(),
-                variableMetadata.derivative.toString(),
-                variableMetadata.timestamp.toString(),
-                variableMetadata.category)
+                variableMetadata.getId().toString(),
+                variableMetadata.getTableId().toString(),
+                variableMetadata.getName(),
+                variableMetadata.getDescription(),
+                variableMetadata.getUnit(),
+                variableMetadata.getTitle(),
+                variableMetadata.getSource(),
+                variableMetadata.getPeriodStart(),
+                variableMetadata.getPeriodEnd(),
+                variableMetadata.getCoverage().toString(),
+                variableMetadata.getRights(),
+                variableMetadata.getMandatory().toString(),
+                variableMetadata.getDerivative().toString(),
+                variableMetadata.getTimestamp().toString(),
+                variableMetadata.getCategory())
                 + "\n";
     }
 }

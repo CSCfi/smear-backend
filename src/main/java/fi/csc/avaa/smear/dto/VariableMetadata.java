@@ -17,8 +17,8 @@ public class VariableMetadata {
     private String unit;
     private String title;
     private String source;
-    private LocalDateTime periodStart;
-    private LocalDateTime periodEnd;
+    private String periodStart;
+    private String periodEnd;
     private Integer coverage;
     private String rights;
     private String category;
