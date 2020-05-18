@@ -87,7 +87,7 @@ public class TimeSeriesSearch {
             "At least one value is required when querying HYY_TREE table.",
             example = "186")
     @QueryParam("cuv_no")
-    private List<String> cuvNoStr;
+    private List<Integer> cuvNos;
 
     private Map<String, List<String>> tableToVariables;
 
@@ -135,12 +135,5 @@ public class TimeSeriesSearch {
         return aggregationStr != null
                 ? Aggregation.from(aggregationStr.toUpperCase())
                 : Aggregation.NONE;
-    }
-
-    public List<Integer> getCuvNos() {
-        return cuvNoStr
-                .stream()
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
     }
 }

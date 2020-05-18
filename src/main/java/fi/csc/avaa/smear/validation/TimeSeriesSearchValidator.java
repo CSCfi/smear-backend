@@ -22,7 +22,6 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     @Inject
     TableMetadataDao tableMetadataDao;
 
-    // TODO: move to .properties file, add valid parameters to aggregation params
     private static final String INVALID_TABLE_AND_VARIABLE = "Either one or more tablevariables " +
             "(tablevariable=HYY_META.Pamb0) or a single table + variables combination (table=HYY_META&variable=Pamb0) " +
             "must be provided (but not both)";
@@ -33,7 +32,6 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
             "for tables HYY_SLOW and HYY_TREE";
     private static final String HYY_TREE_CUV_NO_REQUIRED = "One or more cuv_no parameters required when " +
             "querying HYY_TREE";
-    public static final String HYY_TREE_INVALID_CUV_NO = "cuv_no must be an integer";
 
     @Override
     public boolean isValid(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
@@ -98,13 +96,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
 
     private boolean validateCuvNo(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
         if (search.getTableToVariables().containsKey(TABLE_HYY_TREE)) {
-            if (search.getCuvNoStr() == null || search.getCuvNoStr().isEmpty()) {
+            if (search.getCuvNos() == null || search.getCuvNos().isEmpty()) {
                 return constraintViolation(ctx, HYY_TREE_CUV_NO_REQUIRED);
-            }
-            try {
-                search.getCuvNos();
-            } catch (NumberFormatException e) {
-                return constraintViolation(ctx, HYY_TREE_INVALID_CUV_NO);
             }
         }
         return true;

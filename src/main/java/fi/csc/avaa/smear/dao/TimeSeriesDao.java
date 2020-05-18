@@ -52,10 +52,6 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.TIMESTAMP;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
-/*
- TODO:
-  compare responses with production version, fix timestamps
- */
 @ApplicationScoped
 public class TimeSeriesDao {
 
