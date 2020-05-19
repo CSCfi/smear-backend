@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.EventDao;
 import fi.csc.avaa.smear.dto.Event;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -38,7 +37,7 @@ public class EventResource {
             @Parameter(description = "Unique id of a variable. " +
                     "Multiple parameters can be used and at least one is required.",
                     example = "43")
-            @QueryParam("variableId") List<Integer> variableIds
+            @QueryParam("variableId") List<Long> variableIds
     ) {
         return dao.findByVariableIds(variableIds);
     }
@@ -54,7 +53,7 @@ public class EventResource {
     public Event event(
             @NotNull
             @Parameter(description = "Unique id of an event.", example = "201")
-            @PathParam("id") Integer id
+            @PathParam("id") Long id
     ) {
         return dao.findById(id);
     }

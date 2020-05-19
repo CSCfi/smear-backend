@@ -1,13 +1,14 @@
 package fi.csc.avaa.smear.parameter;
 
-import fi.csc.avaa.smear.constants.Aggregation;
-import fi.csc.avaa.smear.constants.AggregationInterval;
-import fi.csc.avaa.smear.constants.Quality;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesSearch;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -19,8 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@ValidTimeSeriesSearch
+@Getter
+@Setter
 @EqualsAndHashCode
+@ValidTimeSeriesSearch
 public class TimeSeriesSearch {
 
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
@@ -29,27 +32,27 @@ public class TimeSeriesSearch {
             "Table ids of variables can be found from the variablemetadata endpoint.",
             example = "HYY_META")
     @QueryParam("table")
-    public String table;
+    private String table;
 
     @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used. " +
             "At least one is required if the table parameter is not empty.",
             example = "Pamb0")
     @QueryParam("variable")
-    public List<@NotEmpty String> variables;
+    private List<@NotEmpty String> variables;
 
     @Parameter(description = "Name of a table and a variable separated by a period. " +
             "Multiple parameters can be used.",
             example = "HYY_META.Pamb0")
     @QueryParam("tablevariable")
-    public List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
+    private List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
 
     @Parameter(description = "Time series start time in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-11T00:00:00.989",
             required = true)
-    @QueryParam("from")
     @NotNull
     @ValidIsoDate
-    public String from;
+    @QueryParam("from")
+    private String from;
 
     @Parameter(description = "Time series end time in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-12T09:06:07.989",
@@ -57,32 +60,34 @@ public class TimeSeriesSearch {
     @QueryParam("to")
     @NotNull
     @ValidIsoDate
-    public String to;
+    private String to;
 
     @Parameter(description = "Should the time series data be quality checked or not. " +
             "Valid values: ANY (default), CHECKED.",
             example = "ANY",
             required = true)
     @QueryParam("quality")
-    public String qualityStr;
+    private String qualityStr;
 
     @Parameter(description = "Type of the sample time aggregation. " +
             "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR. " +
             "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table.",
             example = "NONE")
     @QueryParam("aggregation")
-    public String aggregationStr;
+    private String aggregationStr;
 
-    @Parameter(description = "Sample time aggregation interval. Valid values: 30MIN (default), 60MIN.",
-            example = "30MIN")
+    @Parameter(description = "Sample time aggregation interval in minutes. Valid range is from 1 to 60.",
+            example = "30")
+    @Min(1)
+    @Max(60)
     @QueryParam("aggregation_interval")
-    public String aggregationIntervalStr;
+    private Integer aggregationInterval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
-            "At least one value is required when querying HYY_SLOW table.",
+            "At least one value is required when querying HYY_TREE table.",
             example = "186")
     @QueryParam("cuv_no")
-    public List<String> cuvNoStr;
+    private List<Integer> cuvNos;
 
     private Map<String, List<String>> tableToVariables;
 
@@ -114,6 +119,12 @@ public class TimeSeriesSearch {
         return Timestamp.valueOf(to.replace('T', ' '));
     }
 
+    public Integer getAggregationInterval() {
+        return aggregationInterval != null
+                ? aggregationInterval
+                : 30;
+    }
+
     public Quality getQuality() {
         return qualityStr != null
                 ? Quality.from(qualityStr.toUpperCase())
@@ -124,18 +135,5 @@ public class TimeSeriesSearch {
         return aggregationStr != null
                 ? Aggregation.from(aggregationStr.toUpperCase())
                 : Aggregation.NONE;
-    }
-
-    public AggregationInterval getAggregationInterval() {
-        return aggregationIntervalStr != null
-                ? AggregationInterval.from(aggregationIntervalStr.toUpperCase())
-                : AggregationInterval.INTERVAL_30MIN;
-    }
-
-    public List<Integer> getCuvNos() {
-        return cuvNoStr
-                .stream()
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
     }
 }

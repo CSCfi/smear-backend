@@ -15,7 +15,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ValidIsoDate {
 
-    // TODO: move to .properties file
     String message() default "Not a valid ISO8601 date";
 
     Class<?>[] groups() default {};

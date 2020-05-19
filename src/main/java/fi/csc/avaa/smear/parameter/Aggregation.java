@@ -1,4 +1,4 @@
-package fi.csc.avaa.smear.constants;
+package fi.csc.avaa.smear.parameter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,6 @@ public enum Aggregation {
     MEDIAN(Grouping.MANUAL),
     MIN(Grouping.IN_QUERY),
     MAX(Grouping.IN_QUERY),
-    // TODO separate endpoint?
     AVAILABILITY(Grouping.NONE),
     CIRCULAR(Grouping.MANUAL);
 

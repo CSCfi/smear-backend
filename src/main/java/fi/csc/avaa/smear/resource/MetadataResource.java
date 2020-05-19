@@ -1,6 +1,5 @@
 package fi.csc.avaa.smear.resource;
 
-import fi.csc.avaa.smear.constants.Endpoints;
 import fi.csc.avaa.smear.dao.MetadataDao;
 import fi.csc.avaa.smear.dto.Metadata;
 import org.eclipse.microprofile.openapi.annotations.Operation;
