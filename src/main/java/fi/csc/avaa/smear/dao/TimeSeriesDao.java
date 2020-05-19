@@ -15,12 +15,13 @@ import org.jooq.Result;
 import org.jooq.Select;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
+import org.jooq.SelectSeekStep1;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ import static org.jooq.impl.DSL.sum;
 import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.SQLDataType.FLOAT;
 import static org.jooq.impl.SQLDataType.INTEGER;
-import static org.jooq.impl.SQLDataType.TIMESTAMP;
+import static org.jooq.impl.SQLDataType.LOCALDATETIME;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
 @ApplicationScoped
@@ -58,15 +59,15 @@ public class TimeSeriesDao {
     @Inject
     DSLContext create;
 
-    private static final Field<Timestamp> SAMPTIME = field(COL_SAMPTIME, TIMESTAMP);
+    private static final Field<LocalDateTime> SAMPTIME = field(COL_SAMPTIME, LOCALDATETIME);
 
     @CacheResult(cacheName = "time-series-search-cache")
     public Map<String, Map<String, Object>> search(TimeSeriesSearch search) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLE_HYY_SLOW)) {
-                Select<Record3<Timestamp, String, Double>> query = createHyySlowQuery(variables, search);
-                Result<Record3<Timestamp, String, Double>> result = query.fetch();
+                SelectSeekStep1<Record3<LocalDateTime, String, Double>, LocalDateTime> query = createHyySlowQuery(variables, search);
+                Result<Record3<LocalDateTime, String, Double>> result = query.fetch();
                 builder.addHyySlowResult(result);
             } else {
                 Select<Record> query = createQuery(tableName, variables, search);
@@ -84,7 +85,7 @@ public class TimeSeriesDao {
     private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
-        Condition conditions = SAMPTIME.between(search.getFromTimestamp(), search.getToTimestamp());
+        Condition conditions = SAMPTIME.between(search.getFromLocalDateTime(), search.getToLocalDateTime());
         if (tableName.equals(TABLE_HYY_TREE)) {
             Field<Integer> cuvNo = field(COL_CUV_NO, INTEGER);
             fields.add(cuvNo);
@@ -101,19 +102,19 @@ public class TimeSeriesDao {
                 .orderBy(SAMPTIME.asc());
     }
 
-    private Select<Record3<Timestamp, String, Double>> createHyySlowQuery(
+    private SelectSeekStep1<Record3<LocalDateTime, String, Double>, LocalDateTime> createHyySlowQuery(
             List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(TABLE_HYY_SLOW);
-        Field<Timestamp> startTime = field(COL_START_TIME, TIMESTAMP);
+        Field<LocalDateTime> startTime = field(COL_START_TIME, LOCALDATETIME);
         Field<String> variableName = field(COL_VARIABLE, VARCHAR);
         Field<Double> value = field(COL_VALUE, FLOAT);
-        Condition startTimeInRange = startTime.between(search.getFromTimestamp(), search.getToTimestamp());
+        Condition startTimeInRange = startTime.between(search.getFromLocalDateTime(), search.getToLocalDateTime());
         Field<Integer> aggregateFunction = getAggregateFunction(startTime, search.getAggregationInterval());
         Condition conditions = variables
                 .stream()
                 .map(variableName::eq)
                 .reduce(noCondition(), Condition::or);
-        SelectConditionStep<Record3<Timestamp, String, Double>> query = create
+        SelectConditionStep<Record3<LocalDateTime, String, Double>> query = create
                 .select(startTime, variableName, value)
                 .from(table)
                 .where(startTimeInRange)
@@ -166,14 +167,14 @@ public class TimeSeriesDao {
                 .otherwise(inline(null, varField));
     }
 
-    private Field<Integer> getAggregateFunction(Field<Timestamp> to, Integer interval) {
-        Field<Timestamp> from = field("'1990-1-1'", TIMESTAMP);
+    private Field<Integer> getAggregateFunction(Field<LocalDateTime> to, Integer interval) {
+        Field<LocalDateTime> from = field("'1990-1-1'", LOCALDATETIME);
         Field<Integer> timestampDiff = timestampDiff(MINUTE, from, to);
         return floor(timestampDiff.div(interval));
     }
 
     // https://github.com/jOOQ/jOOQ/issues/4303
-    private static Field<Integer> timestampDiff(DatePart part, Field<Timestamp> t1, Field<Timestamp> t2) {
+    private static Field<Integer> timestampDiff(DatePart part, Field<LocalDateTime> t1, Field<LocalDateTime> t2) {
         return DSL.field("timestampdiff({0}, {1}, {2})", Integer.class, DSL.keyword(part.toSQL()), t1, t2);
     }
 }

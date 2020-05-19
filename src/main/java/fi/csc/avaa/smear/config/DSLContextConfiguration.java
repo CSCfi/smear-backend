@@ -20,7 +20,7 @@ public class DSLContextConfiguration {
     @Produces
     public DSLContext dslContext() {
         if (dslContext == null) {
-            dslContext = DSL.using(smearDataSource, SQLDialect.MYSQL);
+            dslContext = DSL.using(smearDataSource, SQLDialect.MARIADB);
         }
         return dslContext;
     }
