@@ -66,8 +66,7 @@ public class TimeSeriesDao {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getAggregation(), search.getAggregationInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLE_HYY_SLOW)) {
-                SelectSeekStep1<Record3<LocalDateTime, String, Double>, LocalDateTime> query = createHyySlowQuery(variables, search);
-                Result<Record3<LocalDateTime, String, Double>> result = query.fetch();
+                Result<Record3<LocalDateTime, String, Double>> result = createHyySlowQuery(variables, search).fetch();
                 builder.addHyySlowResult(result);
             } else {
                 Select<Record> query = createQuery(tableName, variables, search);
@@ -85,7 +84,8 @@ public class TimeSeriesDao {
     private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
-        Condition conditions = SAMPTIME.between(search.getFromLocalDateTime(), search.getToLocalDateTime());
+        Condition conditions = SAMPTIME.greaterOrEqual(search.getFromLocalDateTime())
+                .and(SAMPTIME.lessThan(search.getToLocalDateTime()));
         if (tableName.equals(TABLE_HYY_TREE)) {
             Field<Integer> cuvNo = field(COL_CUV_NO, INTEGER);
             fields.add(cuvNo);
