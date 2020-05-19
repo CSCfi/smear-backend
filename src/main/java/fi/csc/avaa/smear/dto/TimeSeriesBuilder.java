@@ -5,7 +5,6 @@ import org.jooq.Record;
 import org.jooq.Record3;
 import org.jooq.Result;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +57,7 @@ public class TimeSeriesBuilder {
         }
     }
 
-    public void addHyySlowResult(Result<Record3<Timestamp, String, Double>> result) {
+    public void addHyySlowResult(Result<Record3<LocalDateTime, String, Double>> result) {
         result.forEach(record -> {
             String variable = record.get(field(COL_VARIABLE), String.class);
             String column = getColName(TABLE_HYY_SLOW, variable);

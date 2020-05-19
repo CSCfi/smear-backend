@@ -13,12 +13,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -111,12 +110,12 @@ public class TimeSeriesSearch {
         return tableToVariables;
     }
 
-    public Timestamp getFromTimestamp() {
-        return Timestamp.valueOf(from.replace('T', ' '));
+    public LocalDateTime getFromLocalDateTime() {
+        return LocalDateTime.parse(from);
     }
 
-    public Timestamp getToTimestamp() {
-        return Timestamp.valueOf(to.replace('T', ' '));
+    public LocalDateTime getToLocalDateTime() {
+        return LocalDateTime.parse(to);
     }
 
     public Integer getAggregationInterval() {
