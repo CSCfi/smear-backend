@@ -45,7 +45,7 @@ public class TimeSeriesSearch {
     @QueryParam("tablevariable")
     private List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tableVariables;
 
-    @Parameter(description = "Time series start time in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
+    @Parameter(description = "Time series start time (inclusive) in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-11T00:00:00.989",
             required = true)
     @NotNull
@@ -53,7 +53,7 @@ public class TimeSeriesSearch {
     @QueryParam("from")
     private String from;
 
-    @Parameter(description = "Time series end time in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
+    @Parameter(description = "Time series end time (exclusive) in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-12T09:06:07.989",
             required = true)
     @QueryParam("to")
@@ -79,7 +79,7 @@ public class TimeSeriesSearch {
             example = "30")
     @Min(1)
     @Max(60)
-    @QueryParam("aggregation_interval")
+    @QueryParam("interval")
     private Integer aggregationInterval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +

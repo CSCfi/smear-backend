@@ -2,17 +2,17 @@ package fi.csc.avaa.smear.dto;
 
 import java.util.List;
 
-public final class VariableMetadataTable {
+public final class VariableMetadataFormatter {
 
-    public static String csv(List<VariableMetadata> variableMetadataList) {
-        return toTable(variableMetadataList, ",");
+    public static String toCsv(List<VariableMetadata> variableMetadataList) {
+        return toPlainText(variableMetadataList, ",");
     }
 
-    public static String tsv(List<VariableMetadata> variableMetadataList) {
-        return toTable(variableMetadataList, "\t");
+    public static String toTsv(List<VariableMetadata> variableMetadataList) {
+        return toPlainText(variableMetadataList, "\t");
     }
 
-    private static String toTable(List<VariableMetadata> result, String delimiter) {
+    private static String toPlainText(List<VariableMetadata> result, String delimiter) {
         String header = String.join(delimiter, "id", "tableId", "name", "description",
                 "unit", "title", "source", "periodStart", "periodEnd", "coverage", "rights", "mandatory",
                 "derivative", "timestamp", "category\n");

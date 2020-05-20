@@ -2,7 +2,7 @@ package fi.csc.avaa.smear.resource;
 
 import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
-import fi.csc.avaa.smear.dto.VariableMetadataTable;
+import fi.csc.avaa.smear.dto.VariableMetadataFormatter;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -69,7 +69,7 @@ public class VariableMetadataResource {
             description = "Metadata that describes variables stored in the SMEAR database."
     )
     public String searchCsv(@BeanParam @Valid VariableMetadataSearch search) {
-        return VariableMetadataTable.csv(dao.search(search));
+        return VariableMetadataFormatter.toCsv(dao.search(search));
     }
 
     @GET
@@ -80,6 +80,6 @@ public class VariableMetadataResource {
             description = "Metadata that describes variables stored in the SMEAR database."
     )
     public String searchTsv(@BeanParam @Valid VariableMetadataSearch search) {
-        return VariableMetadataTable.tsv(dao.search(search));
+        return VariableMetadataFormatter.toTsv(dao.search(search));
     }
 }
