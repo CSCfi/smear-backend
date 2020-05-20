@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
+@Tag("integration")
 public class TimeSeriesResourceTest {
 
     @Test
