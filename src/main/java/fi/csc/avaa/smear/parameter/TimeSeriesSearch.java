@@ -79,7 +79,7 @@ public class TimeSeriesSearch {
             example = "30")
     @Min(1)
     @Max(60)
-    @QueryParam("aggregation_interval")
+    @QueryParam("interval")
     private Integer aggregationInterval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +

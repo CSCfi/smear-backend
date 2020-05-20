@@ -12,8 +12,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_SLOW;
-import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLE_HYY_TREE;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_SLOW;
+import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_TREE;
 import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
 
 @Dependent
@@ -77,8 +77,8 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
                 return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
             }
             if (search.getAggregation().isGroupedManually()
-                    && (search.getTableToVariables().containsKey(TABLE_HYY_SLOW)
-                    || search.getTableToVariables().containsKey(TABLE_HYY_TREE))) {
+                    && (search.getTableToVariables().containsKey(TABLENAME_HYY_SLOW)
+                    || search.getTableToVariables().containsKey(TABLENAME_HYY_TREE))) {
                 return constraintViolation(ctx, HYY_AGGREGATION_NOT_SUPPORTED);
             }
         }
@@ -95,7 +95,7 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private boolean validateCuvNo(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.getTableToVariables().containsKey(TABLE_HYY_TREE)) {
+        if (search.getTableToVariables().containsKey(TABLENAME_HYY_TREE)) {
             if (search.getCuvNos() == null || search.getCuvNos().isEmpty()) {
                 return constraintViolation(ctx, HYY_TREE_CUV_NO_REQUIRED);
             }

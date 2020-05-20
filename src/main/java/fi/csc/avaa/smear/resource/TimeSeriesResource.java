@@ -1,7 +1,8 @@
 package fi.csc.avaa.smear.resource;
 
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
-import fi.csc.avaa.smear.dto.TimeSeriesTable;
+import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
+import fi.csc.avaa.smear.dto.TimeSeries;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
@@ -12,7 +13,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Map;
 
 @Path(Endpoints.TIMESERIES)
 public class TimeSeriesResource {
@@ -27,7 +27,7 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via the Metadata API " +
                     "or the graphical SMART SMEAR application."
     )
-    public Map<String, Map<String, Object>> timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
+    public TimeSeries timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
         return dao.search(params);
     }
 
@@ -40,7 +40,7 @@ public class TimeSeriesResource {
                     "or the graphical SMART SMEAR application."
     )
     public String timeSeriesCsv(@BeanParam @Valid TimeSeriesSearch params) {
-        return TimeSeriesTable.csv(dao.search(params));
+        return TimeSeriesFormatter.toCsv(dao.search(params));
     }
 
     @GET
@@ -52,6 +52,6 @@ public class TimeSeriesResource {
                     "or via the graphical SMART SMEAR application."
     )
     public String timeSeriesTxt(@BeanParam @Valid TimeSeriesSearch params) {
-        return TimeSeriesTable.tsv(dao.search(params));
+        return TimeSeriesFormatter.toTsv(dao.search(params));
     }
 }
