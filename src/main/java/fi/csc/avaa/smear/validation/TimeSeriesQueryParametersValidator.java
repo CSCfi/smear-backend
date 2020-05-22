@@ -73,7 +73,7 @@ public class TimeSeriesQueryParametersValidator
                 .filter(tableName -> !validTables.contains(tableName))
                 .collect(Collectors.toList());
         if (!invalidTables.isEmpty()) {
-            return constraintViolation(ctx,
+            return constraintViolation(ctx, "tablevariable",
                     String.format(INVALID_TABLES, String.join(", ", invalidTables)));
         }
         return true;

@@ -1,23 +1,23 @@
 package fi.csc.avaa.smear.resource;
 
+import fi.csc.avaa.smear.parameter.Aggregation;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
 @Tag("integration")
 public class TimeSeriesResourceValidationsTest {
 
     @Test
-    public void noParametersGiven_shouldReturnErrorMessagesForDateTimeRangeAndTableVariable() {
+    public void noParametersGiven_shouldReturnParameterViolationsForDateTimeRangeAndTableVariable() {
         given()
                 .when()
                 .get(Endpoints.TIMESERIES)
@@ -32,7 +32,7 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void bothTableAndVariableAndTablevariableParametersGiven_shouldReturnErrorMessage() {
+    public void bothTableAndVariableAndTablevariableParametersGiven_shouldReturnParameterViolation() {
         given()
                 .when()
                 .queryParam("tablevariable", "HYY_META.Pamb0")
@@ -48,7 +48,35 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void invalidAggregationGiven_shouldReturnErrorMessage() {
+    public void tableWithoutVariablesGiven_shouldReturnParameterViolation() {
+        given()
+                .when()
+                .queryParam("table", "HYY_AERO")
+                .queryParam("from", "2016-02-12T00:00:00.000")
+                .queryParam("to", "2016-02-12T00:06:00.000")
+                .get(Endpoints.TIMESERIES)
+                .then()
+                .statusCode(400)
+                .body("parameterViolations", hasSize(1))
+                .body("parameterViolations.path", contains("timeSeries.params.variable"));
+    }
+
+    @Test
+    public void nonExistentTableGiven_shouldReturnParameterViolation() {
+        given()
+                .when()
+                .queryParam("tablevariable", "ASDFSD.Pamb0")
+                .queryParam("from", "2016-02-12T00:00:00.000")
+                .queryParam("to", "2016-02-12T00:06:00.000")
+                .get(Endpoints.TIMESERIES)
+                .then()
+                .statusCode(400)
+                .body("parameterViolations", hasSize(1))
+                .body("parameterViolations.path", contains("timeSeries.params.tablevariable"));
+    }
+
+    @Test
+    public void invalidAggregationGiven_shouldReturnParameterViolation() {
         given()
                 .when()
                 .queryParam("tablevariable", "HYY_META.Pamb0")
@@ -63,7 +91,7 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void invalidQualityGiven_shouldReturnErrorMessage() {
+    public void invalidQualityGiven_shouldReturnParameterViolation() {
         given()
                 .when()
                 .queryParam("tablevariable", "HYY_META.Pamb0")
@@ -78,18 +106,76 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void invalidAggregationIntervalGiven_shouldReturnErrorMessage() {
+    public void invalidAggregationIntervalGiven_shouldReturnParameterViolation() {
         given()
                 .when()
                 .queryParam("tablevariable", "HYY_META.Pamb0")
                 .queryParam("from", "2016-02-12T00:00:00.000")
                 .queryParam("to", "2016-02-12T00:06:00.000")
                 .queryParam("aggregation", "GEOMETRIC")
-                .queryParam("interval", 10000)
+                .queryParam("interval", 0)
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(400)
                 .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.interval"));
+
+        given()
+                .when()
+                .queryParam("tablevariable", "HYY_META.Pamb0")
+                .queryParam("from", "2016-02-12T00:00:00.000")
+                .queryParam("to", "2016-02-12T00:06:00.000")
+                .queryParam("aggregation", "GEOMETRIC")
+                .queryParam("interval", 61)
+                .get(Endpoints.TIMESERIES)
+                .then()
+                .statusCode(400)
+                .body("parameterViolations", hasSize(1))
+                .body("parameterViolations.path", contains("timeSeries.params.interval"));
+    }
+
+    @Test
+    public void fetchFromHyyTreeTableWithoutCuvNo_shouldReturnParameterViolation() {
+        given()
+                .when()
+                .queryParam("tablevariable", "HYY_TREE.PARcuv_leaf")
+                .queryParam("from", "2016-02-12T00:00:00.000")
+                .queryParam("to", "2016-02-12T00:06:00.000")
+                .get(Endpoints.TIMESERIES)
+                .then()
+                .statusCode(400)
+                .body("parameterViolations", hasSize(1))
+                .body("parameterViolations.path", contains("timeSeries.params.cuv_no"));
+    }
+
+    @Test
+    public void fetchFromHyyTablesWithManualAggregation_shouldReturnParameterViolation() {
+        Arrays.asList(Aggregation.MEDIAN, Aggregation.CIRCULAR)
+                .forEach(aggregation -> {
+                    given()
+                            .when()
+                            .queryParam("tablevariable", "HYY_TREE.PARcuv_leaf")
+                            .queryParam("from", "2016-02-12T00:00:00.000")
+                            .queryParam("to", "2016-02-12T00:06:00.000")
+                            .queryParam("cuv_no", 186)
+                            .queryParam("aggregation", aggregation)
+                            .get(Endpoints.TIMESERIES)
+                            .then()
+                            .statusCode(400)
+                            .body("parameterViolations", hasSize(1))
+                            .body("parameterViolations.path", contains("timeSeries.params.aggregation"));
+
+                    given()
+                            .when()
+                            .queryParam("tablevariable", "HYY_SLOW.SD_PIT050")
+                            .queryParam("from", "2016-02-12T00:00:00.000")
+                            .queryParam("to", "2016-02-12T00:06:00.000")
+                            .queryParam("aggregation", aggregation)
+                            .get(Endpoints.TIMESERIES)
+                            .then()
+                            .statusCode(400)
+                            .body("parameterViolations", hasSize(1))
+                            .body("parameterViolations.path", contains("timeSeries.params.aggregation"));
+                });
     }
 }
