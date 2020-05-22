@@ -1,8 +1,8 @@
 package fi.csc.avaa.smear.resource;
 
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
-import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
 import fi.csc.avaa.smear.dto.TimeSeries;
+import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
