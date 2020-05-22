@@ -2,12 +2,11 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
-import fi.csc.avaa.smear.table.VariableMetadataRecord;
 import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.RecordMapper;
-import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,7 +18,7 @@ import java.util.Optional;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.lower;
+import static org.jooq.impl.DSL.noCondition;
 
 @ApplicationScoped
 public class VariableMetadataDao {
@@ -27,10 +26,9 @@ public class VariableMetadataDao {
     @Inject
     DSLContext create;
 
-    private final RecordMapper<VariableMetadataRecord, VariableMetadata> recordToVariableMetadata = record ->
+    private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
             VariableMetadata.builder()
-                    .id(record.get(VARIABLE_METADATA.ID))
-                    .tableId(record.get(VARIABLE_METADATA.TABLE_ID))
+                    .table(record.get(TABLE_METADATA.NAME))
                     .name(record.get(VARIABLE_METADATA.NAME))
                     .description(record.get(VARIABLE_METADATA.DESCRIPTION))
                     .type(record.get(VARIABLE_METADATA.TYPE))
@@ -58,57 +56,45 @@ public class VariableMetadataDao {
                 .fetch(recordToVariableMetadata);
     }
 
-    @CacheResult(cacheName = "variable-metadata-cache")
-    public VariableMetadata findByVariableId(Long id) {
-        return create
-                .selectFrom(VARIABLE_METADATA)
-                .where(VARIABLE_METADATA.ID.eq(id))
-                .fetchOne(recordToVariableMetadata);
-    }
-
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        return search.getTableToVariable().isEmpty()
-                ? findBy(search)
-                : findByTableVariables(search.getTableToVariable());
-    }
-
-    private List<VariableMetadata> findBy(VariableMetadataSearch search) {
-        List<Condition> conditions = new ArrayList<>();
-        if (!search.getVariableIds().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.ID.in(search.getVariableIds()));
-        }
-        if (!search.getVariables().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.NAME.in(search.getVariables()));
-        }
-        if (!search.getCategories().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.getCategories()));
-        }
-        if (!search.getTableIds().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.TABLE_ID.in(search.getTableIds()));
-        }
-        search.getSources().forEach(source ->
-                conditions.add(lower(VARIABLE_METADATA.SOURCE)
-                        .like("%" + source.toLowerCase() + "%")));
-        return create
-                .selectFrom(VARIABLE_METADATA)
-                .where(conditions)
-                .fetch(recordToVariableMetadata);
-    }
-
-    private List<VariableMetadata> findByTableVariables(Map<String, String> tableToVariable) {
-        Condition conditions = tableToVariable.entrySet()
-                .stream()
-                .map(entry -> field("TableMetadata.name").eq(entry.getKey())
-                        .and(field("VariableMetadata.variable").eq(entry.getValue())))
-                .reduce(DSL.noCondition(), Condition::or);
+        Condition conditions = search.getTableToVariable().isEmpty()
+                ? getSearchConditions(search)
+                : getTableVariableConditions(search.getTableToVariable());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(conditions)
-                .fetchInto(VARIABLE_METADATA)
-                .map(recordToVariableMetadata);
+                .fetch(recordToVariableMetadata);
+    }
+
+    private Condition getSearchConditions(VariableMetadataSearch search) {
+        List<Condition> conditions = new ArrayList<>();
+        if (!search.getVariables().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.NAME.in(search.getVariables()));
+        }
+        if (!search.getTables().isEmpty()) {
+            conditions.add(TABLE_METADATA.NAME.in(search.getTables()));
+        }
+        if (!search.getCategories().isEmpty()) {
+            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.getCategories()));
+        }
+        conditions.add(search.getSources()
+                .stream()
+                .map(VARIABLE_METADATA.SOURCE::containsIgnoreCase)
+                .reduce(noCondition(), Condition::or));
+        return conditions
+                .stream()
+                .reduce(noCondition(), Condition::and);
+    }
+
+    private Condition getTableVariableConditions(Map<String, String> tableToVariable) {
+        return tableToVariable.entrySet()
+                    .stream()
+                    .map(entry -> field("TableMetadata.name").eq(entry.getKey())
+                            .and(field("VariableMetadata.variable").eq(entry.getValue())))
+                    .reduce(noCondition(), Condition::or);
     }
 }

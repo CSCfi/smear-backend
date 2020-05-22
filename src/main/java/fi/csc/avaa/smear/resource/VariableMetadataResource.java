@@ -6,15 +6,12 @@ import fi.csc.avaa.smear.dto.VariableMetadataFormatter;
 import fi.csc.avaa.smear.parameter.VariableMetadataQueryParameters;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -33,22 +30,6 @@ public class VariableMetadataResource {
     )
     public List<VariableMetadata> allVariableMetadata() {
         return dao.findAll();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}")
-    @Operation(
-            summary = "Fetch variable metadata by variable id",
-            description = "Metadata that describes variables stored in the SMEAR database."
-    )
-    public VariableMetadata variableMetadata(
-            @NotNull
-            @Parameter(description = "Unique id of a variable",
-                example = "1")
-            @PathParam("id") Long id
-    ) {
-        return dao.findByVariableId(id);
     }
 
     @GET

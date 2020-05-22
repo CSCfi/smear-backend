@@ -2,7 +2,6 @@ package fi.csc.avaa.smear.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-
 import javax.json.bind.annotation.JsonbDateFormat;
 import java.time.LocalDateTime;
 
@@ -12,9 +11,8 @@ import static fi.csc.avaa.smear.dto.DateTimeFormat.ISO8601_DATETIME_WITH_MILLIS;
 @Builder
 public class VariableMetadata {
 
-    private Long id;
-    private Long tableId;
     private String name;
+    private String table;
     private String description;
     private String type;
     private String unit;

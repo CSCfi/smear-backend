@@ -13,12 +13,11 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class VariableMetadataSearch {
 
-    private List<String> tableIds;
+    private List<String> tables;
     private List<String> variables;
     private Map<String, String> tableToVariable;
     private List<String> categories;
     private List<String> sources;
-    private List<String> variableIds;
 
     public static VariableMetadataSearch from(VariableMetadataQueryParameters params) {
         Map<String, String> tableToVariable = params.getTablevariable()
@@ -28,12 +27,11 @@ public class VariableMetadataSearch {
                         split -> split[0],
                         split -> split[1]));
         return VariableMetadataSearch.builder()
-                .tableIds(params.getTable_id())
+                .tables(params.getTable())
                 .variables(params.getVariable())
                 .tableToVariable(tableToVariable)
                 .categories(params.getCategory())
                 .sources(params.getSource())
-                .variableIds(params.getVariable_id())
                 .build();
     }
 }

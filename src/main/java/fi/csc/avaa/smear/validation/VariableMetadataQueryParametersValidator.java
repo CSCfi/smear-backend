@@ -13,14 +13,11 @@ public class VariableMetadataQueryParametersValidator
     @Override
     public boolean isValid(VariableMetadataQueryParameters params, ConstraintValidatorContext ctx) {
         boolean hasSearchParameters = Stream.of(
-                params.getVariable_id(),
                 params.getVariable(),
                 params.getCategory(),
                 params.getSource(),
-                params.getTable_id()
+                params.getTable()
         ).allMatch(List::isEmpty);
-
-        // TODO: validate variables if tableids provided
 
         boolean hasTableVariableParameters = params.getTablevariable().isEmpty();
 

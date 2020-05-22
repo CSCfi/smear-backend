@@ -15,15 +15,12 @@ import java.util.List;
 public class VariableMetadataQueryParameters {
 
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
-            "Table names can be found from the tablemetadata endpoint by variables tableIDs. " +
-            "Table id for every variable can be found from variable's metadata record via the " +
-            "variable metadata endpoint. Multiple parameters can be used.",
+            "Table names can be found from the tablemetadata endpoint. Multiple parameters can be used.",
             example = "HYY_META")
-    @QueryParam("table_id")
-    private List<String> table_id;
+    @QueryParam("table")
+    private List<String> table;
 
-    @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used. " +
-            "At least one is required if there is at least one tableId parameter.",
+    @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used.",
             example = "Pamb0")
     @QueryParam("variable")
     private List<String> variable;
@@ -43,9 +40,4 @@ public class VariableMetadataQueryParameters {
             "Multiple parameters can be used.")
     @QueryParam("source")
     private List<String> source;
-
-    @Parameter(description = "Unique id of a variable. Multiple parameters can be used",
-            example = "1")
-    @QueryParam("variable_id")
-    private List<String> variable_id;
 }
