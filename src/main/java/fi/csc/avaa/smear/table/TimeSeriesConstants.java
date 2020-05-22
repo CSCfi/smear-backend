@@ -22,5 +22,5 @@ public final class TimeSeriesConstants {
 
     public static final String TABLENAME_HYY_TREE = "HYY_TREE";
     public static final String COLNAME_CUV_NO = "cuv_no";
-    public static final Field<String> CUV_NO = field(COLNAME_CUV_NO, String.class);
+    public static final Field<Integer> CUV_NO = field(COLNAME_CUV_NO, Integer.class);
 }

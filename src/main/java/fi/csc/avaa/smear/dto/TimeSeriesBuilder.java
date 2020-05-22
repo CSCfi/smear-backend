@@ -107,8 +107,9 @@ public class TimeSeriesBuilder {
         result.forEach(record -> {
             String samptimeStr = ISO8601_DATETIME_FORMATTER.format(record.get(SAMPTIME));
             initSamptime(samptimeStr);
-            timeSeries.get(samptimeStr)
-                    .put(getColName(TABLENAME_HYY_TREE, COLNAME_CUV_NO), record.get(CUV_NO));
+            String cuvNoColumn = getColName(TABLENAME_HYY_TREE, COLNAME_CUV_NO);
+            allColumns.add(cuvNoColumn);
+            timeSeries.get(samptimeStr).put(cuvNoColumn, record.get(CUV_NO));
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptimeStr).put(column, record.get(field(variable), Double.class)));
         });
