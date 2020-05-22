@@ -63,8 +63,7 @@ public class TimeSeriesSearch {
 
     @Parameter(description = "Should the time series data be quality checked or not. " +
             "Valid values: ANY (default), CHECKED.",
-            example = "ANY",
-            required = true)
+            example = "ANY")
     @QueryParam("quality")
     private String qualityStr;
 
