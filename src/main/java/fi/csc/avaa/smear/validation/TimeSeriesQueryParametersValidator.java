@@ -3,7 +3,7 @@ package fi.csc.avaa.smear.validation;
 import fi.csc.avaa.smear.dao.TableMetadataDao;
 import fi.csc.avaa.smear.parameter.Aggregation;
 import fi.csc.avaa.smear.parameter.Quality;
-import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
+import fi.csc.avaa.smear.parameter.TimeSeriesQueryParameters;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -17,7 +17,8 @@ import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_TREE;
 import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
 
 @Dependent
-public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeSeriesSearch, TimeSeriesSearch> {
+public class TimeSeriesQueryParametersValidator
+        implements ConstraintValidator<ValidTimeSeriesQueryParameters, TimeSeriesQueryParameters> {
 
     @Inject
     TableMetadataDao tableMetadataDao;
@@ -34,39 +35,40 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
             "querying HYY_TREE";
 
     @Override
-    public boolean isValid(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        boolean tableAndVariableParamsValid = validateTableAndVariableParams(search, ctx);
-        boolean tableNamesValid = validateTableNames(search, ctx);
-        boolean aggregationParamsValid = validateAggregationParams(search, ctx);
-        boolean qualityParamValid = validateQualityParam(search, ctx);
-        boolean cuvNoValid = validateCuvNo(search, ctx);
-        return tableAndVariableParamsValid
+    public boolean isValid(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
+        List<String> tables = getTables(params);
+        boolean tableAndVariableValid = validateTableAndVariable(params, ctx);
+        boolean tableNamesValid = validateTableNames(tables, ctx);
+        boolean aggregationValid = validateAggregation(params.getAggregation(), tables, ctx);
+        boolean qualityValid = validateQuality(params.getQuality(), ctx);
+        boolean cuvNoValid = validateCuvNo(params.getCuv_no(), tables, ctx);
+        return tableAndVariableValid
                 && tableNamesValid
-                && aggregationParamsValid
-                && qualityParamValid
+                && aggregationValid
+                && qualityValid
                 && cuvNoValid;
     }
 
-    private boolean validateTableAndVariableParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+    private boolean validateTableAndVariable(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
         boolean valid = true;
-        if (search.getTable() == null || search.getTable().isEmpty()) {
-            if (search.getTableVariables().isEmpty()) {
+        if (params.getTable() == null || params.getTable().isEmpty()) {
+            if (params.getTablevariable().isEmpty()) {
                 valid = constraintViolation(ctx, "tablevariable", INVALID_TABLE_AND_VARIABLE);
             }
         } else {
-            if (!search.getTableVariables().isEmpty()) {
+            if (!params.getTablevariable().isEmpty()) {
                 valid = constraintViolation(ctx, "tablevariable", INVALID_TABLE_AND_VARIABLE);
             }
-            if (search.getVariables().isEmpty()) {
+            if (params.getVariable().isEmpty()) {
                 valid = constraintViolation(ctx, "variable", INVALID_TABLE_AND_VARIABLE);
             }
         }
         return valid;
     }
 
-    private Boolean validateTableNames(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+    private Boolean validateTableNames(List<String> tables, ConstraintValidatorContext ctx) {
         List<String> validTables = tableMetadataDao.findTableNames();
-        List<String> invalidTables = search.getTableToVariables().keySet()
+        List<String> invalidTables = tables
                 .stream()
                 .filter(tableName -> !validTables.contains(tableName))
                 .collect(Collectors.toList());
@@ -77,35 +79,49 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
         return true;
     }
 
-    private boolean validateAggregationParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+    private boolean validateAggregation(String aggregationParam, List<String> tables,
+                                        ConstraintValidatorContext ctx) {
         boolean valid = true;
-        if (search.getAggregationStr() != null) {
-            if (!Aggregation.getQueryParams().contains(search.getAggregationStr())) {
+        if (aggregationParam != null) {
+            if (!Aggregation.getQueryParams().contains(aggregationParam)) {
                 valid = constraintViolation(ctx, "aggregation", INVALID_AGGREGATION_TYPE);
-            } else if (search.getAggregation().isGroupedManually()
-                    && (search.getTableToVariables().containsKey(TABLENAME_HYY_SLOW)
-                    || search.getTableToVariables().containsKey(TABLENAME_HYY_TREE))) {
-                valid = constraintViolation(ctx, "aggregation", HYY_AGGREGATION_NOT_SUPPORTED);
+            } else {
+                Aggregation aggregation = Aggregation.valueOf(aggregationParam);
+                if (aggregation.isGroupedManually()
+                        && (tables.contains(TABLENAME_HYY_SLOW) || tables.contains(TABLENAME_HYY_TREE))) {
+                    valid = constraintViolation(ctx, "aggregation", HYY_AGGREGATION_NOT_SUPPORTED);
+                }
             }
         }
         return valid;
     }
 
-    private boolean validateQualityParam(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.getQualityStr() != null) {
-            if (!Quality.getQueryParams().contains(search.getQualityStr())) {
+    private boolean validateQuality(String qualityParam, ConstraintValidatorContext ctx) {
+        if (qualityParam != null) {
+            if (!Quality.getQueryParams().contains(qualityParam)) {
                 return constraintViolation(ctx, "quality", INVALID_QUALITY);
             }
         }
         return true;
     }
 
-    private boolean validateCuvNo(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        if (search.getTableToVariables().containsKey(TABLENAME_HYY_TREE)) {
-            if (search.getCuvNos() == null || search.getCuvNos().isEmpty()) {
+    private boolean validateCuvNo(List<Integer> cuvNos, List<String> tables, ConstraintValidatorContext ctx) {
+        if (tables.contains(TABLENAME_HYY_TREE)) {
+            if (cuvNos == null || cuvNos.isEmpty()) {
                 return constraintViolation(ctx, "cuv_no", HYY_TREE_CUV_NO_REQUIRED);
             }
         }
         return true;
+    }
+
+    private List<String> getTables(TimeSeriesQueryParameters params) {
+        List<String> tableParams = params.getTablevariable()
+                .stream()
+                .map(tablevariable -> tablevariable.split("\\.")[0])
+                .collect(Collectors.toList());
+        if (params.getTable() != null) {
+            tableParams.add(params.getTable());
+        }
+        return tableParams;
     }
 }

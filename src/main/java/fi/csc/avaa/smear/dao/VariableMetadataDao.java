@@ -68,7 +68,7 @@ public class VariableMetadataDao {
 
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        return search.getTablevariables().isEmpty()
+        return search.getTableToVariable().isEmpty()
                 ? findBy(search)
                 : findByTableVariables(search.getTableToVariable());
     }

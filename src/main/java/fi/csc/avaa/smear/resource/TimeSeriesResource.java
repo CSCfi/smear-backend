@@ -3,6 +3,7 @@ package fi.csc.avaa.smear.resource;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
 import fi.csc.avaa.smear.dto.TimeSeries;
 import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
+import fi.csc.avaa.smear.parameter.TimeSeriesQueryParameters;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
@@ -27,8 +28,9 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via the Metadata API " +
                     "or the graphical SMART SMEAR application."
     )
-    public TimeSeries timeSeries(@BeanParam @Valid TimeSeriesSearch params) {
-        return dao.search(params);
+    public TimeSeries timeSeries(@BeanParam @Valid TimeSeriesQueryParameters params) {
+        TimeSeriesSearch search = TimeSeriesSearch.from(params);
+        return dao.search(search);
     }
 
     @GET
@@ -39,8 +41,9 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via the Metadata API " +
                     "or the graphical SMART SMEAR application."
     )
-    public String timeSeriesCsv(@BeanParam @Valid TimeSeriesSearch params) {
-        return TimeSeriesFormatter.toCsv(dao.search(params));
+    public String timeSeriesCsv(@BeanParam @Valid TimeSeriesQueryParameters params) {
+        TimeSeriesSearch search = TimeSeriesSearch.from(params);
+        return TimeSeriesFormatter.toCsv(dao.search(search));
     }
 
     @GET
@@ -51,7 +54,8 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via Metadata API " +
                     "or via the graphical SMART SMEAR application."
     )
-    public String timeSeriesTxt(@BeanParam @Valid TimeSeriesSearch params) {
-        return TimeSeriesFormatter.toTsv(dao.search(params));
+    public String timeSeriesTxt(@BeanParam @Valid TimeSeriesQueryParameters params) {
+        TimeSeriesSearch search = TimeSeriesSearch.from(params);
+        return TimeSeriesFormatter.toTsv(dao.search(search));
     }
 }

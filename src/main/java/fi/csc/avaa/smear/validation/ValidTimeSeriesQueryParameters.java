@@ -11,9 +11,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = TimeSeriesSearchValidator.class)
+@Constraint(validatedBy = TimeSeriesQueryParametersValidator.class)
 @Documented
-public @interface ValidTimeSeriesSearch {
+public @interface ValidTimeSeriesQueryParameters {
 
     String message() default "";
 

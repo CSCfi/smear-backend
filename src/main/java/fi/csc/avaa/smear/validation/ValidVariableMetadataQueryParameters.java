@@ -11,9 +11,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = VariableMetadataSearchValidator.class)
+@Constraint(validatedBy = VariableMetadataQueryParametersValidator.class)
 @Documented
-public @interface ValidVariableMetadataSearch {
+public @interface ValidVariableMetadataQueryParameters {
 
     String message() default "Either search parameters or table + variable combination must be provided (not both)";
 
