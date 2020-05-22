@@ -8,7 +8,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
@@ -26,8 +25,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tableVariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(200)
@@ -37,7 +34,7 @@ public class TimeSeriesResourceTest {
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
                 .body("columns", hasSize(1))
-                .body("columns", hasItem(tableVariable))
+                .body("columns", contains(tableVariable))
                 .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-02-12T00:00:00.000",
@@ -61,8 +58,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tableVariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(200)
@@ -72,7 +67,7 @@ public class TimeSeriesResourceTest {
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
                 .body("columns", hasSize(1))
-                .body("columns", hasItem(tableVariable))
+                .body("columns", contains(tableVariable))
                 .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-06-12T00:00:00.000",
@@ -99,8 +94,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("variable", variable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(200)
@@ -110,7 +103,7 @@ public class TimeSeriesResourceTest {
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
                 .body("columns", hasSize(1))
-                .body("columns", hasItem(colname))
+                .body("columns", contains(colname))
                 .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-02-12T00:00:00.000",
@@ -136,8 +129,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", hyyAeroScatT)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(200)
@@ -172,8 +163,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tablevariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .get(Endpoints.TIMESERIES)
                 .then()
                 .statusCode(200)
@@ -204,8 +193,6 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tablevariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .queryParam("quality", "ANY")
-                .queryParam("aggregation", "NONE")
                 .queryParam("cuv_no", 186)
                 .get(Endpoints.TIMESERIES)
                 .then()
