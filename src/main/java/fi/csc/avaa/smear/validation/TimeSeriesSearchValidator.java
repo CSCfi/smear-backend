@@ -35,27 +35,33 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
 
     @Override
     public boolean isValid(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
-        return validateTableAndVariableParams(search, ctx)
-                && validateTableNames(search, ctx)
-                && validateAggregationParams(search, ctx)
-                && validateQualityParam(search, ctx)
-                && validateCuvNo(search, ctx);
+        boolean tableAndVariableParamsValid = validateTableAndVariableParams(search, ctx);
+        boolean tableNamesValid = validateTableNames(search, ctx);
+        boolean aggregationParamsValid = validateAggregationParams(search, ctx);
+        boolean qualityParamValid = validateQualityParam(search, ctx);
+        boolean cuvNoValid = validateCuvNo(search, ctx);
+        return tableAndVariableParamsValid
+                && tableNamesValid
+                && aggregationParamsValid
+                && qualityParamValid
+                && cuvNoValid;
     }
 
     private boolean validateTableAndVariableParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+        boolean valid = true;
         if (search.getTable() == null || search.getTable().isEmpty()) {
             if (search.getTableVariables().isEmpty()) {
-                return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
+                valid = constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
         } else {
             if (!search.getTableVariables().isEmpty()) {
-                return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
+                valid = constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
             if (search.getVariables().isEmpty()) {
-                return constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
+                valid =  constraintViolation(ctx, INVALID_TABLE_AND_VARIABLE);
             }
         }
-        return true;
+        return valid;
     }
 
     private Boolean validateTableNames(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
@@ -72,17 +78,18 @@ public class TimeSeriesSearchValidator implements ConstraintValidator<ValidTimeS
     }
 
     private boolean validateAggregationParams(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
+        boolean valid = true;
         if (search.getAggregationStr() != null) {
             if (!Aggregation.getQueryParams().contains(search.getAggregationStr())) {
-                return constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
+                valid = constraintViolation(ctx, INVALID_AGGREGATION_TYPE);
             }
             if (search.getAggregation().isGroupedManually()
                     && (search.getTableToVariables().containsKey(TABLENAME_HYY_SLOW)
                     || search.getTableToVariables().containsKey(TABLENAME_HYY_TREE))) {
-                return constraintViolation(ctx, HYY_AGGREGATION_NOT_SUPPORTED);
+                valid = constraintViolation(ctx, HYY_AGGREGATION_NOT_SUPPORTED);
             }
         }
-        return true;
+        return valid;
     }
 
     private boolean validateQualityParam(TimeSeriesSearch search, ConstraintValidatorContext ctx) {
