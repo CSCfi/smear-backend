@@ -52,7 +52,10 @@ public class VariableMetadataDao {
     @CacheResult(cacheName = "variable-metadata-findall-cache")
     public List<VariableMetadata> findAll() {
         return create
-                .selectFrom(VARIABLE_METADATA)
+                .select()
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .fetch(recordToVariableMetadata);
     }
 

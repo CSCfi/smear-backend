@@ -2,6 +2,7 @@ package fi.csc.avaa.smear.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+
 import javax.json.bind.annotation.JsonbDateFormat;
 import java.time.LocalDateTime;
 

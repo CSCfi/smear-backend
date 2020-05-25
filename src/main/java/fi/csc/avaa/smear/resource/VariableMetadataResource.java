@@ -39,7 +39,7 @@ public class VariableMetadataResource {
             summary = "Search variable metadata",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
-    public List<VariableMetadata> search(@BeanParam @Valid VariableMetadataQueryParameters params) {
+    public List<VariableMetadata> variableMetadata(@BeanParam @Valid VariableMetadataQueryParameters params) {
         VariableMetadataSearch search = VariableMetadataSearch.from(params);
         return dao.search(search);
     }
@@ -51,7 +51,7 @@ public class VariableMetadataResource {
             summary = "Search variable metadata, CSV format",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
-    public String searchCsv(@BeanParam @Valid VariableMetadataQueryParameters params) {
+    public String variableMetadataCsv(@BeanParam @Valid VariableMetadataQueryParameters params) {
         VariableMetadataSearch search = VariableMetadataSearch.from(params);
         return VariableMetadataFormatter.toCsv(dao.search(search));
     }
@@ -63,7 +63,7 @@ public class VariableMetadataResource {
             summary = "Search variable metadata, TSV format",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
-    public String searchTsv(@BeanParam @Valid VariableMetadataQueryParameters params) {
+    public String variableMetadataTsv(@BeanParam @Valid VariableMetadataQueryParameters params) {
         VariableMetadataSearch search = VariableMetadataSearch.from(params);
         return VariableMetadataFormatter.toTsv(dao.search(search));
     }

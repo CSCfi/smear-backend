@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static fi.csc.avaa.smear.table.TagTable.TAG;
+import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableTagTable.VARIABLE_TAG;
 
 @ApplicationScoped
@@ -26,21 +27,16 @@ public class TagDao {
                     .displayKeyword(record.get(TAG.DISPLAY_KEYWORD))
                     .build();
 
-    public List<Tag> findByVariableIds(List<String> variableIds) {
+    public List<Tag> findByVariableNames(List<String> variableNames) {
         return create
                 .select()
                 .from(TAG)
                 .join(VARIABLE_TAG)
                 .on(TAG.ID.eq(VARIABLE_TAG.TAG_ID))
-                .where(VARIABLE_TAG.VARIABLE_ID.in(variableIds))
+                .join(VARIABLE_METADATA)
+                .on(VARIABLE_TAG.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
+                .where(VARIABLE_METADATA.NAME.in(variableNames))
                 .fetchInto(TAG)
                 .map(recordToTag);
-    }
-
-    public List<Tag> findById(Long id) {
-        return create
-                .selectFrom(TAG)
-                .where(TAG.ID.eq(id))
-                .fetch(recordToTag);
     }
 }

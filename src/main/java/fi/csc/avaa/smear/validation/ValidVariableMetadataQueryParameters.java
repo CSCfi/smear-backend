@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ValidVariableMetadataQueryParameters {
 
-    String message() default "Either search parameters or table + variable combination must be provided (not both)";
+    String message() default "";
 
     Class<?>[] groups() default {};
 
