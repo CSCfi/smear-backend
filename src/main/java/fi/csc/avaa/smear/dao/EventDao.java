@@ -11,6 +11,7 @@ import java.util.List;
 
 import static fi.csc.avaa.smear.table.EventTable.EVENT;
 import static fi.csc.avaa.smear.table.VariableEventTable.VARIABLE_EVENT;
+import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 
 @ApplicationScoped
 public class EventDao {
@@ -29,21 +30,16 @@ public class EventDao {
                     .timestamp(record.get(EVENT.TIMESTAMP))
                     .build();
 
-    public List<Event> findByVariableIds(List<Long> variableIds) {
+    public List<Event> findByVariableNames(List<String> variableNames) {
         return create
                 .select()
                 .from(EVENT)
                 .join(VARIABLE_EVENT)
                 .on(EVENT.ID.eq(VARIABLE_EVENT.EVENT_ID))
-                .where(VARIABLE_EVENT.VARIABLE_ID.in(variableIds))
+                .join(VARIABLE_METADATA)
+                .on(VARIABLE_EVENT.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
+                .where(VARIABLE_METADATA.NAME.in(variableNames))
                 .fetchInto(EVENT)
                 .map(recordToEvent);
-    }
-
-    public Event findById(Long id) {
-        return create
-                .selectFrom(EVENT)
-                .where(EVENT.ID.eq(id))
-                .fetchOne(recordToEvent);
     }
 }
