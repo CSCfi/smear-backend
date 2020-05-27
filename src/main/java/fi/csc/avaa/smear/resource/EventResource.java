@@ -30,7 +30,7 @@ public class EventResource {
                     "based on DDI data lifecycle events and ENVRI reference model. The time range of the event " +
                     "indicates the time frame when the event affects the data."
     )
-    public List<Event> eventsByVariableIds(
+    public List<Event> eventsByVariableNames(
             @NotNull
             @NotEmpty
             @Parameter(description = "Name of a variable in the SMEAR database. " +
