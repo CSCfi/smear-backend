@@ -32,18 +32,17 @@ public class TableMetadataResource {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{name}")
     @Operation(
-            summary = "Fetch table metadata by table id",
+            summary = "Fetch table metadata by table name",
             description = "Table metadata describes measuring stations (=database tables)."
     )
     public TableMetadata tableMetadata(
             @NotNull
-            @Parameter(description = "A unique table id. The table id of a SMEAR variable can be found via " +
-                    "the variable metadata endpoint.",
-                    example = "16")
-            @PathParam("id") Long id
+            @Parameter(description = "Name of a table in the SMEAR database.",
+                    example = "HYY_META")
+            @PathParam("name") String name
     ) {
-        return dao.findById(id);
+        return dao.findByName(name);
     }
 }
