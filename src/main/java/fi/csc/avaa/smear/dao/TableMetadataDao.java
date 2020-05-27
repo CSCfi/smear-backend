@@ -38,10 +38,10 @@ public class TableMetadataDao {
     }
 
     @CacheResult(cacheName = "table-metadata-cache")
-    public TableMetadata findById(Long id) {
+    public TableMetadata findByName(String name) {
         return create
                 .selectFrom(TABLE_METADATA)
-                .where(TABLE_METADATA.ID.eq(id))
+                .where(TABLE_METADATA.NAME.eq(name))
                 .fetchOne(recordToTableMetadata);
     }
 

@@ -23,8 +23,7 @@ public final class VariableMetadataFormatter {
 
     private static String toRow(String delimiter, VariableMetadata variableMetadata) {
         return String.join(delimiter,
-                variableMetadata.getId().toString(),
-                variableMetadata.getTableId().toString(),
+                variableMetadata.getTable(),
                 variableMetadata.getName(),
                 variableMetadata.getDescription(),
                 variableMetadata.getUnit(),

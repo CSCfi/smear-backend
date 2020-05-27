@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.dto.DateTimeFormat.ISO8601_DATETIME_FORMATTER;
 import static fi.csc.avaa.smear.parameter.Aggregation.CIRCULAR;
 import static fi.csc.avaa.smear.parameter.Aggregation.MEDIAN;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.COLNAME_CUV_NO;
@@ -30,7 +31,6 @@ import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_SLOW;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_TREE;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.VALUE;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.VARIABLE;
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static org.jooq.impl.DSL.field;
 
 public class TimeSeriesBuilder {
@@ -95,7 +95,7 @@ public class TimeSeriesBuilder {
             String variable = record.get(VARIABLE);
             String column = getColName(TABLENAME_HYY_SLOW, variable);
             allColumns.add(column);
-            String samptimeStr = ISO_DATE_TIME.format(record.get(START_TIME));
+            String samptimeStr = ISO8601_DATETIME_FORMATTER.format(record.get(START_TIME));
             initSamptime(samptimeStr);
             timeSeries.get(samptimeStr).put(column, record.get(VALUE));
         });
@@ -105,10 +105,11 @@ public class TimeSeriesBuilder {
         Map<String, String> variableToColumn = mapVariablesToColumns(TABLENAME_HYY_TREE, variables);
         allColumns.addAll(variableToColumn.values());
         result.forEach(record -> {
-            String samptimeStr = ISO_DATE_TIME.format(record.get(SAMPTIME));
+            String samptimeStr = ISO8601_DATETIME_FORMATTER.format(record.get(SAMPTIME));
             initSamptime(samptimeStr);
-            timeSeries.get(samptimeStr)
-                    .put(getColName(TABLENAME_HYY_TREE, COLNAME_CUV_NO), record.get(CUV_NO));
+            String cuvNoColumn = getColName(TABLENAME_HYY_TREE, COLNAME_CUV_NO);
+            allColumns.add(cuvNoColumn);
+            timeSeries.get(samptimeStr).put(cuvNoColumn, record.get(CUV_NO));
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptimeStr).put(column, record.get(field(variable), Double.class)));
         });
@@ -116,7 +117,7 @@ public class TimeSeriesBuilder {
 
     private void addToSeries(Result<Record> result, Map<String, String> variableToColumn) {
         result.forEach(record -> {
-            String samptimeStr = ISO_DATE_TIME.format(record.get(SAMPTIME));
+            String samptimeStr = ISO8601_DATETIME_FORMATTER.format(record.get(SAMPTIME));
             initSamptime(samptimeStr);
             variableToColumn.forEach((variable, column) ->
                     timeSeries.get(samptimeStr).put(column, record.get(field(variable))));
@@ -150,7 +151,7 @@ public class TimeSeriesBuilder {
                 List<Double> values = variableToValues.get(variable);
                 Double value = record.get(field(variable), Double.class);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
-                    String samptimeStr = ISO_DATE_TIME.format(aggregateSamptime);
+                    String samptimeStr = ISO8601_DATETIME_FORMATTER.format(aggregateSamptime);
                     initSamptime(samptimeStr);
                     timeSeries.get(samptimeStr).put(column, aggregateOf(values));
                     if (!variableIterator.hasNext()) {

@@ -59,8 +59,8 @@ public class TimeSeriesDao {
 
     @CacheResult(cacheName = "time-series-search-cache")
     public TimeSeries search(TimeSeriesSearch search) {
-        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getFromLocalDateTime(), search.getToLocalDateTime(),
-                search.getAggregation(), search.getAggregationInterval());
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getFrom(), search.getTo(),
+                search.getAggregation(), search.getInterval());
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLENAME_HYY_SLOW)) {
                 Result<Record3<LocalDateTime, String, Double>> result = createHyySlowQuery(variables, search).fetch();
@@ -80,8 +80,8 @@ public class TimeSeriesDao {
     private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
         Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
-        Condition conditions = SAMPTIME.greaterOrEqual(search.getFromLocalDateTime())
-                .and(SAMPTIME.lessThan(search.getToLocalDateTime()));
+        Condition conditions = SAMPTIME.greaterOrEqual(search.getFrom())
+                .and(SAMPTIME.lessThan(search.getTo()));
         if (tableName.equals(TABLENAME_HYY_TREE)) {
             fields.add(CUV_NO);
             conditions = conditions.and(CUV_NO.in(search.getCuvNos()));
@@ -91,15 +91,15 @@ public class TimeSeriesDao {
                 .from(table)
                 .where(conditions);
         return (search.getAggregation().isGroupedInQuery()
-                ? query.groupBy(aggregateFunction(SAMPTIME, search.getAggregationInterval()))
+                ? query.groupBy(aggregateFunction(SAMPTIME, search.getInterval()))
                 : query)
                 .orderBy(SAMPTIME.asc());
     }
 
     private SelectSeekStep1<Record3<LocalDateTime, String, Double>, LocalDateTime> createHyySlowQuery(
             List<String> variables, TimeSeriesSearch search) {
-        Condition startTimeInRange = START_TIME.greaterOrEqual(search.getFromLocalDateTime())
-                .and(START_TIME.lessThan(search.getToLocalDateTime()));
+        Condition startTimeInRange = START_TIME.greaterOrEqual(search.getFrom())
+                .and(START_TIME.lessThan(search.getTo()));
         Condition variableNameMatchesSearch = variables
                 .stream()
                 .map(VARIABLE::eq)
@@ -110,7 +110,7 @@ public class TimeSeriesDao {
                 .where(startTimeInRange)
                 .and(variableNameMatchesSearch);
         return (search.getAggregation().isGroupedInQuery()
-                ? query.groupBy(aggregateFunction(START_TIME, search.getAggregationInterval()), VARIABLE)
+                ? query.groupBy(aggregateFunction(START_TIME, search.getInterval()), VARIABLE)
                 : query)
                 .orderBy(START_TIME.asc());
     }
