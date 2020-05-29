@@ -4,6 +4,7 @@ public final class Endpoints {
 
     public static final String API = "/api";
 
+    public static final String DATA_STRUCTURE = "/structure";
     public static final String STATIONS = "/station";
     public static final String STATION = STATIONS + "/{stationId}";
     public static final String TABLES = STATION + "/table";

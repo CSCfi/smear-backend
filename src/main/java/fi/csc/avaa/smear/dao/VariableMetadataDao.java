@@ -51,6 +51,27 @@ public class VariableMetadataDao {
                     .timestamp(record.get(VARIABLE_METADATA.TIMESTAMP))
                     .build();
 
+    public VariableMetadata findById(Long variableId) {
+        return create
+                .select()
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .where(VARIABLE_METADATA.ID.eq(variableId))
+                .fetchOne(recordToVariableMetadata);
+    }
+
+    @CacheResult(cacheName = "variable-metadata-by-table-cache")
+    public List<VariableMetadata> findByTableId(Long tableId) {
+        return create
+                .select()
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .where(VARIABLE_METADATA.TABLE_ID.eq(tableId))
+                .fetch(recordToVariableMetadata);
+    }
+
     @CacheResult(cacheName = "variable-metadata-findall-cache")
     public List<VariableMetadata> findAll() {
         return create

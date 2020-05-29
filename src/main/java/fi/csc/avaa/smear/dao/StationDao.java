@@ -8,6 +8,7 @@ import org.jooq.RecordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.List;
 
 import static fi.csc.avaa.smear.table.StationTable.STATION;
@@ -22,6 +23,7 @@ public class StationDao {
             Station.builder()
                     .id(record.get(STATION.ID))
                     .name(record.get(STATION.NAME))
+                    .dcmiPoint(record.get(STATION.DCMI_POINT))
                     .build();
 
     @CacheResult(cacheName = "station-cache")
@@ -29,5 +31,12 @@ public class StationDao {
         return create
                 .selectFrom(STATION)
                 .fetch(recordToStation);
+    }
+
+    public Station findById(Long stationId) {
+        return create
+                .selectFrom(STATION)
+                .where(STATION.ID.eq(stationId))
+                .fetchOne(recordToStation);
     }
 }
