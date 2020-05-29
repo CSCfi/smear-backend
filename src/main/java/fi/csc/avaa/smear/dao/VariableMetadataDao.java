@@ -28,7 +28,9 @@ public class VariableMetadataDao {
 
     private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
             VariableMetadata.builder()
-                    .table(record.get(TABLE_METADATA.NAME))
+                    .id(record.get(VARIABLE_METADATA.ID))
+                    .tableId(record.get(VARIABLE_METADATA.TABLE_ID))
+                    .tableName(record.get(TABLE_METADATA.NAME))
                     .name(record.get(VARIABLE_METADATA.NAME))
                     .description(record.get(VARIABLE_METADATA.DESCRIPTION))
                     .type(record.get(VARIABLE_METADATA.TYPE))

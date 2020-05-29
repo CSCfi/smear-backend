@@ -6,8 +6,8 @@ public final class Endpoints {
     public static final String EVENTS = API + "/event";
     public static final String METADATA = API + "/metadata";
     public static final String STATIONS = API + "/station";
-    public static final String TABLE_METADATA = API + "/tablemetadata";
+    public static final String TABLE_METADATA = API + "/table";
     public static final String TAGS = API + "/tag";
     public static final String TIMESERIES = API + "/timeseries";
-    public static final String VARIABLE_METADATA = API + "/variablemetadata";
+    public static final String VARIABLE_METADATA = API + "/variable";
 }
