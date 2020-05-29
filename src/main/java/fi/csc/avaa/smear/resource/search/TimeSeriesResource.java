@@ -1,10 +1,11 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
 import fi.csc.avaa.smear.dto.TimeSeries;
 import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
 import fi.csc.avaa.smear.parameter.TimeSeriesQueryParameters;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
+import fi.csc.avaa.smear.config.Endpoints;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.inject.Inject;
@@ -15,7 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path(Endpoints.TIMESERIES)
+@Path(Endpoints.SEARCH_TIMESERIES)
 public class TimeSeriesResource {
 
     @Inject

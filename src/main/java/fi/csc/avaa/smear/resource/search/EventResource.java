@@ -1,7 +1,8 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
 import fi.csc.avaa.smear.dao.EventDao;
 import fi.csc.avaa.smear.dto.Event;
+import fi.csc.avaa.smear.config.Endpoints;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
@@ -15,7 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path(Endpoints.EVENTS)
+@Path(Endpoints.SEARCH_EVENTS)
 @Produces(MediaType.APPLICATION_JSON)
 public class EventResource {
 

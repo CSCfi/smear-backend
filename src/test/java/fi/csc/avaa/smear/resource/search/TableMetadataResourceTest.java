@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ public class TableMetadataResourceTest {
     @Test
     public void findByName_shouldReturnCorrectResult() {
         given()
-                .get(Endpoints.TABLE_METADATA + "/HYY_META")
+                .get(Endpoints.SEARCH_TABLES + "/HYY_META")
                 .then()
                 .statusCode(200)
                 .body("id", equalTo(4))

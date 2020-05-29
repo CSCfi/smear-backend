@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -37,7 +38,7 @@ public class VariableMetadataResourceTest {
         given()
                 .when()
                 .params(params)
-                .get(Endpoints.VARIABLE_METADATA + "/search")
+                .get(Endpoints.SEARCH_VARIABLES + "/search")
                 .then()
                 .statusCode(200)
                 .body("", hasSize(1))
@@ -69,7 +70,7 @@ public class VariableMetadataResourceTest {
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
                 .queryParam("source", "hukse")
-                .get(Endpoints.VARIABLE_METADATA + "/search/csv")
+                .get(Endpoints.SEARCH_VARIABLES + "/search/csv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));
@@ -84,7 +85,7 @@ public class VariableMetadataResourceTest {
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
                 .queryParam("source", "hukse")
-                .get(Endpoints.VARIABLE_METADATA + "/search/tsv")
+                .get(Endpoints.SEARCH_VARIABLES + "/search/tsv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));

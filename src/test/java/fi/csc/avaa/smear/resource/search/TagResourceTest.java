@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ public class TagResourceTest {
                 .queryParam("variable", "Pamb0")
                 .queryParam("variable", "dp")
                 .when()
-                .get(Endpoints.TAGS)
+                .get(Endpoints.SEARCH_TAGS)
                 .then()
                 .statusCode(200)
                 .body("", hasSize(5))

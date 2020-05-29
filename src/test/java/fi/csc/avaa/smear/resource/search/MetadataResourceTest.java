@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ public class MetadataResourceTest {
     public void getMetadata_shouldReturnCorrectResult() {
         given()
                 .when()
-                .get(Endpoints.METADATA)
+                .get(Endpoints.SEARCH_METADATA)
                 .then()
                 .statusCode(200)
                 .body("accessRights", equalTo("https://creativecommons.org/licenses/by/4.0/"))

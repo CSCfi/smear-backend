@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -26,7 +27,7 @@ public class TimeSeriesResourcePlaintextTest {
                 .queryParam("to", "2020-04-13T00:00:00.000")
                 .queryParam("quality", "ANY")
                 .queryParam("aggregation", "NONE")
-                .get(Endpoints.TIMESERIES + "/csv")
+                .get(Endpoints.SEARCH_TIMESERIES + "/csv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));
@@ -44,7 +45,7 @@ public class TimeSeriesResourcePlaintextTest {
                 .queryParam("to", "2020-04-13T00:00:00.000")
                 .queryParam("quality", "ANY")
                 .queryParam("aggregation", "NONE")
-                .get(Endpoints.TIMESERIES + "/tsv")
+                .get(Endpoints.SEARCH_TIMESERIES + "/tsv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));

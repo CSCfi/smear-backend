@@ -5,8 +5,10 @@ import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+@ApplicationPath(Endpoints.API)
 @OpenAPIDefinition(
         info = @Info(
                 title = "SMEAR API",

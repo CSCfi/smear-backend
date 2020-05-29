@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ public class EventResourceTest {
         given()
                 .queryParam("variable", "VOC_M81_1250")
                 .when()
-                .get(Endpoints.EVENTS)
+                .get(Endpoints.SEARCH_EVENTS)
                 .then()
                 .statusCode(200)
                 .body("", hasSize(4))
