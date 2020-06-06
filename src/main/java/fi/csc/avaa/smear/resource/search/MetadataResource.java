@@ -1,8 +1,8 @@
 package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import fi.csc.avaa.smear.dao.MetadataDao;
 import fi.csc.avaa.smear.dto.Metadata;
-import fi.csc.avaa.smear.config.Endpoints;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.inject.Inject;

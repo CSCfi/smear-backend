@@ -8,7 +8,6 @@ import org.jooq.RecordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.List;
 
 import static fi.csc.avaa.smear.table.StationTable.STATION;

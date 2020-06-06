@@ -204,7 +204,7 @@ public class TimeSeriesResourceTest {
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
                 .body("columns", hasSize(2))
-                .body("columns", contains(tablevariable, cuvNoColumn))
+                .body("columns", contains(cuvNoColumn, tablevariable))
                 .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2012-06-01T00:00:00.000",

@@ -1,14 +1,14 @@
 package fi.csc.avaa.smear.resource;
 
 import fi.csc.avaa.smear.config.Endpoints;
+import fi.csc.avaa.smear.dao.DataStructureDao;
 import fi.csc.avaa.smear.dao.StationDao;
 import fi.csc.avaa.smear.dao.TableMetadataDao;
 import fi.csc.avaa.smear.dao.VariableMetadataDao;
-import fi.csc.avaa.smear.dao.DataStructureDao;
 import fi.csc.avaa.smear.dto.Station;
-import fi.csc.avaa.smear.dto.datastructure.StationNode;
 import fi.csc.avaa.smear.dto.TableMetadata;
 import fi.csc.avaa.smear.dto.VariableMetadata;
+import fi.csc.avaa.smear.dto.datastructure.StationNode;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
