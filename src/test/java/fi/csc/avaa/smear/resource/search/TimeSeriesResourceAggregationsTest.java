@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Tag;
@@ -81,7 +82,7 @@ public class TimeSeriesResourceAggregationsTest {
                 .queryParam("from", "2016-06-12T00:00:00.000")
                 .queryParam("to", "2016-06-12T03:00:00.000")
                 .queryParam("aggregation", aggregation)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("aggregation", equalTo(aggregation))

@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ public class VariableMetadataResourceValidationsTest {
     public void searchWithNoParameters_shouldReturnParameterViolations() {
         given()
                 .when()
-                .get(Endpoints.VARIABLE_METADATA + "/search")
+                .get(Endpoints.SEARCH_VARIABLES + "/search")
                 .then()
                 .statusCode(400)
                 .body("parameterViolations", hasSize(1))
@@ -31,7 +32,7 @@ public class VariableMetadataResourceValidationsTest {
                 .queryParam("variable", "G_sc")
                 .queryParam("source", "hukse")
                 .queryParam("tablevariable", "HYY_META.Pamb0")
-                .get(Endpoints.VARIABLE_METADATA + "/search")
+                .get(Endpoints.SEARCH_VARIABLES + "/search")
                 .then()
                 .statusCode(400)
                 .body("parameterViolations", hasSize(1))

@@ -12,8 +12,10 @@ import static fi.csc.avaa.smear.dto.DateTimeFormat.ISO8601_DATETIME_WITH_MILLIS;
 @Builder
 public class VariableMetadata {
 
+    private Long id;
     private String name;
-    private String table;
+    private Long tableId;
+    private String tableName;
     private String description;
     private String type;
     private String unit;

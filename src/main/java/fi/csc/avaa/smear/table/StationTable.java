@@ -13,6 +13,7 @@ public class StationTable extends CustomTable<StationRecord> {
 
     public final TableField<StationRecord, Long> ID = createField(name("stationid"), BIGINT);
     public final TableField<StationRecord, String> NAME = createField(name("name"), VARCHAR);
+    public final TableField<StationRecord, String> DCMI_POINT = createField(name("dcmipoint"), VARCHAR);
 
     protected StationTable() {
         super(name("station"));

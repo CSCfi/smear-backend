@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tableVariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -58,7 +59,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tableVariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -94,7 +95,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("variable", variable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -129,7 +130,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", hyyAeroScatT)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -163,7 +164,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("tablevariable", tablevariable)
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -194,7 +195,7 @@ public class TimeSeriesResourceTest {
                 .queryParam("from", startTime)
                 .queryParam("to", endTime)
                 .queryParam("cuv_no", 186)
-                .get(Endpoints.TIMESERIES)
+                .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(200)
                 .body("startTime", equalTo(startTime))
@@ -203,7 +204,7 @@ public class TimeSeriesResourceTest {
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
                 .body("columns", hasSize(2))
-                .body("columns", contains(tablevariable, cuvNoColumn))
+                .body("columns", contains(cuvNoColumn, tablevariable))
                 .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2012-06-01T00:00:00.000",

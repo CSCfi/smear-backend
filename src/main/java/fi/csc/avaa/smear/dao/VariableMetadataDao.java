@@ -28,7 +28,9 @@ public class VariableMetadataDao {
 
     private final RecordMapper<Record, VariableMetadata> recordToVariableMetadata = record ->
             VariableMetadata.builder()
-                    .table(record.get(TABLE_METADATA.NAME))
+                    .id(record.get(VARIABLE_METADATA.ID))
+                    .tableId(record.get(VARIABLE_METADATA.TABLE_ID))
+                    .tableName(record.get(TABLE_METADATA.NAME))
                     .name(record.get(VARIABLE_METADATA.NAME))
                     .description(record.get(VARIABLE_METADATA.DESCRIPTION))
                     .type(record.get(VARIABLE_METADATA.TYPE))
@@ -48,6 +50,27 @@ public class VariableMetadataDao {
                     .uiAvgType(record.get(VARIABLE_METADATA.UI_AVG_TYPE))
                     .timestamp(record.get(VARIABLE_METADATA.TIMESTAMP))
                     .build();
+
+    public VariableMetadata findById(Long variableId) {
+        return create
+                .select()
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .where(VARIABLE_METADATA.ID.eq(variableId))
+                .fetchOne(recordToVariableMetadata);
+    }
+
+    @CacheResult(cacheName = "variable-metadata-by-table-cache")
+    public List<VariableMetadata> findByTableId(Long tableId) {
+        return create
+                .select()
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA)
+                .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .where(VARIABLE_METADATA.TABLE_ID.eq(tableId))
+                .fetch(recordToVariableMetadata);
+    }
 
     @CacheResult(cacheName = "variable-metadata-findall-cache")
     public List<VariableMetadata> findAll() {

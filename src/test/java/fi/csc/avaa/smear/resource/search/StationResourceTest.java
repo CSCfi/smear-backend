@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ public class StationResourceTest {
     @Test
     public void getStations_shouldReturnCorrectResult() {
         given()
-                .get(Endpoints.STATIONS)
+                .get(Endpoints.SEARCH_STATIONS)
                 .then()
                 .statusCode(200)
                 .body("", hasSize(10))

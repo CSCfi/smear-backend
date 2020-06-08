@@ -30,6 +30,21 @@ public class TableMetadataDao {
                     .timestamp(record.get(TABLE_METADATA.TIMESTAMP))
                     .build();
 
+    public TableMetadata findById(Long tableId) {
+        return create
+                .selectFrom(TABLE_METADATA)
+                .where(TABLE_METADATA.ID.eq(tableId))
+                .fetchOne(recordToTableMetadata);
+    }
+
+    @CacheResult(cacheName = "table-metadata-by-station-cache")
+    public List<TableMetadata> findByStationId(Long stationId) {
+        return create
+                .selectFrom(TABLE_METADATA)
+                .where(TABLE_METADATA.STATION_ID.eq(stationId))
+                .fetch(recordToTableMetadata);
+    }
+
     @CacheResult(cacheName = "table-metadata-list-cache")
     public List<TableMetadata> findAll() {
         return create
@@ -37,7 +52,7 @@ public class TableMetadataDao {
                 .fetch(recordToTableMetadata);
     }
 
-    @CacheResult(cacheName = "table-metadata-cache")
+    @CacheResult(cacheName = "table-metadata-by-name-cache")
     public TableMetadata findByName(String name) {
         return create
                 .selectFrom(TABLE_METADATA)

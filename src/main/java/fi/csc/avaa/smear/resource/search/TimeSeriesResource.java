@@ -1,8 +1,9 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import fi.csc.avaa.smear.dao.TimeSeriesDao;
-import fi.csc.avaa.smear.dto.TimeSeries;
-import fi.csc.avaa.smear.dto.TimeSeriesFormatter;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesSheet;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesSheetFormatter;
 import fi.csc.avaa.smear.parameter.TimeSeriesQueryParameters;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -14,8 +15,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.Map;
 
-@Path(Endpoints.TIMESERIES)
+@Path(Endpoints.SEARCH_TIMESERIES)
 public class TimeSeriesResource {
 
     @Inject
@@ -28,9 +31,21 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via the Metadata API " +
                     "or the graphical SMART SMEAR application."
     )
-    public TimeSeries timeSeries(@BeanParam @Valid TimeSeriesQueryParameters params) {
-        TimeSeriesSearch search = TimeSeriesSearch.from(params);
-        return dao.search(search);
+    public TimeSeriesSheet timeSeries(@BeanParam @Valid TimeSeriesQueryParameters params) {
+        return dao.getSheet(TimeSeriesSearch.from(params));
+    }
+
+    @GET
+    @Path("/chart")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Fetch time series data stored in the SMEAR Database as chart series",
+            description = "Information about stored variables can be found via the Metadata API " +
+                    "or the graphical SMART SMEAR application. " +
+                    "This endpoint is mainly for frontend use."
+    )
+    public Map<String, List<List<Number>>> timeSeriesChart(@BeanParam @Valid TimeSeriesQueryParameters params) {
+        return dao.getChart(TimeSeriesSearch.from(params));
     }
 
     @GET
@@ -42,8 +57,8 @@ public class TimeSeriesResource {
                     "or the graphical SMART SMEAR application."
     )
     public String timeSeriesCsv(@BeanParam @Valid TimeSeriesQueryParameters params) {
-        TimeSeriesSearch search = TimeSeriesSearch.from(params);
-        return TimeSeriesFormatter.toCsv(dao.search(search));
+        TimeSeriesSheet table = dao.getSheet(TimeSeriesSearch.from(params));
+        return TimeSeriesSheetFormatter.toCsv(table);
     }
 
     @GET
@@ -55,7 +70,7 @@ public class TimeSeriesResource {
                     "or via the graphical SMART SMEAR application."
     )
     public String timeSeriesTxt(@BeanParam @Valid TimeSeriesQueryParameters params) {
-        TimeSeriesSearch search = TimeSeriesSearch.from(params);
-        return TimeSeriesFormatter.toTsv(dao.search(search));
+        TimeSeriesSheet table = dao.getSheet(TimeSeriesSearch.from(params));
+        return TimeSeriesSheetFormatter.toTsv(table);
     }
 }

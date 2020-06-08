@@ -1,7 +1,9 @@
 package fi.csc.avaa.smear.dao;
 
-import fi.csc.avaa.smear.dto.TimeSeries;
-import fi.csc.avaa.smear.dto.TimeSeriesBuilder;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesBuilder;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesChartBuilder;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesSheet;
+import fi.csc.avaa.smear.dto.timeseries.TimeSeriesSheetBuilder;
 import fi.csc.avaa.smear.parameter.Aggregation;
 import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesSearch;
@@ -18,12 +20,14 @@ import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.SelectSeekStep1;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.CUV_NO;
@@ -48,7 +52,6 @@ import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.min;
 import static org.jooq.impl.DSL.noCondition;
 import static org.jooq.impl.DSL.sum;
-import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.SQLDataType.FLOAT;
 
 @ApplicationScoped
@@ -57,10 +60,19 @@ public class TimeSeriesDao {
     @Inject
     DSLContext create;
 
-    @CacheResult(cacheName = "time-series-search-cache")
-    public TimeSeries search(TimeSeriesSearch search) {
-        TimeSeriesBuilder builder = new TimeSeriesBuilder(search.getFrom(), search.getTo(),
-                search.getAggregation(), search.getInterval());
+    @CacheResult(cacheName = "time-series-sheet-cache")
+    public TimeSeriesSheet getSheet(TimeSeriesSearch search) {
+        return fetch(search, new TimeSeriesSheetBuilder(search.getFrom(), search.getTo(),
+                search.getAggregation(), search.getInterval()));
+    }
+
+    @CacheResult(cacheName = "time-series-chart-cache")
+    public Map<String, List<List<Number>>> getChart(TimeSeriesSearch search) {
+        return fetch(search, new TimeSeriesChartBuilder(search.getFrom(), search.getTo(),
+                search.getAggregation(), search.getInterval()));
+    }
+
+    private <T> T fetch(TimeSeriesSearch search, TimeSeriesBuilder<T> builder) {
         search.getTableToVariables().forEach((tableName, variables) -> {
             if (tableName.equals(TABLENAME_HYY_SLOW)) {
                 Result<Record3<LocalDateTime, String, Double>> result = createHyySlowQuery(variables, search).fetch();
@@ -78,7 +90,7 @@ public class TimeSeriesDao {
     }
 
     private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
-        Table<Record> table = table(tableName);
+        Table<Record> table = DSL.table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
         Condition conditions = SAMPTIME.greaterOrEqual(search.getFrom())
                 .and(SAMPTIME.lessThan(search.getTo()));

@@ -1,5 +1,6 @@
-package fi.csc.avaa.smear.resource;
+package fi.csc.avaa.smear.resource.search;
 
+import fi.csc.avaa.smear.config.Endpoints;
 import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.dto.VariableMetadataFormatter;
@@ -16,7 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path(Endpoints.VARIABLE_METADATA)
+@Path(Endpoints.SEARCH_VARIABLES)
 public class VariableMetadataResource {
 
     @Inject
