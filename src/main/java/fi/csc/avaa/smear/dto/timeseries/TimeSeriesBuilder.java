@@ -54,7 +54,6 @@ public abstract class TimeSeriesBuilder<T> {
         }
     }
 
-
     public void addHyySlowResult(Result<Record3<LocalDateTime, String, Double>> result) {
         result.forEach(record -> {
             LocalDateTime samptime = record.get(START_TIME);
