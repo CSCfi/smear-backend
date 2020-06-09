@@ -7,6 +7,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
+import org.jooq.TableField;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -85,8 +86,8 @@ public class VariableMetadataDao {
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
         Condition conditions = search.getTableToVariable().isEmpty()
-                ? getSearchConditions(search)
-                : getTableVariableConditions(search.getTableToVariable());
+                ? toSearchConditions(search)
+                : toTableVariableConditions(search.getTableToVariable());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
@@ -96,7 +97,7 @@ public class VariableMetadataDao {
                 .fetch(recordToVariableMetadata);
     }
 
-    private Condition getSearchConditions(VariableMetadataSearch search) {
+    private Condition toSearchConditions(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
         if (!search.getVariables().isEmpty()) {
             conditions.add(VARIABLE_METADATA.NAME.in(search.getVariables()));
@@ -104,23 +105,27 @@ public class VariableMetadataDao {
         if (!search.getTables().isEmpty()) {
             conditions.add(TABLE_METADATA.NAME.in(search.getTables()));
         }
-        if (!search.getCategories().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.getCategories()));
-        }
-        conditions.add(search.getSources()
-                .stream()
-                .map(VARIABLE_METADATA.SOURCE::containsIgnoreCase)
-                .reduce(noCondition(), Condition::or));
+        conditions.add(toTextSearchConditions(search.getCategories(), VARIABLE_METADATA.CATEGORY));
+        conditions.add(toTextSearchConditions(search.getDescriptions(), VARIABLE_METADATA.DESCRIPTION));
+        conditions.add(toTextSearchConditions(search.getSources(), VARIABLE_METADATA.SOURCE));
         return conditions
                 .stream()
                 .reduce(noCondition(), Condition::and);
     }
 
-    private Condition getTableVariableConditions(Map<String, String> tableToVariable) {
+    private Condition toTableVariableConditions(Map<String, String> tableToVariable) {
         return tableToVariable.entrySet()
                     .stream()
                     .map(entry -> field("TableMetadata.name").eq(entry.getKey())
                             .and(field("VariableMetadata.variable").eq(entry.getValue())))
                     .reduce(noCondition(), Condition::or);
+    }
+
+    private Condition toTextSearchConditions(List<String> searchStrings,
+                                             TableField<? extends Record, String> field) {
+        return searchStrings
+                .stream()
+                .map(field::containsIgnoreCase)
+                .reduce(noCondition(), Condition::or);
     }
 }

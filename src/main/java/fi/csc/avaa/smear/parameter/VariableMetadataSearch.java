@@ -17,6 +17,7 @@ public class VariableMetadataSearch {
     private List<String> variables;
     private Map<String, String> tableToVariable;
     private List<String> categories;
+    private List<String> descriptions;
     private List<String> sources;
 
     public static VariableMetadataSearch from(VariableMetadataQueryParameters params) {
@@ -31,6 +32,7 @@ public class VariableMetadataSearch {
                 .variables(params.getVariable())
                 .tableToVariable(tableToVariable)
                 .categories(params.getCategory())
+                .descriptions(params.getDescription())
                 .sources(params.getSource())
                 .build();
     }
