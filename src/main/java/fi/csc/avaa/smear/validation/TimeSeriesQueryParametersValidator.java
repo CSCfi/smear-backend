@@ -23,9 +23,6 @@ public class TimeSeriesQueryParametersValidator
     @Inject
     TableMetadataDao tableMetadataDao;
 
-    private static final String INVALID_TABLE_AND_VARIABLE = "Either one or more tablevariables " +
-            "(tablevariable=HYY_META.Pamb0) or a single table + variables combination (table=HYY_META&variable=Pamb0) " +
-            "must be provided (but not both)";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation type";
     private static final String INVALID_QUALITY = "Invalid quality";
     private static final String INVALID_TABLES = "Invalid table(s): %s";
@@ -37,33 +34,14 @@ public class TimeSeriesQueryParametersValidator
     @Override
     public boolean isValid(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
         List<String> tables = getTables(params);
-        boolean tableAndVariableValid = validateTableAndVariable(params, ctx);
         boolean tableNamesValid = validateTableNames(tables, ctx);
         boolean aggregationValid = validateAggregation(params.getAggregation(), tables, ctx);
         boolean qualityValid = validateQuality(params.getQuality(), ctx);
         boolean cuvNoValid = validateCuvNo(params.getCuv_no(), tables, ctx);
-        return tableAndVariableValid
-                && tableNamesValid
+        return tableNamesValid
                 && aggregationValid
                 && qualityValid
                 && cuvNoValid;
-    }
-
-    private boolean validateTableAndVariable(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
-        boolean valid = true;
-        if (params.getTable() == null || params.getTable().isEmpty()) {
-            if (params.getTablevariable().isEmpty()) {
-                valid = constraintViolation(ctx, "tablevariable", INVALID_TABLE_AND_VARIABLE);
-            }
-        } else {
-            if (!params.getTablevariable().isEmpty()) {
-                valid = constraintViolation(ctx, "tablevariable", INVALID_TABLE_AND_VARIABLE);
-            }
-            if (params.getVariable().isEmpty()) {
-                valid = constraintViolation(ctx, "variable", INVALID_TABLE_AND_VARIABLE);
-            }
-        }
-        return valid;
     }
 
     private Boolean validateTableNames(List<String> tables, ConstraintValidatorContext ctx) {
@@ -115,13 +93,9 @@ public class TimeSeriesQueryParametersValidator
     }
 
     private List<String> getTables(TimeSeriesQueryParameters params) {
-        List<String> tableParams = params.getTablevariable()
+        return params.getTablevariable()
                 .stream()
                 .map(tablevariable -> tablevariable.split("\\.")[0])
                 .collect(Collectors.toList());
-        if (params.getTable() != null) {
-            tableParams.add(params.getTable());
-        }
-        return tableParams;
     }
 }

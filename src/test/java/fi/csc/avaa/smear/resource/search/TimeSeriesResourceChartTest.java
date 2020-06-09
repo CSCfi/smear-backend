@@ -63,33 +63,6 @@ public class TimeSeriesResourceChartTest {
     }
 
     @Test
-    public void fetchTimeSeriesWithTableAndVariableParameter_shouldReturnCorrectResults() {
-        String startTime = "2016-02-12T00:00:00.000";
-        String endTime = "2016-02-12T00:06:00.000";
-        String table = "HYY_META";
-        String variable = "Pamb0";
-        String tableVariable = table + "." + variable;
-        given()
-                .when()
-                .queryParam("table", table)
-                .queryParam("variable", variable)
-                .queryParam("from", startTime)
-                .queryParam("to", endTime)
-                .get(Endpoints.SEARCH_TIMESERIES + "/chart")
-                .then()
-                .statusCode(200)
-                .body(escape(tableVariable), hasSize(6))
-                .body(escape(tableVariable), hasItems(
-                        hasItems(1455235200, 973.71f),
-                        hasItems(1455235260, 973.82f),
-                        hasItems(1455235320, 973.86f),
-                        hasItems(1455235380, 973.92f),
-                        hasItems(1455235440, 973.81f),
-                        hasItems(1455235500, 973.82f)
-                ));
-    }
-
-    @Test
     public void fetchTimeSeriesFromMultipleTables_shouldReturnCorrectResults() {
         String startTime = "2020-04-12T23:55:00.000";
         String endTime = "2020-04-13T00:00:00.000";

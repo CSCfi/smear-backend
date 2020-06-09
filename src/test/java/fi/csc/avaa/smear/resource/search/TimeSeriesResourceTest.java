@@ -83,42 +83,6 @@ public class TimeSeriesResourceTest {
     }
 
     @Test
-    public void fetchTimeSeriesWithTableAndVariableParameter_shouldReturnCorrectResults() {
-        String startTime = "2016-02-12T00:00:00.000";
-        String endTime = "2016-02-12T00:06:00.000";
-        String table = "HYY_META";
-        String variable = "Pamb0";
-        String colname = table + "." + variable;
-        given()
-                .when()
-                .queryParam("table", table)
-                .queryParam("variable", variable)
-                .queryParam("from", startTime)
-                .queryParam("to", endTime)
-                .get(Endpoints.SEARCH_TIMESERIES)
-                .then()
-                .statusCode(200)
-                .body("startTime", equalTo(startTime))
-                .body("endTime", equalTo(endTime))
-                .body("recordCount", is(6))
-                .body("aggregation", equalTo("NONE"))
-                .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(1))
-                .body("columns", contains(colname))
-                .body("data", hasSize(6))
-                .body("data.samptime", contains(
-                        "2016-02-12T00:00:00.000",
-                        "2016-02-12T00:01:00.000",
-                        "2016-02-12T00:02:00.000",
-                        "2016-02-12T00:03:00.000",
-                        "2016-02-12T00:04:00.000",
-                        "2016-02-12T00:05:00.000"
-                ))
-                .body("data.'" + colname + "'",
-                        contains(973.71f, 973.82f, 973.86f, 973.92f, 973.81f, 973.82f));
-    }
-
-    @Test
     public void fetchTimeSeriesFromMultipleTables_shouldReturnCorrectResults() {
         String startTime = "2020-04-12T23:55:00.000";
         String endTime = "2020-04-13T00:00:00.000";

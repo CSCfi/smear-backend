@@ -6,7 +6,8 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static fi.csc.avaa.smear.parameter.ParameterUtils.mapTablesToVariables;
 
 @Getter
 @Builder
@@ -15,22 +16,16 @@ public class VariableMetadataSearch {
 
     private List<String> tables;
     private List<String> variables;
-    private Map<String, String> tableToVariable;
+    private Map<String, List<String>> tableToVariables;
     private List<String> categories;
     private List<String> descriptions;
     private List<String> sources;
 
     public static VariableMetadataSearch from(VariableMetadataQueryParameters params) {
-        Map<String, String> tableToVariable = params.getTablevariable()
-                .stream()
-                .map(s -> s.split("\\."))
-                .collect(Collectors.toMap(
-                        split -> split[0],
-                        split -> split[1]));
         return VariableMetadataSearch.builder()
                 .tables(params.getTable())
                 .variables(params.getVariable())
-                .tableToVariable(tableToVariable)
+                .tableToVariables(mapTablesToVariables(params.getTablevariable()))
                 .categories(params.getCategory())
                 .descriptions(params.getDescription())
                 .sources(params.getSource())

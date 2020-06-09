@@ -1,5 +1,6 @@
 package fi.csc.avaa.smear.parameter;
 
+import fi.csc.avaa.smear.validation.Patterns;
 import fi.csc.avaa.smear.validation.ValidIsoDate;
 import fi.csc.avaa.smear.validation.ValidTimeSeriesQueryParameters;
 import lombok.Getter;
@@ -19,25 +20,13 @@ import java.util.List;
 @ValidTimeSeriesQueryParameters
 public class TimeSeriesQueryParameters {
 
-    @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
-            "If you want to select from multiple tables, please use multiple tablevariable parameters. " +
-            "Table names can be queried from the tablemetadata endpoint by a variable's table id. " +
-            "Table ids of variables can be found from the variablemetadata endpoint.",
-            example = "HYY_META")
-    @QueryParam("table")
-    private String table;
-
-    @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used. " +
-            "At least one is required if the table parameter is not empty.",
-            example = "Pamb0")
-    @QueryParam("variable")
-    private List<@NotEmpty String> variable;
-
     @Parameter(description = "Name of a table and a variable separated by a period. " +
-            "Multiple parameters can be used.",
+            "Table and variable names can be queried from the table metadata and variable metadata endpoints. " +
+            "Multiple parameters can be used and at least one is required.",
             example = "HYY_META.Pamb0")
     @QueryParam("tablevariable")
-    private List<@NotEmpty @Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tablevariable;
+    @NotEmpty
+    private List<@NotEmpty @Pattern(regexp = Patterns.TABLEVARIABLE) String> tablevariable;
 
     @Parameter(description = "Time series start time (inclusive) in ISO 8601 format (YYYY-MM-DDThh:mm:ss.mmm).",
             example = "2016-02-11T00:00:00.989",

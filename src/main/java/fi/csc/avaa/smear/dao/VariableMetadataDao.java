@@ -85,9 +85,9 @@ public class VariableMetadataDao {
 
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        Condition conditions = search.getTableToVariable().isEmpty()
+        Condition conditions = search.getTableToVariables().isEmpty()
                 ? toSearchConditions(search)
-                : toTableVariableConditions(search.getTableToVariable());
+                : toTableVariableConditions(search.getTableToVariables());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
@@ -113,11 +113,11 @@ public class VariableMetadataDao {
                 .reduce(noCondition(), Condition::and);
     }
 
-    private Condition toTableVariableConditions(Map<String, String> tableToVariable) {
-        return tableToVariable.entrySet()
+    private Condition toTableVariableConditions(Map<String, List<String>> tableToVariables) {
+        return tableToVariables.entrySet()
                     .stream()
                     .map(entry -> field("TableMetadata.name").eq(entry.getKey())
-                            .and(field("VariableMetadata.variable").eq(entry.getValue())))
+                            .and(field("VariableMetadata.variable").in(entry.getValue())))
                     .reduce(noCondition(), Condition::or);
     }
 

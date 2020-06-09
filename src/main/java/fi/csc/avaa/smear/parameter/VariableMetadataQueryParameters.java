@@ -1,5 +1,6 @@
 package fi.csc.avaa.smear.parameter;
 
+import fi.csc.avaa.smear.validation.Patterns;
 import fi.csc.avaa.smear.validation.ValidVariableMetadataQueryParameters;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +30,7 @@ public class VariableMetadataQueryParameters {
             "Multiple parameters can be used.",
             example = "HYY_META.Pamb0")
     @QueryParam("tablevariable")
-    private List<@Pattern(regexp = "[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+") String> tablevariable;
+    private List<@Pattern(regexp = Patterns.TABLEVARIABLE) String> tablevariable;
 
     @Parameter(description = "Name of a category in the SMEAR database. " +
             "The parameter will be used to do a text search. " +
