@@ -104,9 +104,15 @@ public class VariableMetadataDao {
         if (!search.getTables().isEmpty()) {
             conditions.add(TABLE_METADATA.NAME.in(search.getTables()));
         }
-        conditions.add(toTextSearchConditions(search.getCategories(), VARIABLE_METADATA.CATEGORY));
-        conditions.add(toTextSearchConditions(search.getDescriptions(), VARIABLE_METADATA.DESCRIPTION));
-        conditions.add(toTextSearchConditions(search.getSources(), VARIABLE_METADATA.SOURCE));
+        if (!search.getCategories().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getCategories(), VARIABLE_METADATA.CATEGORY));
+        }
+        if (!search.getDescriptions().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getDescriptions(), VARIABLE_METADATA.DESCRIPTION));
+        }
+        if (!search.getSources().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getSources(), VARIABLE_METADATA.SOURCE));
+        }
         return conditions
                 .stream()
                 .reduce(noCondition(), Condition::and);

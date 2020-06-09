@@ -26,17 +26,6 @@ public class VariableMetadataResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
-            summary = "Fetch all variable metadata",
-            description = "Metadata that describes variables stored in the SMEAR database."
-    )
-    public List<VariableMetadata> allVariableMetadata() {
-        return dao.findAll();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/search")
-    @Operation(
             summary = "Search variable metadata",
             description = "Metadata that describes variables stored in the SMEAR database."
     )
@@ -47,7 +36,7 @@ public class VariableMetadataResource {
 
     @GET
     @Produces("text/csv")
-    @Path("/search/csv")
+    @Path("/csv")
     @Operation(
             summary = "Search variable metadata, CSV format",
             description = "Metadata that describes variables stored in the SMEAR database."
@@ -59,7 +48,7 @@ public class VariableMetadataResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/search/tsv")
+    @Path("/tsv")
     @Operation(
             summary = "Search variable metadata, TSV format",
             description = "Metadata that describes variables stored in the SMEAR database."
