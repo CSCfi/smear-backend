@@ -13,12 +13,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
-import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.noCondition;
 
 @ApplicationScoped
@@ -87,7 +86,7 @@ public class VariableMetadataDao {
     public List<VariableMetadata> search(VariableMetadataSearch search) {
         Condition conditions = search.getTableToVariables().isEmpty()
                 ? toSearchConditions(search)
-                : toTableVariableConditions(search.getTableToVariables());
+                : toTableAndVariableConditions(search.getTableToVariables());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
@@ -111,14 +110,6 @@ public class VariableMetadataDao {
         return conditions
                 .stream()
                 .reduce(noCondition(), Condition::and);
-    }
-
-    private Condition toTableVariableConditions(Map<String, List<String>> tableToVariables) {
-        return tableToVariables.entrySet()
-                    .stream()
-                    .map(entry -> field("TableMetadata.name").eq(entry.getKey())
-                            .and(field("VariableMetadata.variable").in(entry.getValue())))
-                    .reduce(noCondition(), Condition::or);
     }
 
     private Condition toTextSearchConditions(List<String> searchStrings,

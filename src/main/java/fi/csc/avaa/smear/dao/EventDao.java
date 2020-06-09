@@ -8,8 +8,11 @@ import org.jooq.RecordMapper;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
+import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
 import static fi.csc.avaa.smear.table.EventTable.EVENT;
+import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableEventTable.VARIABLE_EVENT;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 
@@ -29,7 +32,7 @@ public class EventDao {
                     .timestamp(record.get(EVENT.TIMESTAMP))
                     .build();
 
-    public List<Event> findByVariableNames(List<String> variableNames) {
+    public List<Event> findByTablesAndVariables(Map<String, List<String>> tableToVariables) {
         return create
                 .select()
                 .from(EVENT)
@@ -37,7 +40,9 @@ public class EventDao {
                 .on(EVENT.ID.eq(VARIABLE_EVENT.EVENT_ID))
                 .join(VARIABLE_METADATA)
                 .on(VARIABLE_EVENT.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
-                .where(VARIABLE_METADATA.NAME.in(variableNames))
+                .join(TABLE_METADATA)
+                .on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
+                .where(toTableAndVariableConditions(tableToVariables))
                 .fetchInto(EVENT)
                 .map(recordToEvent);
     }

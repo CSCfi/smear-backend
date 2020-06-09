@@ -16,7 +16,7 @@ public class EventResourceTest {
     @Test
     public void findByVariable_shouldReturnCorrectResult() {
         given()
-                .queryParam("variable", "VOC_M81_1250")
+                .queryParam("tablevariable", "HYY_META.VOC_M87_84")
                 .when()
                 .get(Endpoints.SEARCH_EVENTS)
                 .then()
