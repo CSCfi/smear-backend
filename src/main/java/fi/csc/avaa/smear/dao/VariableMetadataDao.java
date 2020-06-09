@@ -2,7 +2,6 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
-import fi.csc.avaa.smear.table.StationTable;
 import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -20,6 +19,7 @@ import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
 import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
+import static org.jooq.impl.DSL.count;
 import static org.jooq.impl.DSL.noCondition;
 
 @ApplicationScoped
@@ -74,14 +74,16 @@ public class VariableMetadataDao {
                 .fetch(recordToVariableMetadata);
     }
 
-    @CacheResult(cacheName = "variable-metadata-findall-cache")
-    public List<VariableMetadata> findAll() {
+    @CacheResult(cacheName = "variable-metadata-exists-cache")
+    public boolean variableExists(String tableName, String variableName) {
         return create
-                .select()
+                .select(count())
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
-                .fetch(recordToVariableMetadata);
+                .where(TABLE_METADATA.NAME.eq(tableName))
+                .and(VARIABLE_METADATA.NAME.eq(variableName))
+                .fetchOneInto(Integer.class) == 1;
     }
 
     @CacheResult(cacheName = "variable-metadata-search-cache")

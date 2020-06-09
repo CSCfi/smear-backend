@@ -120,9 +120,9 @@ public class TimeSeriesResourceTest {
 
     @Test
     public void fetchTimeSeriesFromHyySlow_shouldReturnCorrectResults() {
-        String startTime = "2016-02-10T00:00:00.000";
-        String endTime = "2016-02-20T00:00:00.000";
-        String tablevariable = "HYY_SLOW.SD_PIT050";
+        String startTime = "2012-12-29T00:00:00.000";
+        String endTime = "2012-12-31T00:00:00.000";
+        String tablevariable = "HYY_SLOW.dbh_tree1";
         given()
                 .when()
                 .queryParam("tablevariable", tablevariable)
@@ -140,11 +140,11 @@ public class TimeSeriesResourceTest {
                 .body("columns", contains(tablevariable))
                 .body("data", hasSize(2))
                 .body("data.samptime", contains(
-                        "2016-02-12T00:00:00.000",
-                        "2016-02-19T00:00:00.000"
+                        "2012-12-29T00:00:00.000",
+                        "2012-12-30T00:00:00.000"
                 ))
                 .body("data.'" + tablevariable + "'",
-                        contains(25.0f, 27.0f));
+                        contains(12.812322f, 12.814073f));
     }
 
     @Test

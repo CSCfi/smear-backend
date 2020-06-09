@@ -1,6 +1,6 @@
 package fi.csc.avaa.smear.validation;
 
-import fi.csc.avaa.smear.dao.TableMetadataDao;
+import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.parameter.Aggregation;
 import fi.csc.avaa.smear.parameter.Quality;
 import fi.csc.avaa.smear.parameter.TimeSeriesQueryParameters;
@@ -9,9 +9,12 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
 
+import static fi.csc.avaa.smear.parameter.ParameterUtils.mapTablesToVariables;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_SLOW;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.TABLENAME_HYY_TREE;
 import static fi.csc.avaa.smear.validation.ValidationUtils.constraintViolation;
@@ -21,11 +24,11 @@ public class TimeSeriesQueryParametersValidator
         implements ConstraintValidator<ValidTimeSeriesQueryParameters, TimeSeriesQueryParameters> {
 
     @Inject
-    TableMetadataDao tableMetadataDao;
+    VariableMetadataDao variableMetadataDao;
 
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation type";
     private static final String INVALID_QUALITY = "Invalid quality";
-    private static final String INVALID_TABLES = "Invalid table(s): %s";
+    private static final String INVALID_TABLEVARIABLES = "Invalid table and variable combinations (not found): %s";
     private static final String HYY_AGGREGATION_NOT_SUPPORTED = "MEDIAN or CIRCULAR aggregation not supported " +
             "for tables HYY_SLOW and HYY_TREE";
     private static final String HYY_TREE_CUV_NO_REQUIRED = "One or more cuv_no parameters required when " +
@@ -33,31 +36,34 @@ public class TimeSeriesQueryParametersValidator
 
     @Override
     public boolean isValid(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
-        List<String> tables = getTables(params);
-        boolean tableNamesValid = validateTableNames(tables, ctx);
+        Map<String, List<String>> tableToVariables = mapTablesToVariables(params.getTablevariable());
+        Set<String> tables = tableToVariables.keySet();
+        boolean tablevariablesValid = validateTablevariables(tableToVariables, ctx);
         boolean aggregationValid = validateAggregation(params.getAggregation(), tables, ctx);
         boolean qualityValid = validateQuality(params.getQuality(), ctx);
         boolean cuvNoValid = validateCuvNo(params.getCuv_no(), tables, ctx);
-        return tableNamesValid
+        return tablevariablesValid
                 && aggregationValid
                 && qualityValid
                 && cuvNoValid;
     }
 
-    private Boolean validateTableNames(List<String> tables, ConstraintValidatorContext ctx) {
-        List<String> validTables = tableMetadataDao.findTableNames();
-        List<String> invalidTables = tables
-                .stream()
-                .filter(tableName -> !validTables.contains(tableName))
-                .collect(Collectors.toList());
-        if (!invalidTables.isEmpty()) {
+    private Boolean validateTablevariables(Map<String, List<String>> tableToVariables, ConstraintValidatorContext ctx) {
+        List<String> invalidTablevariables = new ArrayList<>();
+        tableToVariables.forEach((table, variables) ->
+                variables.forEach(variable -> {
+                    if (!variableMetadataDao.variableExists(table, variable)) {
+                        invalidTablevariables.add(String.format("%s.%s", table, variable));
+                    }
+                }));
+        if (!invalidTablevariables.isEmpty()) {
             return constraintViolation(ctx, "tablevariable",
-                    String.format(INVALID_TABLES, String.join(", ", invalidTables)));
+                    String.format(INVALID_TABLEVARIABLES, String.join(", ", invalidTablevariables)));
         }
         return true;
     }
 
-    private boolean validateAggregation(String aggregationParam, List<String> tables,
+    private boolean validateAggregation(String aggregationParam, Set<String> tables,
                                         ConstraintValidatorContext ctx) {
         boolean valid = true;
         if (aggregationParam != null) {
@@ -83,19 +89,12 @@ public class TimeSeriesQueryParametersValidator
         return true;
     }
 
-    private boolean validateCuvNo(List<Integer> cuvNos, List<String> tables, ConstraintValidatorContext ctx) {
+    private boolean validateCuvNo(List<Integer> cuvNos, Set<String> tables, ConstraintValidatorContext ctx) {
         if (tables.contains(TABLENAME_HYY_TREE)) {
             if (cuvNos == null || cuvNos.isEmpty()) {
                 return constraintViolation(ctx, "cuv_no", HYY_TREE_CUV_NO_REQUIRED);
             }
         }
         return true;
-    }
-
-    private List<String> getTables(TimeSeriesQueryParameters params) {
-        return params.getTablevariable()
-                .stream()
-                .map(tablevariable -> tablevariable.split("\\.")[0])
-                .collect(Collectors.toList());
     }
 }

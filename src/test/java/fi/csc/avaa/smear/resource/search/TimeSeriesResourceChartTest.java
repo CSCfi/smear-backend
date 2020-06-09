@@ -96,9 +96,9 @@ public class TimeSeriesResourceChartTest {
 
     @Test
     public void fetchTimeSeriesFromHyySlow_shouldReturnCorrectResults() {
-        String startTime = "2016-02-10T00:00:00.000";
-        String endTime = "2016-02-20T00:00:00.000";
-        String tableVariable = "HYY_SLOW.SD_PIT050";
+        String startTime = "2012-12-29T00:00:00.000";
+        String endTime = "2012-12-31T00:00:00.000";
+        String tableVariable = "HYY_SLOW.dbh_tree1";
         given()
                 .when()
                 .queryParam("tablevariable", tableVariable)
@@ -109,8 +109,8 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(2))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1455235200, 25.0f),
-                        hasItems(1455840000, 27.0f)
+                        hasItems(1356739200, 12.812322f),
+                        hasItems(1356825600, 12.814073f)
                 ));
     }
 

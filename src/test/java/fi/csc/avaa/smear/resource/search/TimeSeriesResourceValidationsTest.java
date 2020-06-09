@@ -36,7 +36,7 @@ public class TimeSeriesResourceValidationsTest {
     public void nonExistentTableGiven_shouldReturnParameterViolation() {
         given()
                 .when()
-                .queryParam("tablevariable", "ASDFSD.Pamb0")
+                .queryParam("tablevariable", "bat.man")
                 .queryParam("from", "2016-02-12T00:00:00.000")
                 .queryParam("to", "2016-02-12T00:06:00.000")
                 .get(Endpoints.SEARCH_TIMESERIES)
@@ -138,7 +138,7 @@ public class TimeSeriesResourceValidationsTest {
 
                     given()
                             .when()
-                            .queryParam("tablevariable", "HYY_SLOW.SD_PIT050")
+                            .queryParam("tablevariable", "HYY_SLOW.dbh_tree1")
                             .queryParam("from", "2016-02-12T00:00:00.000")
                             .queryParam("to", "2016-02-12T00:06:00.000")
                             .queryParam("aggregation", aggregation)

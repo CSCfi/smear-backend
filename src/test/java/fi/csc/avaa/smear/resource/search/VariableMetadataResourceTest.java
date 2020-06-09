@@ -38,7 +38,7 @@ public class VariableMetadataResourceTest {
         given()
                 .when()
                 .params(params)
-                .get(Endpoints.SEARCH_VARIABLES + "/search")
+                .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(200)
                 .body("", hasSize(1))
@@ -70,7 +70,7 @@ public class VariableMetadataResourceTest {
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
                 .queryParam("source", "hukse")
-                .get(Endpoints.SEARCH_VARIABLES + "/search/csv")
+                .get(Endpoints.SEARCH_VARIABLES + "/csv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));
@@ -85,7 +85,7 @@ public class VariableMetadataResourceTest {
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
                 .queryParam("source", "hukse")
-                .get(Endpoints.SEARCH_VARIABLES + "/search/tsv")
+                .get(Endpoints.SEARCH_VARIABLES + "/tsv")
                 .then()
                 .statusCode(200)
                 .body(equalTo(expected));

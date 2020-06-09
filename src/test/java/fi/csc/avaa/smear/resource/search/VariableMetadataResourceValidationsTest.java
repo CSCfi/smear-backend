@@ -20,7 +20,7 @@ public class VariableMetadataResourceValidationsTest {
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
                 .queryParam("tablevariable", "HYY_META.Pamb0")
-                .get(Endpoints.SEARCH_VARIABLES + "/search")
+                .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(400)
                 .body("parameterViolations", hasSize(1))
