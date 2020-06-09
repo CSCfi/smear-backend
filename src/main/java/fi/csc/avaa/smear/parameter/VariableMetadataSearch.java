@@ -17,6 +17,7 @@ public class VariableMetadataSearch {
     private List<String> tables;
     private List<String> variables;
     private Map<String, List<String>> tableToVariables;
+    private List<String> stations;
     private List<String> categories;
     private List<String> descriptions;
     private List<String> sources;
@@ -26,6 +27,7 @@ public class VariableMetadataSearch {
                 .tables(params.getTable())
                 .variables(params.getVariable())
                 .tableToVariables(mapTablesToVariables(params.getTablevariable()))
+                .stations(params.getStation())
                 .categories(params.getCategory())
                 .descriptions(params.getDescription())
                 .sources(params.getSource())

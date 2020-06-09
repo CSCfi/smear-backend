@@ -32,21 +32,28 @@ public class VariableMetadataQueryParameters {
     @QueryParam("tablevariable")
     private List<@Pattern(regexp = Patterns.TABLEVARIABLE) String> tablevariable;
 
+    @Parameter(description = "Name of a SMEAR station. " +
+            "The parameter will be used to do a case insensitive text search. " +
+            "Multiple parameters can be used.",
+            example = "Torni")
+    @QueryParam("station")
+    private List<String> station;
+
     @Parameter(description = "Name of a category in the SMEAR database. " +
-            "The parameter will be used to do a text search. " +
+            "The parameter will be used to do a case insensitive text search. " +
             "Multiple parameters can be used.",
             example = "aerosol")
     @QueryParam("category")
     private List<String> category;
 
     @Parameter(description = "Description of the variable. " +
-            "The parameter will be used to do a text search. " +
+            "The parameter will be used to do a case insensitive text search. " +
             "Multiple parameters can be used.")
     @QueryParam("description")
     private List<String> description;
 
     @Parameter(description = "Source of the variable. " +
-            "The parameter will be used to do a text search. " +
+            "The parameter will be used to do a case insensitive text search. " +
             "Multiple parameters can be used.")
     @QueryParam("source")
     private List<String> source;

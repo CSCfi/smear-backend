@@ -2,6 +2,7 @@ package fi.csc.avaa.smear.dao;
 
 import fi.csc.avaa.smear.dto.VariableMetadata;
 import fi.csc.avaa.smear.parameter.VariableMetadataSearch;
+import fi.csc.avaa.smear.table.StationTable;
 import io.quarkus.cache.CacheResult;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
+import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 import static org.jooq.impl.DSL.noCondition;
@@ -92,6 +94,8 @@ public class VariableMetadataDao {
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .join(STATION)
+                .on(STATION.ID.eq(TABLE_METADATA.STATION_ID))
                 .where(conditions)
                 .fetch(recordToVariableMetadata);
     }
@@ -103,6 +107,9 @@ public class VariableMetadataDao {
         }
         if (!search.getTables().isEmpty()) {
             conditions.add(TABLE_METADATA.NAME.in(search.getTables()));
+        }
+        if (!search.getStations().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getStations(), STATION.NAME));
         }
         if (!search.getCategories().isEmpty()) {
             conditions.add(toTextSearchConditions(search.getCategories(), VARIABLE_METADATA.CATEGORY));
