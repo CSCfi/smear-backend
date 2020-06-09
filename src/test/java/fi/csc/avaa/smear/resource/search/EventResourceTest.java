@@ -33,12 +33,6 @@ public class EventResourceTest {
                 .body("id", contains(214, 215, 229, 258))
                 .body("periodStart", contains("2016-08-18", "2018-01-02", "2019-01-01", "2019-01-01"))
                 .body("periodEnd", contains("2017-12-22", "2018-12-11", "2019-09-05", "2019-10-25"))
-                .body("responsiblePerson", contains(
-                        "Juho Aalto, Pekka Rantala",
-                        "Juho Aalto, Pekka Rantala",
-                        "Juho Aalto,Pekka Rantala",
-                        "Juho Aalto,Pekka Rantala"
-                ))
                 .body("timestamp", contains(
                         "2018-01-31T10:00:00.000",
                         "2019-02-11T09:00:00.000",

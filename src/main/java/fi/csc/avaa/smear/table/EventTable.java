@@ -19,7 +19,6 @@ public class EventTable extends CustomTable<EventRecord> {
     public final TableField<EventRecord, Long> ID = createField(name("eventID"), BIGINT);
     public final TableField<EventRecord, String> EVENT_TYPE = createField(name("event_type"), VARCHAR);
     public final TableField<EventRecord, String> DESCRIPTION = createField(name("event"), VARCHAR);
-    public final TableField<EventRecord, String> RESPONSIBLE_PERSON = createField(name("who"), VARCHAR);
     public final TableField<EventRecord, LocalDate> PERIOD_START = createField(name("period_start"), LOCALDATE);
     public final TableField<EventRecord, LocalDate> PERIOD_END = createField(name("period_end"), LOCALDATE);
     public final TableField<EventRecord, LocalDateTime> TIMESTAMP = createField(name("etimestamp"), LOCALDATETIME);

@@ -24,7 +24,6 @@ public class EventDao {
                     .id(record.get(EVENT.ID))
                     .eventType(record.get(EVENT.EVENT_TYPE))
                     .description(record.get(EVENT.DESCRIPTION))
-                    .responsiblePerson(record.get(EVENT.RESPONSIBLE_PERSON))
                     .periodStart(record.get(EVENT.PERIOD_START))
                     .periodEnd(record.get(EVENT.PERIOD_END))
                     .timestamp(record.get(EVENT.TIMESTAMP))
