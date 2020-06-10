@@ -9,4 +9,5 @@ public class VariableNode {
 
     private String tablevariable;
     private String title;
+    private Integer sortOrder;
 }

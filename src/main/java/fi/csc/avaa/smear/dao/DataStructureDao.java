@@ -3,9 +3,11 @@ package fi.csc.avaa.smear.dao;
 import fi.csc.avaa.smear.dto.datastructure.CategoryNode;
 import fi.csc.avaa.smear.dto.datastructure.StationNode;
 import fi.csc.avaa.smear.dto.datastructure.VariableNode;
+import lombok.Builder;
+import lombok.Getter;
 import org.jooq.DSLContext;
-import org.jooq.Record6;
-import org.jooq.Result;
+import org.jooq.Record;
+import org.jooq.RecordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +28,100 @@ public class DataStructureDao {
     DSLContext create;
 
     private static final String CATEGORY_OTHER = "Other";
+
+    private static final RecordMapper<Record, DataStructureRow> recordToRow = record ->
+            DataStructureRow.builder()
+                    .stationId(record.get(STATION.ID))
+                    .stationName(record.get(STATION.NAME))
+                    .category(record.get(VARIABLE_METADATA.CATEGORY))
+                    .variableTitle(record.get(VARIABLE_METADATA.TITLE))
+                    .variableSortOrder(record.get((VARIABLE_METADATA.UI_SORT_ORDER)))
+                    .tableName(record.get(TABLE_METADATA.NAME))
+                    .variablename(record.get(VARIABLE_METADATA.NAME))
+                    .build();
+
+    public List<StationNode> fetchDataStructure() {
+        List<DataStructureRow> rows = create
+                .select(
+                        STATION.ID,
+                        STATION.NAME,
+                        coalesce(VARIABLE_METADATA.CATEGORY, CATEGORY_OTHER)
+                                .as(VARIABLE_METADATA.CATEGORY),
+                        VARIABLE_METADATA.TITLE,
+                        VARIABLE_METADATA.UI_SORT_ORDER,
+                        TABLE_METADATA.NAME,
+                        VARIABLE_METADATA.NAME
+                )
+                .from(VARIABLE_METADATA)
+                .join(TABLE_METADATA).on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
+                .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID))
+                .where(VARIABLE_IS_PUBLIC)
+                .fetch(recordToRow);
+        return toStationNodes(rows);
+    }
+
+    private static List<StationNode> toStationNodes(List<DataStructureRow> rows) {
+        List<StationNode> stationNodes = rows
+                .stream()
+                .map(DataStructureDao::toStationNode)
+                .distinct()
+                .sorted(Comparator.comparing(StationNode::getId))
+                .collect(Collectors.toList());
+        stationNodes.forEach(stationNode -> {
+            List<CategoryNode> categoryNodes = toCategoryNodes(stationNode.getId(), rows);
+            categoryNodes.forEach(categoryNode -> {
+                List<VariableNode> variableNodes =
+                        toVariableNodes(stationNode.getId(), categoryNode.getName(), rows);
+                categoryNode.setVariables(variableNodes);
+            });
+            stationNode.setCategories(categoryNodes);
+        });
+        return stationNodes;
+    }
+
+    private static StationNode toStationNode(DataStructureRow row) {
+        return StationNode.builder()
+                .id(row.getStationId())
+                .name(row.getStationName())
+                .build();
+    }
+
+    private static List<CategoryNode> toCategoryNodes(Long stationId, List<DataStructureRow> rows) {
+        return rows
+                .stream()
+                .filter(row -> row.getStationId().equals(stationId))
+                .map(DataStructureDao::toCategoryNode)
+                .distinct()
+                .sorted(categoryNodeComparator)
+                .collect(Collectors.toList());
+    }
+
+    private static CategoryNode toCategoryNode(DataStructureRow row) {
+        String categoryName = row.getCategory();
+        return CategoryNode.builder()
+                .id(categoryName + row.getStationId())
+                .name(categoryName)
+                .build();
+    }
+
+    private static List<VariableNode> toVariableNodes(Long stationId, String categoryName,
+                                                      List<DataStructureRow> rows) {
+        return rows
+                .stream()
+                .filter(row -> row.getStationId().equals(stationId) && row.getCategory().equals(categoryName))
+                .map(DataStructureDao::toVariableNode)
+                .sorted(variableNodeComparator)
+                .collect(Collectors.toList());
+    }
+
+    private static VariableNode toVariableNode(DataStructureRow row) {
+        return VariableNode.builder()
+                .tablevariable(row.getTableName() + "." + row.getVariablename())
+                .title(row.getVariableTitle())
+                .sortOrder(row.getVariableSortOrder())
+                .build();
+    }
+
     private static final Comparator<CategoryNode> categoryNodeComparator = (node1, node2) -> {
         if (node1.getName().equals(CATEGORY_OTHER)) {
             return 1;
@@ -36,89 +132,26 @@ public class DataStructureDao {
         }
     };
 
-    public List<StationNode> fetchDataStructure() {
-        Result<Record6<Long, String, String, String, String, String>> result =
-                create
-                        .select(
-                                STATION.ID,
-                                STATION.NAME,
-                                coalesce(VARIABLE_METADATA.CATEGORY, CATEGORY_OTHER)
-                                        .as(VARIABLE_METADATA.CATEGORY),
-                                VARIABLE_METADATA.TITLE,
-                                TABLE_METADATA.NAME,
-                                VARIABLE_METADATA.NAME
-                        )
-                        .from(VARIABLE_METADATA)
-                        .join(TABLE_METADATA).on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
-                        .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID))
-                        .where(VARIABLE_IS_PUBLIC)
-                        .fetch();
-        return toStationNodes(result);
-    }
+    private static final Comparator<VariableNode> variableNodeComparator = (node1, node2) -> {
+        if (node1.getSortOrder() == null) {
+            return 1;
+        } else if (node2.getSortOrder() == null) {
+            return -1;
+        } else {
+            return node1.getSortOrder().compareTo(node2.getSortOrder());
+        }
+    };
 
-    private static List<StationNode> toStationNodes(
-            Result<Record6<Long, String, String, String, String, String>> result) {
-        List<StationNode> stationNodes = result
-                .stream()
-                .map(DataStructureDao::toStationNode)
-                .distinct()
-                .sorted(Comparator.comparing(StationNode::getId))
-                .collect(Collectors.toList());
-        stationNodes.forEach(stationNode -> {
-            List<CategoryNode> categoryNodes = toCategoryNodes(stationNode.getId(), result);
-            categoryNodes.forEach(categoryNode -> {
-                List<VariableNode> variableNodes =
-                        toVariableNodes(stationNode.getId(), categoryNode.getName(), result);
-                categoryNode.setVariables(variableNodes);
-            });
-            stationNode.setCategories(categoryNodes);
-        });
-        return stationNodes;
-    }
+    @Getter
+    @Builder
+    private static class DataStructureRow {
 
-    private static StationNode toStationNode(Record6<Long, String, String, String, String, String> record) {
-        return StationNode.builder()
-                .id(record.get(STATION.ID))
-                .name(record.get(STATION.NAME))
-                .build();
-    }
-
-    private static List<CategoryNode> toCategoryNodes(Long stationId,
-                                                      Result<Record6<Long, String, String, String, String, String>> result) {
-        return result
-                .stream()
-                .filter(record -> record.get(STATION.ID).equals(stationId))
-                .map(DataStructureDao::toCategoryNode)
-                .distinct()
-                .sorted(categoryNodeComparator)
-                .collect(Collectors.toList());
-    }
-
-    private static CategoryNode toCategoryNode(Record6<Long, String, String, String, String, String> record) {
-        String categoryName = record.get(VARIABLE_METADATA.CATEGORY);
-        return CategoryNode.builder()
-                .id(categoryName + record.get(STATION.ID))
-                .name(categoryName)
-                .build();
-    }
-
-    private static List<VariableNode> toVariableNodes(
-            Long stationId, String categoryName,
-            Result<Record6<Long, String, String, String, String, String>> result) {
-        return result
-                .stream()
-                .filter(record ->
-                        record.get(STATION.ID).equals(stationId)
-                                && record.get(VARIABLE_METADATA.CATEGORY).equals(categoryName))
-                .map(DataStructureDao::toVariableNode)
-                .sorted(Comparator.comparing(VariableNode::getTitle))
-                .collect(Collectors.toList());
-    }
-
-    private static VariableNode toVariableNode(Record6<Long, String, String, String, String, String> record) {
-        return VariableNode.builder()
-                .tablevariable(record.get(TABLE_METADATA.NAME) + "." + record.get(VARIABLE_METADATA.NAME))
-                .title(record.get(VARIABLE_METADATA.TITLE))
-                .build();
+        private Long stationId;
+        private String stationName;
+        private String category;
+        private String variableTitle;
+        private Integer variableSortOrder;
+        private String tableName;
+        private String variablename;
     }
 }
