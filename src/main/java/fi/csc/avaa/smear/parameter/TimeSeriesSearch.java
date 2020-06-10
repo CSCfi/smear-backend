@@ -5,10 +5,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static fi.csc.avaa.smear.parameter.ParameterUtils.mapTablesToVariables;
 
 @Getter
 @Builder
@@ -34,7 +34,7 @@ public class TimeSeriesSearch {
                 ? Quality.from(params.getQuality().toUpperCase())
                 : Quality.ANY;
         return TimeSeriesSearch.builder()
-                .tableToVariables(tableToVariablesMapFrom(params))
+                .tableToVariables(mapTablesToVariables(params.getTablevariable()))
                 .from(LocalDateTime.parse(params.getFrom()))
                 .to(LocalDateTime.parse(params.getTo()))
                 .quality(quality)
@@ -42,23 +42,5 @@ public class TimeSeriesSearch {
                 .interval(interval)
                 .cuvNos(params.getCuv_no())
                 .build();
-    }
-
-    private static Map<String, List<String>> tableToVariablesMapFrom(TimeSeriesQueryParameters params) {
-        Map<String, List<String>> tableToVariables = new HashMap<>();
-        if (params.getTable() != null && !params.getTable().isEmpty()) {
-            tableToVariables.put(params.getTable(), params.getVariable());
-        } else {
-            params.getTablevariable().forEach(pair -> {
-                String[] split = pair.split("\\.");
-                String table = split[0];
-                String variable = split[1];
-                if (!tableToVariables.containsKey(table)) {
-                    tableToVariables.put(table, new ArrayList<>());
-                }
-                tableToVariables.get(table).add(variable);
-            });
-        }
-        return tableToVariables;
     }
 }

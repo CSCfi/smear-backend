@@ -14,25 +14,13 @@ import static org.hamcrest.Matchers.hasSize;
 public class VariableMetadataResourceValidationsTest {
 
     @Test
-    public void searchWithNoParameters_shouldReturnParameterViolations() {
-        given()
-                .when()
-                .get(Endpoints.SEARCH_VARIABLES + "/search")
-                .then()
-                .statusCode(400)
-                .body("parameterViolations", hasSize(1))
-                .body("parameterViolations.path", contains("variableMetadata.params"));
-    }
-
-    @Test
     public void searchWithMutuallyExclusiveParameters_shouldReturnParameterViolations() {
         given()
                 .when()
                 .queryParam("table", "HYY_META")
                 .queryParam("variable", "G_sc")
-                .queryParam("source", "hukse")
                 .queryParam("tablevariable", "HYY_META.Pamb0")
-                .get(Endpoints.SEARCH_VARIABLES + "/search")
+                .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(400)
                 .body("parameterViolations", hasSize(1))

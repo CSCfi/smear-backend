@@ -33,40 +33,10 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void bothTableAndVariableAndTablevariableParametersGiven_shouldReturnParameterViolation() {
-        given()
-                .when()
-                .queryParam("tablevariable", "HYY_META.Pamb0")
-                .queryParam("table", "HYY_AERO")
-                .queryParam("variable", "HYY_AERO.scat_t")
-                .queryParam("from", "2016-02-12T00:00:00.000")
-                .queryParam("to", "2016-02-12T00:06:00.000")
-                .get(Endpoints.SEARCH_TIMESERIES)
-                .then()
-                .statusCode(400)
-                .body("parameterViolations", hasSize(1))
-                .body("parameterViolations.path", contains("timeSeries.params.tablevariable"));
-    }
-
-    @Test
-    public void tableWithoutVariablesGiven_shouldReturnParameterViolation() {
-        given()
-                .when()
-                .queryParam("table", "HYY_AERO")
-                .queryParam("from", "2016-02-12T00:00:00.000")
-                .queryParam("to", "2016-02-12T00:06:00.000")
-                .get(Endpoints.SEARCH_TIMESERIES)
-                .then()
-                .statusCode(400)
-                .body("parameterViolations", hasSize(1))
-                .body("parameterViolations.path", contains("timeSeries.params.variable"));
-    }
-
-    @Test
     public void nonExistentTableGiven_shouldReturnParameterViolation() {
         given()
                 .when()
-                .queryParam("tablevariable", "ASDFSD.Pamb0")
+                .queryParam("tablevariable", "bat.man")
                 .queryParam("from", "2016-02-12T00:00:00.000")
                 .queryParam("to", "2016-02-12T00:06:00.000")
                 .get(Endpoints.SEARCH_TIMESERIES)
@@ -168,7 +138,7 @@ public class TimeSeriesResourceValidationsTest {
 
                     given()
                             .when()
-                            .queryParam("tablevariable", "HYY_SLOW.SD_PIT050")
+                            .queryParam("tablevariable", "HYY_SLOW.dbh_tree1")
                             .queryParam("from", "2016-02-12T00:00:00.000")
                             .queryParam("to", "2016-02-12T00:06:00.000")
                             .queryParam("aggregation", aggregation)

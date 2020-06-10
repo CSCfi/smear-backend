@@ -20,7 +20,6 @@ import org.jooq.SelectConditionStep;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.SelectSeekStep1;
 import org.jooq.Table;
-import org.jooq.impl.DSL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,6 +51,7 @@ import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.min;
 import static org.jooq.impl.DSL.noCondition;
 import static org.jooq.impl.DSL.sum;
+import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.SQLDataType.FLOAT;
 
 @ApplicationScoped
@@ -90,7 +90,7 @@ public class TimeSeriesDao {
     }
 
     private Select<Record> createQuery(String tableName, List<String> variables, TimeSeriesSearch search) {
-        Table<Record> table = DSL.table(tableName);
+        Table<Record> table = table(tableName);
         List<SelectFieldOrAsterisk> fields = getFields(variables, search.getQuality(), search.getAggregation());
         Condition conditions = SAMPTIME.greaterOrEqual(search.getFrom())
                 .and(SAMPTIME.lessThan(search.getTo()));

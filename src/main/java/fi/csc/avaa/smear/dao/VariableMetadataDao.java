@@ -7,17 +7,20 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
+import org.jooq.TableField;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
+import static fi.csc.avaa.smear.dao.Conditions.tableAndVariableMatches;
+import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
-import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.count;
 import static org.jooq.impl.DSL.noCondition;
 
 @ApplicationScoped
@@ -58,6 +61,7 @@ public class VariableMetadataDao {
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(VARIABLE_METADATA.ID.eq(variableId))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchOne(recordToVariableMetadata);
     }
 
@@ -69,34 +73,41 @@ public class VariableMetadataDao {
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(VARIABLE_METADATA.TABLE_ID.eq(tableId))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetch(recordToVariableMetadata);
     }
 
-    @CacheResult(cacheName = "variable-metadata-findall-cache")
-    public List<VariableMetadata> findAll() {
+    @CacheResult(cacheName = "variable-metadata-exists-cache")
+    public boolean variableExists(String tableName, String variableName) {
         return create
-                .select()
+                .select(count())
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
-                .fetch(recordToVariableMetadata);
+                .where(TABLE_METADATA.NAME.eq(tableName))
+                .and(VARIABLE_METADATA.NAME.eq(variableName))
+                .and(VARIABLE_IS_PUBLIC)
+                .fetchOneInto(Integer.class) == 1;
     }
 
     @CacheResult(cacheName = "variable-metadata-search-cache")
     public List<VariableMetadata> search(VariableMetadataSearch search) {
-        Condition conditions = search.getTableToVariable().isEmpty()
-                ? getSearchConditions(search)
-                : getTableVariableConditions(search.getTableToVariable());
+        Condition conditions = search.getTableToVariables().isEmpty()
+                ? toSearchConditions(search)
+                : tableAndVariableMatches(search.getTableToVariables());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
+                .join(STATION)
+                .on(STATION.ID.eq(TABLE_METADATA.STATION_ID))
                 .where(conditions)
+                .and(VARIABLE_IS_PUBLIC)
                 .fetch(recordToVariableMetadata);
     }
 
-    private Condition getSearchConditions(VariableMetadataSearch search) {
+    private Condition toSearchConditions(VariableMetadataSearch search) {
         List<Condition> conditions = new ArrayList<>();
         if (!search.getVariables().isEmpty()) {
             conditions.add(VARIABLE_METADATA.NAME.in(search.getVariables()));
@@ -104,23 +115,28 @@ public class VariableMetadataDao {
         if (!search.getTables().isEmpty()) {
             conditions.add(TABLE_METADATA.NAME.in(search.getTables()));
         }
-        if (!search.getCategories().isEmpty()) {
-            conditions.add(VARIABLE_METADATA.CATEGORY.in(search.getCategories()));
+        if (!search.getStations().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getStations(), STATION.NAME));
         }
-        conditions.add(search.getSources()
-                .stream()
-                .map(VARIABLE_METADATA.SOURCE::containsIgnoreCase)
-                .reduce(noCondition(), Condition::or));
+        if (!search.getCategories().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getCategories(), VARIABLE_METADATA.CATEGORY));
+        }
+        if (!search.getDescriptions().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getDescriptions(), VARIABLE_METADATA.DESCRIPTION));
+        }
+        if (!search.getSources().isEmpty()) {
+            conditions.add(toTextSearchConditions(search.getSources(), VARIABLE_METADATA.SOURCE));
+        }
         return conditions
                 .stream()
                 .reduce(noCondition(), Condition::and);
     }
 
-    private Condition getTableVariableConditions(Map<String, String> tableToVariable) {
-        return tableToVariable.entrySet()
-                    .stream()
-                    .map(entry -> field("TableMetadata.name").eq(entry.getKey())
-                            .and(field("VariableMetadata.variable").eq(entry.getValue())))
-                    .reduce(noCondition(), Condition::or);
+    private Condition toTextSearchConditions(List<String> searchStrings,
+                                             TableField<? extends Record, String> field) {
+        return searchStrings
+                .stream()
+                .map(field::containsIgnoreCase)
+                .reduce(noCondition(), Condition::or);
     }
 }

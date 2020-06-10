@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import static fi.csc.avaa.smear.dto.DateTimeFormat.ISO8601_DATETIME_FORMATTER;
 import static fi.csc.avaa.smear.table.TimeSeriesConstants.COLNAME_SAMPTIME;
 
-
 public class TimeSeriesSheetBuilder extends TimeSeriesBuilder<TimeSeriesSheet> {
 
     private final Set<String> allColumns = new HashSet<>();
@@ -64,7 +63,7 @@ public class TimeSeriesSheetBuilder extends TimeSeriesBuilder<TimeSeriesSheet> {
 
     private void initSamptime(String samptime) {
         if (!samptimeToValues.containsKey(samptime)) {
-            samptimeToValues.put(samptime, new HashMap<>());
+            samptimeToValues.put(samptime, new TreeMap<>());
         }
     }
 }

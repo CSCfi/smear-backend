@@ -63,33 +63,6 @@ public class TimeSeriesResourceChartTest {
     }
 
     @Test
-    public void fetchTimeSeriesWithTableAndVariableParameter_shouldReturnCorrectResults() {
-        String startTime = "2016-02-12T00:00:00.000";
-        String endTime = "2016-02-12T00:06:00.000";
-        String table = "HYY_META";
-        String variable = "Pamb0";
-        String tableVariable = table + "." + variable;
-        given()
-                .when()
-                .queryParam("table", table)
-                .queryParam("variable", variable)
-                .queryParam("from", startTime)
-                .queryParam("to", endTime)
-                .get(Endpoints.SEARCH_TIMESERIES + "/chart")
-                .then()
-                .statusCode(200)
-                .body(escape(tableVariable), hasSize(6))
-                .body(escape(tableVariable), hasItems(
-                        hasItems(1455235200, 973.71f),
-                        hasItems(1455235260, 973.82f),
-                        hasItems(1455235320, 973.86f),
-                        hasItems(1455235380, 973.92f),
-                        hasItems(1455235440, 973.81f),
-                        hasItems(1455235500, 973.82f)
-                ));
-    }
-
-    @Test
     public void fetchTimeSeriesFromMultipleTables_shouldReturnCorrectResults() {
         String startTime = "2020-04-12T23:55:00.000";
         String endTime = "2020-04-13T00:00:00.000";
@@ -123,9 +96,9 @@ public class TimeSeriesResourceChartTest {
 
     @Test
     public void fetchTimeSeriesFromHyySlow_shouldReturnCorrectResults() {
-        String startTime = "2016-02-10T00:00:00.000";
-        String endTime = "2016-02-20T00:00:00.000";
-        String tableVariable = "HYY_SLOW.SD_PIT050";
+        String startTime = "2012-12-29T00:00:00.000";
+        String endTime = "2012-12-31T00:00:00.000";
+        String tableVariable = "HYY_SLOW.dbh_tree1";
         given()
                 .when()
                 .queryParam("tablevariable", tableVariable)
@@ -136,8 +109,8 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(2))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1455235200, 25.0f),
-                        hasItems(1455840000, 27.0f)
+                        hasItems(1356739200, 12.812322f),
+                        hasItems(1356825600, 12.814073f)
                 ));
     }
 

@@ -8,8 +8,12 @@ import org.jooq.RecordMapper;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
+import static fi.csc.avaa.smear.dao.Conditions.tableAndVariableMatches;
 import static fi.csc.avaa.smear.table.EventTable.EVENT;
+import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableEventTable.VARIABLE_EVENT;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 
@@ -24,13 +28,12 @@ public class EventDao {
                     .id(record.get(EVENT.ID))
                     .eventType(record.get(EVENT.EVENT_TYPE))
                     .description(record.get(EVENT.DESCRIPTION))
-                    .responsiblePerson(record.get(EVENT.RESPONSIBLE_PERSON))
                     .periodStart(record.get(EVENT.PERIOD_START))
                     .periodEnd(record.get(EVENT.PERIOD_END))
                     .timestamp(record.get(EVENT.TIMESTAMP))
                     .build();
 
-    public List<Event> findByVariableNames(List<String> variableNames) {
+    public List<Event> findByTablesAndVariables(Map<String, List<String>> tableToVariables) {
         return create
                 .select()
                 .from(EVENT)
@@ -38,7 +41,10 @@ public class EventDao {
                 .on(EVENT.ID.eq(VARIABLE_EVENT.EVENT_ID))
                 .join(VARIABLE_METADATA)
                 .on(VARIABLE_EVENT.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
-                .where(VARIABLE_METADATA.NAME.in(variableNames))
+                .join(TABLE_METADATA)
+                .on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
+                .where(tableAndVariableMatches(tableToVariables))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchInto(EVENT)
                 .map(recordToEvent);
     }

@@ -83,42 +83,6 @@ public class TimeSeriesResourceTest {
     }
 
     @Test
-    public void fetchTimeSeriesWithTableAndVariableParameter_shouldReturnCorrectResults() {
-        String startTime = "2016-02-12T00:00:00.000";
-        String endTime = "2016-02-12T00:06:00.000";
-        String table = "HYY_META";
-        String variable = "Pamb0";
-        String colname = table + "." + variable;
-        given()
-                .when()
-                .queryParam("table", table)
-                .queryParam("variable", variable)
-                .queryParam("from", startTime)
-                .queryParam("to", endTime)
-                .get(Endpoints.SEARCH_TIMESERIES)
-                .then()
-                .statusCode(200)
-                .body("startTime", equalTo(startTime))
-                .body("endTime", equalTo(endTime))
-                .body("recordCount", is(6))
-                .body("aggregation", equalTo("NONE"))
-                .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(1))
-                .body("columns", contains(colname))
-                .body("data", hasSize(6))
-                .body("data.samptime", contains(
-                        "2016-02-12T00:00:00.000",
-                        "2016-02-12T00:01:00.000",
-                        "2016-02-12T00:02:00.000",
-                        "2016-02-12T00:03:00.000",
-                        "2016-02-12T00:04:00.000",
-                        "2016-02-12T00:05:00.000"
-                ))
-                .body("data.'" + colname + "'",
-                        contains(973.71f, 973.82f, 973.86f, 973.92f, 973.81f, 973.82f));
-    }
-
-    @Test
     public void fetchTimeSeriesFromMultipleTables_shouldReturnCorrectResults() {
         String startTime = "2020-04-12T23:55:00.000";
         String endTime = "2020-04-13T00:00:00.000";
@@ -156,9 +120,9 @@ public class TimeSeriesResourceTest {
 
     @Test
     public void fetchTimeSeriesFromHyySlow_shouldReturnCorrectResults() {
-        String startTime = "2016-02-10T00:00:00.000";
-        String endTime = "2016-02-20T00:00:00.000";
-        String tablevariable = "HYY_SLOW.SD_PIT050";
+        String startTime = "2012-12-29T00:00:00.000";
+        String endTime = "2012-12-31T00:00:00.000";
+        String tablevariable = "HYY_SLOW.dbh_tree1";
         given()
                 .when()
                 .queryParam("tablevariable", tablevariable)
@@ -176,11 +140,11 @@ public class TimeSeriesResourceTest {
                 .body("columns", contains(tablevariable))
                 .body("data", hasSize(2))
                 .body("data.samptime", contains(
-                        "2016-02-12T00:00:00.000",
-                        "2016-02-19T00:00:00.000"
+                        "2012-12-29T00:00:00.000",
+                        "2012-12-30T00:00:00.000"
                 ))
                 .body("data.'" + tablevariable + "'",
-                        contains(25.0f, 27.0f));
+                        contains(12.812322f, 12.814073f));
     }
 
     @Test

@@ -8,7 +8,11 @@ import org.jooq.RecordMapper;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
+import static fi.csc.avaa.smear.dao.Conditions.tableAndVariableMatches;
+import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.TagTable.TAG;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableTagTable.VARIABLE_TAG;
@@ -27,7 +31,7 @@ public class TagDao {
                     .displayKeyword(record.get(TAG.DISPLAY_KEYWORD))
                     .build();
 
-    public List<Tag> findByVariableNames(List<String> variableNames) {
+    public List<Tag> findByTablesAndVariables(Map<String, List<String>> tableToVariables) {
         return create
                 .select()
                 .from(TAG)
@@ -35,7 +39,10 @@ public class TagDao {
                 .on(TAG.ID.eq(VARIABLE_TAG.TAG_ID))
                 .join(VARIABLE_METADATA)
                 .on(VARIABLE_TAG.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
-                .where(VARIABLE_METADATA.NAME.in(variableNames))
+                .join(TABLE_METADATA)
+                .on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
+                .where(tableAndVariableMatches(tableToVariables))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchInto(TAG)
                 .map(recordToTag);
     }
