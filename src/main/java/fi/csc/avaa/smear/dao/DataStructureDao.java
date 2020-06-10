@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
 import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
@@ -50,6 +51,7 @@ public class DataStructureDao {
                         .from(VARIABLE_METADATA)
                         .join(TABLE_METADATA).on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
                         .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID))
+                        .where(VARIABLE_IS_PUBLIC)
                         .fetch();
         return toStationNodes(result);
     }

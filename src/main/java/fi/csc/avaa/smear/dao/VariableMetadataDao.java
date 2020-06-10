@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
+import static fi.csc.avaa.smear.dao.Conditions.tableAndVariableMatches;
 import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
@@ -60,6 +61,7 @@ public class VariableMetadataDao {
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(VARIABLE_METADATA.ID.eq(variableId))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchOne(recordToVariableMetadata);
     }
 
@@ -71,6 +73,7 @@ public class VariableMetadataDao {
                 .join(TABLE_METADATA)
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(VARIABLE_METADATA.TABLE_ID.eq(tableId))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetch(recordToVariableMetadata);
     }
 
@@ -83,6 +86,7 @@ public class VariableMetadataDao {
                 .on(TABLE_METADATA.ID.eq(VARIABLE_METADATA.TABLE_ID))
                 .where(TABLE_METADATA.NAME.eq(tableName))
                 .and(VARIABLE_METADATA.NAME.eq(variableName))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchOneInto(Integer.class) == 1;
     }
 
@@ -90,7 +94,7 @@ public class VariableMetadataDao {
     public List<VariableMetadata> search(VariableMetadataSearch search) {
         Condition conditions = search.getTableToVariables().isEmpty()
                 ? toSearchConditions(search)
-                : toTableAndVariableConditions(search.getTableToVariables());
+                : tableAndVariableMatches(search.getTableToVariables());
         return create
                 .select()
                 .from(VARIABLE_METADATA)
@@ -99,6 +103,7 @@ public class VariableMetadataDao {
                 .join(STATION)
                 .on(STATION.ID.eq(TABLE_METADATA.STATION_ID))
                 .where(conditions)
+                .and(VARIABLE_IS_PUBLIC)
                 .fetch(recordToVariableMetadata);
     }
 

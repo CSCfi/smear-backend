@@ -10,7 +10,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
-import static fi.csc.avaa.smear.dao.QueryUtils.toTableAndVariableConditions;
+import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
+import static fi.csc.avaa.smear.dao.Conditions.tableAndVariableMatches;
 import static fi.csc.avaa.smear.table.EventTable.EVENT;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableEventTable.VARIABLE_EVENT;
@@ -42,7 +43,8 @@ public class EventDao {
                 .on(VARIABLE_EVENT.VARIABLE_ID.eq(VARIABLE_METADATA.ID))
                 .join(TABLE_METADATA)
                 .on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
-                .where(toTableAndVariableConditions(tableToVariables))
+                .where(tableAndVariableMatches(tableToVariables))
+                .and(VARIABLE_IS_PUBLIC)
                 .fetchInto(EVENT)
                 .map(recordToEvent);
     }
