@@ -28,12 +28,12 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1455235200, 973.71f),
-                        hasItems(1455235260, 973.82f),
-                        hasItems(1455235320, 973.86f),
-                        hasItems(1455235380, 973.92f),
-                        hasItems(1455235440, 973.81f),
-                        hasItems(1455235500, 973.82f)
+                        hasItems(1455235200000L, 973.71f),
+                        hasItems(1455235260000L, 973.82f),
+                        hasItems(1455235320000L, 973.86f),
+                        hasItems(1455235380000L, 973.92f),
+                        hasItems(1455235440000L, 973.81f),
+                        hasItems(1455235500000L, 973.82f)
                 ));
     }
 
@@ -53,12 +53,12 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1465689600, 991.04f),
-                        hasItems(1465689660, 990.99f),
-                        hasItems(1465689720, 991.12f),
-                        hasItems(1465689780, 991.1f),
-                        hasItems(1465689840, 991.05f),
-                        hasItems(1465689900, 991.01f)
+                        hasItems(1465689600000L, 991.04f),
+                        hasItems(1465689660000L, 990.99f),
+                        hasItems(1465689720000L, 991.12f),
+                        hasItems(1465689780000L, 991.1f),
+                        hasItems(1465689840000L, 991.05f),
+                        hasItems(1465689900000L, 991.01f)
                 ));
     }
 
@@ -79,18 +79,18 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(hyyMetaPamb0), hasSize(5))
                 .body(escape(hyyMetaPamb0), hasItems(
-                        hasItems(1586735700, 967.99f),
-                        hasItems(1586735760, 967.85f),
-                        hasItems(1586735820, 967.97f),
-                        hasItems(1586735880, 967.84f),
-                        hasItems(1586735940, 967.86f)
+                        hasItems(1586735700000L, 967.99f),
+                        hasItems(1586735760000L, 967.85f),
+                        hasItems(1586735820000L, 967.97f),
+                        hasItems(1586735880000L, 967.84f),
+                        hasItems(1586735940000L, 967.86f)
                 ))
                 .body(escape(hyyAeroScatT), hasSize(4))
                 .body(escape(hyyAeroScatT), hasItems(
-                        hasItems(1586735700, 300.75f),
-                        hasItems(1586735820, 300.717f),
-                        hasItems(1586735880, 300.65f),
-                        hasItems(1586735940, 300.65f)
+                        hasItems(1586735700000L, 300.75f),
+                        hasItems(1586735820000L, 300.717f),
+                        hasItems(1586735880000L, 300.65f),
+                        hasItems(1586735940000L, 300.65f)
                 ));
     }
 
@@ -109,8 +109,8 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(2))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1356739200, 12.812322f),
-                        hasItems(1356825600, 12.814073f)
+                        hasItems(1356739200000L, 12.812322f),
+                        hasItems(1356825600000L, 12.814073f)
                 ));
     }
 
@@ -130,12 +130,12 @@ public class TimeSeriesResourceChartTest {
                 .statusCode(200)
                 .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
-                        hasItems(1338508800, 1.5125f),
-                        hasItems(1338514860, 1.2375f),
-                        hasItems(1338515940, 0.9625f),
-                        hasItems(1338517020, 1.375f),
-                        hasItems(1338518160, 0.6875f),
-                        hasItems(1338519600, 3.1675f)
+                        hasItems(1338508800000L, 1.5125f),
+                        hasItems(1338514860000L, 1.2375f),
+                        hasItems(1338515940000L, 0.9625f),
+                        hasItems(1338517020000L, 1.375f),
+                        hasItems(1338518160000L, 0.6875f),
+                        hasItems(1338519600000L, 3.1675f)
                 ));
     }
 

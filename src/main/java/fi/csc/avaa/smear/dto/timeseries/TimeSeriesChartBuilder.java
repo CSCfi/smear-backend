@@ -23,9 +23,9 @@ public class TimeSeriesChartBuilder extends TimeSeriesBuilder<Map<String, List<L
     protected void addDataPoint(LocalDateTime samptime, String column, Number value) {
         if (value != null) {
             initSeries(column);
-            long samptimeEpoch = samptime.toEpochSecond(ZoneOffset.UTC);
-            List<Number> datapoint = Arrays.asList(samptimeEpoch, value);
-            variableToSeries.get(column).add(datapoint);
+            long samptimeMilli = samptime.toInstant(ZoneOffset.UTC).toEpochMilli();
+            List<Number> dataPoint = Arrays.asList(samptimeMilli, value);
+            variableToSeries.get(column).add(dataPoint);
         }
     }
 
