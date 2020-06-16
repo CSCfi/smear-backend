@@ -1,7 +1,9 @@
 package fi.csc.avaa.smear.parameter;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum Aggregation {
@@ -44,5 +46,14 @@ public enum Aggregation {
 
     public static Aggregation from(String queryParam) {
         return valueOf(queryParam.toUpperCase());
+    }
+
+    public static List<Map<String, ? extends Serializable>> valuesAsMaps() {
+        return Arrays.stream(values())
+                .map(aggregation -> Map.of(
+                        "id", aggregation.name(),
+                        "isGroupedManually", aggregation.isGroupedManually()
+                ))
+                .collect(Collectors.toList());
     }
 }

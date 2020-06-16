@@ -2,7 +2,10 @@ package fi.csc.avaa.smear.config;
 
 public final class Endpoints {
 
+    public static final String AGGREGATION_TYPES = "/aggregation";
     public static final String DATA_STRUCTURE = "/structure";
+    public static final String QUALITY_TYPES = "/quality";
+
     public static final String STATIONS = "/station";
     public static final String STATION = STATIONS + "/{stationId}";
     public static final String TABLES = STATION + "/table";
