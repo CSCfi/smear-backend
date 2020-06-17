@@ -6,6 +6,7 @@ import fi.csc.avaa.smear.dto.datastructure.VariableNode;
 import lombok.Builder;
 import lombok.Getter;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
 
@@ -19,7 +20,10 @@ import static fi.csc.avaa.smear.dao.Conditions.VARIABLE_IS_PUBLIC;
 import static fi.csc.avaa.smear.table.StationTable.STATION;
 import static fi.csc.avaa.smear.table.TableMetadataTable.TABLE_METADATA;
 import static fi.csc.avaa.smear.table.VariableMetadataTable.VARIABLE_METADATA;
-import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.length;
+import static org.jooq.impl.DSL.trim;
+import static org.jooq.impl.DSL.val;
+import static org.jooq.impl.DSL.when;
 
 @ApplicationScoped
 public class DataStructureDao {
@@ -45,8 +49,8 @@ public class DataStructureDao {
                 .select(
                         STATION.ID,
                         STATION.NAME,
-                        coalesce(VARIABLE_METADATA.CATEGORY, CATEGORY_OTHER)
-                                .as(VARIABLE_METADATA.CATEGORY),
+                        coalesceNullOrBlank(VARIABLE_METADATA.CATEGORY, val(CATEGORY_OTHER)),
+                        coalesceNullOrBlank(VARIABLE_METADATA.TITLE, VARIABLE_METADATA.NAME),
                         VARIABLE_METADATA.TITLE,
                         VARIABLE_METADATA.UI_SORT_ORDER,
                         TABLE_METADATA.NAME,
@@ -58,6 +62,13 @@ public class DataStructureDao {
                 .where(VARIABLE_IS_PUBLIC)
                 .fetch(recordToRow);
         return toStationNodes(rows);
+    }
+
+    private Field<String> coalesceNullOrBlank(Field<String> stringField, Field<String> alternative) {
+        return when(stringField.isNull(), alternative)
+                .when(length(trim(stringField)).eq(0), alternative)
+                .otherwise(stringField)
+                .as(stringField);
     }
 
     private static List<StationNode> toStationNodes(List<DataStructureRow> rows) {
