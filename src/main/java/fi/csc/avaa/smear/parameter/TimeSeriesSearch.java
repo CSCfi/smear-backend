@@ -26,13 +26,13 @@ public class TimeSeriesSearch {
     public static TimeSeriesSearch from(TimeSeriesQueryParameters params) {
         Aggregation aggregation = params.getAggregation() != null
                 ? Aggregation.from(params.getAggregation().toUpperCase())
-                : Aggregation.NONE;
+                : Aggregation.DEFAULT;
         int interval = params.getInterval() != null
                 ? params.getInterval()
                 : 30;
         Quality quality = params.getQuality() != null
                 ? Quality.from(params.getQuality().toUpperCase())
-                : Quality.ANY;
+                : Quality.DEFAULT;
         return TimeSeriesSearch.builder()
                 .tableToVariables(mapTablesToVariables(params.getTablevariable()))
                 .from(LocalDateTime.parse(params.getFrom()))

@@ -28,6 +28,8 @@ public enum Aggregation {
         this.type = type;
     }
 
+    public static final Aggregation DEFAULT = NONE;
+
     public boolean isGroupedManually() {
         return type.equals(Grouping.MANUAL);
     }
@@ -52,6 +54,7 @@ public enum Aggregation {
         return Arrays.stream(values())
                 .map(aggregation -> Map.of(
                         "id", aggregation.name(),
+                        "default", aggregation.equals(DEFAULT),
                         "isGroupedManually", aggregation.isGroupedManually()
                 ))
                 .collect(Collectors.toList());
