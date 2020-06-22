@@ -55,7 +55,7 @@ public enum Aggregation {
                 .map(aggregation -> Map.of(
                         "id", aggregation.name(),
                         "default", aggregation.equals(DEFAULT),
-                        "isGroupedManually", aggregation.isGroupedManually()
+                        "groupedManually", aggregation.isGroupedManually()
                 ))
                 .collect(Collectors.toList());
     }

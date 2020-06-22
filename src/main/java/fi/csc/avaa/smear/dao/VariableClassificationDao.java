@@ -26,15 +26,15 @@ import static org.jooq.impl.DSL.val;
 import static org.jooq.impl.DSL.when;
 
 @ApplicationScoped
-public class DataStructureDao {
+public class VariableClassificationDao {
 
     @Inject
     DSLContext create;
 
     private static final String CATEGORY_OTHER = "Other";
 
-    private static final RecordMapper<Record, DataStructureRow> recordToRow = record ->
-            DataStructureRow.builder()
+    private static final RecordMapper<Record, VariableClassificationRow> recordToRow = record ->
+            VariableClassificationRow.builder()
                     .stationId(record.get(STATION.ID))
                     .stationName(record.get(STATION.NAME))
                     .category(record.get(VARIABLE_METADATA.CATEGORY))
@@ -44,8 +44,8 @@ public class DataStructureDao {
                     .variablename(record.get(VARIABLE_METADATA.NAME))
                     .build();
 
-    public List<StationNode> fetchDataStructure() {
-        List<DataStructureRow> rows = create
+    public List<StationNode> fetchVariableClassification() {
+        List<VariableClassificationRow> rows = create
                 .select(
                         STATION.ID,
                         STATION.NAME,
@@ -71,10 +71,10 @@ public class DataStructureDao {
                 .as(stringField);
     }
 
-    private static List<StationNode> toStationNodes(List<DataStructureRow> rows) {
+    private static List<StationNode> toStationNodes(List<VariableClassificationRow> rows) {
         List<StationNode> stationNodes = rows
                 .stream()
-                .map(DataStructureDao::toStationNode)
+                .map(VariableClassificationDao::toStationNode)
                 .distinct()
                 .sorted(Comparator.comparing(StationNode::getId))
                 .collect(Collectors.toList());
@@ -90,24 +90,24 @@ public class DataStructureDao {
         return stationNodes;
     }
 
-    private static StationNode toStationNode(DataStructureRow row) {
+    private static StationNode toStationNode(VariableClassificationRow row) {
         return StationNode.builder()
                 .id(row.getStationId())
                 .name(row.getStationName())
                 .build();
     }
 
-    private static List<CategoryNode> toCategoryNodes(Long stationId, List<DataStructureRow> rows) {
+    private static List<CategoryNode> toCategoryNodes(Long stationId, List<VariableClassificationRow> rows) {
         return rows
                 .stream()
                 .filter(row -> row.getStationId().equals(stationId))
-                .map(DataStructureDao::toCategoryNode)
+                .map(VariableClassificationDao::toCategoryNode)
                 .distinct()
                 .sorted(categoryNodeComparator)
                 .collect(Collectors.toList());
     }
 
-    private static CategoryNode toCategoryNode(DataStructureRow row) {
+    private static CategoryNode toCategoryNode(VariableClassificationRow row) {
         String categoryName = row.getCategory();
         return CategoryNode.builder()
                 .id(categoryName + row.getStationId())
@@ -116,16 +116,16 @@ public class DataStructureDao {
     }
 
     private static List<VariableNode> toVariableNodes(Long stationId, String categoryName,
-                                                      List<DataStructureRow> rows) {
+                                                      List<VariableClassificationRow> rows) {
         return rows
                 .stream()
                 .filter(row -> row.getStationId().equals(stationId) && row.getCategory().equals(categoryName))
-                .map(DataStructureDao::toVariableNode)
+                .map(VariableClassificationDao::toVariableNode)
                 .sorted(variableNodeComparator)
                 .collect(Collectors.toList());
     }
 
-    private static VariableNode toVariableNode(DataStructureRow row) {
+    private static VariableNode toVariableNode(VariableClassificationRow row) {
         return VariableNode.builder()
                 .tablevariable(row.getTableName() + "." + row.getVariablename())
                 .title(row.getVariableTitle())
@@ -155,7 +155,7 @@ public class DataStructureDao {
 
     @Getter
     @Builder
-    private static class DataStructureRow {
+    private static class VariableClassificationRow {
 
         private Long stationId;
         private String stationName;
