@@ -97,7 +97,7 @@ public abstract class TimeSeriesBuilder<T> {
                 Double value = record.get(field(variable), Double.class);
                 if (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime)) {
                     String column = entry.getValue();
-                    double aggregate = aggregateOf(values, aggregation);
+                    Double aggregate = aggregateOf(values, aggregation);
                     addDataPoint(aggregateSamptime, column, aggregate);
                     if (!variableIterator.hasNext()) {
                         aggregateSamptime = samptime.plusMinutes(aggregationInterval);
