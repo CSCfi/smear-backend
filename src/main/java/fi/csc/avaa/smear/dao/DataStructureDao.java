@@ -134,7 +134,9 @@ public class DataStructureDao {
     }
 
     private static final Comparator<CategoryNode> categoryNodeComparator = (node1, node2) -> {
-        if (node1.getName().equals(CATEGORY_OTHER)) {
+        if (node1.getName().equals(node2.getName())) {
+            return 0;
+        } else if (node2.getName().equals(CATEGORY_OTHER)) {
             return 1;
         } else if (node2.getName().equals(CATEGORY_OTHER)) {
             return -1;
@@ -144,7 +146,9 @@ public class DataStructureDao {
     };
 
     private static final Comparator<VariableNode> variableNodeComparator = (node1, node2) -> {
-        if (node1.getSortOrder() == null) {
+        if (node1.getSortOrder() == node1.getSortOrder()) {
+            return 0;
+        } else if (node1.getSortOrder() == null) {
             return 1;
         } else if (node2.getSortOrder() == null) {
             return -1;

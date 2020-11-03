@@ -32,7 +32,7 @@ public final class TimeSeriesUtil {
         return timestamp.withSecond(0).withNano(0);
     }
 
-    protected static double aggregateOf(List<Double> values, Aggregation aggregation) {
+    protected static Double aggregateOf(List<Double> values, Aggregation aggregation) {
         if (aggregation.equals(MEDIAN)) {
             return medianOf(values);
         } else if (aggregation.equals(CIRCULAR)) {
@@ -43,32 +43,36 @@ public final class TimeSeriesUtil {
         }
     }
 
-    private static double medianOf(List<Double> values) {
-        Collections.sort(values);
-        int noOfValues = values.size();
+    private static Double medianOf(List<Double> values) {
+        List<Double> dValues = values.stream().map(v -> v == null ? Double.NaN : v).collect(Collectors.toList());
+        Collections.sort(dValues);
+        int noOfValues = dValues.size();
+        Double result;
         if (noOfValues % 2 == 0) {
-            return (values.get(noOfValues / 2) + values.get(noOfValues / 2 - 1)) / 2;
+            result = (dValues.get(noOfValues / 2) + dValues.get(noOfValues / 2 - 1)) / 2;
         } else {
-            return values.get(noOfValues / 2);
+            result = dValues.get(noOfValues / 2);
         }
+        return result.isNaN() ? null : result;
     }
 
-    private static double circularMeanOf(List<Double> values) {
-        double s = 0;
-        double c = 0;
-        for (Double value : values) {
+    private static Double circularMeanOf(List<Double> values) {
+        List<Double> dValues = values.stream().map(v -> v == null ? Double.NaN : v).collect(Collectors.toList());
+        Double s = 0.0;
+        Double c = 0.0;
+        for (Double value : dValues) {
             c += Math.cos(Math.toRadians(value));
             s += Math.sin(Math.toRadians(value));
         }
-        c = c / values.size();
-        s = s / values.size();
-        double sc = s / c;
-        double mean = Math.toDegrees(Math.atan(sc));
-        if (c < 0) {
+        c = c / dValues.size();
+        s = s / dValues.size();
+        Double sc = s / c;
+        Double mean = Math.toDegrees(Math.atan(sc));
+        if (c < 0.0) {
             mean += 180;
-        } else if (s < 0 && c > 0) {
+        } else if (s < 0.0 && c > 0.0) {
             mean += 360;
         }
-        return (double) Math.round(mean * 100) / 100;
+        return mean.isNaN() ? null : Math.round(mean * 100) / 100.0;
     }
 }
