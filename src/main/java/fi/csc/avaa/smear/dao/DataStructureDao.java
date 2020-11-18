@@ -38,6 +38,7 @@ public class DataStructureDao {
                     .stationId(record.get(STATION.ID))
                     .stationName(record.get(STATION.NAME))
                     .category(record.get(VARIABLE_METADATA.CATEGORY))
+                    .variableId(record.get(VARIABLE_METADATA.ID))
                     .variableTitle(record.get(VARIABLE_METADATA.TITLE))
                     .variableSortOrder(record.get((VARIABLE_METADATA.UI_SORT_ORDER)))
                     .tableName(record.get(TABLE_METADATA.NAME))
@@ -51,6 +52,7 @@ public class DataStructureDao {
                         STATION.NAME,
                         coalesceNullOrBlank(VARIABLE_METADATA.CATEGORY, val(CATEGORY_OTHER)),
                         coalesceNullOrBlank(VARIABLE_METADATA.TITLE, VARIABLE_METADATA.NAME),
+                        VARIABLE_METADATA.ID,
                         VARIABLE_METADATA.TITLE,
                         VARIABLE_METADATA.UI_SORT_ORDER,
                         TABLE_METADATA.NAME,
@@ -60,6 +62,7 @@ public class DataStructureDao {
                 .join(TABLE_METADATA).on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
                 .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID))
                 .where(VARIABLE_IS_PUBLIC)
+                .andNot(VARIABLE_METADATA.CATEGORY.isNull())
                 .fetch(recordToRow);
         return toStationNodes(rows);
     }
@@ -127,6 +130,7 @@ public class DataStructureDao {
 
     private static VariableNode toVariableNode(DataStructureRow row) {
         return VariableNode.builder()
+                .variableId(row.getVariableId())
                 .tablevariable(row.getTableName() + "." + row.getVariablename())
                 .title(row.getVariableTitle())
                 .sortOrder(row.getVariableSortOrder())
@@ -146,8 +150,8 @@ public class DataStructureDao {
     };
 
     private static final Comparator<VariableNode> variableNodeComparator = (node1, node2) -> {
-        if (node1.getSortOrder() == node1.getSortOrder()) {
-            return 0;
+        if (node1.getSortOrder() == null && node1.getSortOrder() == null) {
+            return Long.valueOf(node1.getVariableId()).compareTo(Long.valueOf(node2.getVariableId()));
         } else if (node1.getSortOrder() == null) {
             return 1;
         } else if (node2.getSortOrder() == null) {
@@ -164,6 +168,7 @@ public class DataStructureDao {
         private Long stationId;
         private String stationName;
         private String category;
+        private Long variableId;
         private String variableTitle;
         private Integer variableSortOrder;
         private String tableName;
