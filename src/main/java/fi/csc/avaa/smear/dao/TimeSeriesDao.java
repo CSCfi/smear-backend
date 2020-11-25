@@ -147,7 +147,7 @@ public class TimeSeriesDao {
             case ARITHMETIC:
                 return avg(field);
             case AVAILABILITY:
-                return count(field).div(count());
+                return count(field).mul(10000).div(count());
             case GEOMETRIC:
                 return exp(avg(ln(field)));
             case MIN:

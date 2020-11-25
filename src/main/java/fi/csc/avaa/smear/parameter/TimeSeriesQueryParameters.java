@@ -51,8 +51,10 @@ public class TimeSeriesQueryParameters {
     private String quality;
 
     @Parameter(description = "Type of the sample time aggregation. " +
-            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR. " +
-            "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table.",
+            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR, AVAILABILITY. " +
+            "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table. AVAILABILITY returns " +
+            "integer value of hunderth of a percent of the available measurements with given criteria without " +
+            "considering specified interval value.",
             example = "NONE")
     @QueryParam("aggregation")
     private String aggregation;
