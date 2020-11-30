@@ -60,7 +60,7 @@ public class DataStructureDao {
                 )
                 .from(VARIABLE_METADATA)
                 .join(TABLE_METADATA).on(VARIABLE_METADATA.TABLE_ID.eq(TABLE_METADATA.ID))
-                .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID))
+                .join(STATION).on(TABLE_METADATA.STATION_ID.eq(STATION.ID)).and(STATION.NAME.notEqual("Dome_C"))
                 .where(VARIABLE_IS_PUBLIC)
                 .andNot(VARIABLE_METADATA.CATEGORY.isNull())
                 .fetch(recordToRow);
