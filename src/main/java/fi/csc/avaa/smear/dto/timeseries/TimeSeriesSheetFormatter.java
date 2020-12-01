@@ -1,5 +1,6 @@
 package fi.csc.avaa.smear.dto.timeseries;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ public final class TimeSeriesSheetFormatter {
 
     private static String toPlainText(TimeSeriesSheet timeSeriesSheet, String delimiter) {
         StringBuilder builder = new StringBuilder();
+        DecimalFormat df = new DecimalFormat("###.#####");
         if (timeSeriesSheet.getRecordCount() > 0) {
             boolean headerDone = false;
             for (Map<String, Object> values : timeSeriesSheet.getData()) {
@@ -35,8 +37,8 @@ public final class TimeSeriesSheetFormatter {
                         .stream()
                         .map(values::get)
                         .map(value -> value != null
-                                ? value.toString()
-                                : null)
+                                ? df.format(value)
+                                : "NaN")
                         .collect(Collectors.joining(delimiter));
                 builder.append(delimitedValues);
                 builder.append("\n");
