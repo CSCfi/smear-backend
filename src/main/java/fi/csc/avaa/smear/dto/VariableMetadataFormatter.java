@@ -24,12 +24,12 @@ public final class VariableMetadataFormatter {
     private static String toRow(String delimiter, VariableMetadata variableMetadata) {
         return String.join(delimiter,
                 variableMetadata.getId().toString(),
-                variableMetadata.getTableName(),
-                variableMetadata.getName(),
-                variableMetadata.getDescription(),
-                variableMetadata.getUnit(),
-                variableMetadata.getTitle(),
-                variableMetadata.getSource(),
+                "\"" + variableMetadata.getTableName() + "\"",
+                "\"" + variableMetadata.getName() + "\"",
+                "\"" + variableMetadata.getDescription() + "\"",
+                "\"" + variableMetadata.getUnit() + "\"",
+                "\"" + variableMetadata.getTitle() + "\"",
+                "\"" + variableMetadata.getSource() + "\"",
                 variableMetadata.getPeriodStart(),
                 variableMetadata.getPeriodEnd(),
                 variableMetadata.getCoverage().toString(),
@@ -37,7 +37,7 @@ public final class VariableMetadataFormatter {
                 variableMetadata.getMandatory().toString(),
                 variableMetadata.getDerivative().toString(),
                 variableMetadata.getTimestamp().toString(),
-                variableMetadata.getCategory())
+                "\"" + variableMetadata.getCategory() + "\"")
                 + "\n";
     }
 }
