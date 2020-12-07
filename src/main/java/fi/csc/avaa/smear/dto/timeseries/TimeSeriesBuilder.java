@@ -112,6 +112,9 @@ public abstract class TimeSeriesBuilder<T> {
     private void addToSeries(Result<Record> result, Map<String, String> variableToColumn) {
         result.forEach(record -> {
             LocalDateTime samptime = record.get(SAMPTIME);
+            if (samptime == null) {
+              return;
+            }
             variableToColumn.forEach((variable, column) -> {
                 Number value = record.get(field(variable, SQLDataType.NUMERIC));
                 addDataPoint(samptime, column, value);
