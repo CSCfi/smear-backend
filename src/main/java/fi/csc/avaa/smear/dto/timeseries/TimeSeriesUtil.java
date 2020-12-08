@@ -47,6 +47,9 @@ public final class TimeSeriesUtil {
         List<Double> dValues = values.stream().map(v -> v == null ? Double.NaN : v).collect(Collectors.toList());
         Collections.sort(dValues);
         int noOfValues = dValues.size();
+        if (noOfValues == 0) {
+          return null;
+        }
         Double result;
         if (noOfValues % 2 == 0) {
             result = (dValues.get(noOfValues / 2) + dValues.get(noOfValues / 2 - 1)) / 2;
