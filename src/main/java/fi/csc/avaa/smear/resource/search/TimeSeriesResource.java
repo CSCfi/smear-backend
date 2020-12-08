@@ -15,6 +15,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +59,13 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via the Metadata API " +
                     "or the graphical SMART SMEAR application."
     )
-    public String timeSeriesCsv(@BeanParam @Valid TimeSeriesQueryParameters params) {
+    public Response timeSeriesCsv(@BeanParam @Valid TimeSeriesQueryParameters params) {
         TimeSeriesSheet table = dao.getSheet(TimeSeriesSearch.from(params));
-        return TimeSeriesSheetFormatter.toCsv(table);
+        String filename = "smeardata_" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".csv";
+        return Response
+            .ok(TimeSeriesSheetFormatter.toCsv(table))
+            .header("Content-Disposition", "attachment; filename*=UTF-8''" + filename)
+            .build();
     }
 
     @GET
@@ -69,8 +76,12 @@ public class TimeSeriesResource {
             description = "Information about stored variables can be found via Metadata API " +
                     "or via the graphical SMART SMEAR application."
     )
-    public String timeSeriesTxt(@BeanParam @Valid TimeSeriesQueryParameters params) {
+    public Response timeSeriesTxt(@BeanParam @Valid TimeSeriesQueryParameters params) {
         TimeSeriesSheet table = dao.getSheet(TimeSeriesSearch.from(params));
-        return TimeSeriesSheetFormatter.toTsv(table);
+        String filename = "smeardata_" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".txt";
+        return Response
+            .ok(TimeSeriesSheetFormatter.toTsv(table))
+            .header("Content-Disposition", "attachment; filename*=UTF-8''" + filename)
+            .build();
     }
 }
