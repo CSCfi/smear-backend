@@ -23,7 +23,7 @@ public class TimeSeriesQueryParameters {
     @Parameter(description = "Name of a table and a variable separated by a period. " +
             "Table and variable names can be queried from the table metadata and variable metadata endpoints. " +
             "Multiple parameters can be used and at least one is required.",
-            example = "HYY_META.Pamb0")
+            required = true)
     @QueryParam("tablevariable")
     @NotEmpty
     private List<@NotEmpty @Pattern(regexp = Patterns.TABLEVARIABLE) String> tablevariable;
