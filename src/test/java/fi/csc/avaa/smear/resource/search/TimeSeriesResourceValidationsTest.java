@@ -106,7 +106,7 @@ public class TimeSeriesResourceValidationsTest {
     }
 
     @Test
-    public void fetchFromHyyTreeTableWithoutCuvNo_shouldReturnParameterViolation() {
+    public void fetchFromHyyTreeTableWithoutCuvNo_shouldNotReturnParameterViolation() {
         given()
                 .when()
                 .queryParam("tablevariable", "HYY_TREE.PARcuv_leaf")
@@ -114,9 +114,7 @@ public class TimeSeriesResourceValidationsTest {
                 .queryParam("to", "2016-02-12T00:06:00.000")
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
-                .statusCode(400)
-                .body("parameterViolations", hasSize(1))
-                .body("parameterViolations.path", contains("timeSeries.params.cuv_no"));
+                .statusCode(200);
     }
 
     @Test

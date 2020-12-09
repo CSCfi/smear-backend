@@ -96,7 +96,9 @@ public class TimeSeriesDao {
                 .and(SAMPTIME.lessThan(search.getTo()));
         if (tableName.equals(TABLENAME_HYY_TREE)) {
             fields.add(CUV_NO);
-            conditions = conditions.and(CUV_NO.in(search.getCuvNos()));
+            if (search.getCuvNos().size() > 0) {
+              conditions = conditions.and(CUV_NO.in(search.getCuvNos()));
+            }
         }
         SelectConditionStep<Record> query = create
                 .select(fields)

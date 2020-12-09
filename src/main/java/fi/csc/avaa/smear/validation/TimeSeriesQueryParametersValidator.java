@@ -41,11 +41,9 @@ public class TimeSeriesQueryParametersValidator
         boolean tablevariablesValid = validateTablevariables(tableToVariables, ctx);
         boolean aggregationValid = validateAggregation(params.getAggregation(), tables, ctx);
         boolean qualityValid = validateQuality(params.getQuality(), ctx);
-        boolean cuvNoValid = validateCuvNo(params.getCuv_no(), tables, ctx);
         return tablevariablesValid
                 && aggregationValid
-                && qualityValid
-                && cuvNoValid;
+                && qualityValid;
     }
 
     private Boolean validateTablevariables(Map<String, List<String>> tableToVariables, ConstraintValidatorContext ctx) {

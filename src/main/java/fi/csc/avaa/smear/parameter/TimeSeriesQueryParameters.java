@@ -67,8 +67,8 @@ public class TimeSeriesQueryParameters {
     private Integer interval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
-            "At least one value is required when querying HYY_TREE table.",
-            example = "186")
+            "If not specified when querying HYY_TREE table all of the rows in the given time interval " +
+            "are fetched.")
     @QueryParam("cuv_no")
     private List<Integer> cuv_no;
 }
