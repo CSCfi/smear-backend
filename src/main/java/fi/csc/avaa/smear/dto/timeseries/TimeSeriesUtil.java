@@ -44,7 +44,7 @@ public final class TimeSeriesUtil {
     }
 
     private static Double medianOf(List<Double> values) {
-        List<Double> dValues = values.stream().map(v -> v == null ? Double.NaN : v).collect(Collectors.toList());
+        List<Double> dValues = values.stream().filter(v -> v != null).collect(Collectors.toList());
         Collections.sort(dValues);
         int noOfValues = dValues.size();
         if (noOfValues == 0) {
@@ -60,7 +60,7 @@ public final class TimeSeriesUtil {
     }
 
     private static Double circularMeanOf(List<Double> values) {
-        List<Double> dValues = values.stream().map(v -> v == null ? Double.NaN : v).collect(Collectors.toList());
+        List<Double> dValues = values.stream().filter(v -> v != null).collect(Collectors.toList());
         Double s = 0.0;
         Double c = 0.0;
         for (Double value : dValues) {
