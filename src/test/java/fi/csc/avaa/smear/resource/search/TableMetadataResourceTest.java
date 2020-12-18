@@ -23,9 +23,9 @@ public class TableMetadataResourceTest {
                 .body("name", equalTo("HYY_META"))
                 .body("period", equalTo(1))
                 .body("spatialCoverage",
-                        equalTo("DCMI-point: name=Hyytiälä; east=24.294795; north=61.847463 elevation=179"))
+                        equalTo("DCMI-point: name=Hyytiälä; east=24.294795; north=61.847463; elevation=179"))
                 .body("stationId", equalTo(2))
-                .body("timestamp", equalTo("2017-03-14T16:25:09.000"))
+                .body("timestamp", equalTo("2020-12-07T19:32:34.000"))
                 .body("title", equalTo("Hyytiälä SMEAR II meteorology, gases and soil"));
     }
 }

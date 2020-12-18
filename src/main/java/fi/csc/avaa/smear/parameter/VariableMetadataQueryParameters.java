@@ -16,13 +16,11 @@ import java.util.List;
 public class VariableMetadataQueryParameters {
 
     @Parameter(description = "Name of the database table where variable data is stored in the smear database. " +
-            "Table names can be found from the tablemetadata endpoint. Multiple parameters can be used.",
-            example = "HYY_META")
+            "Table names can be found from the tablemetadata endpoint. Multiple parameters can be used.")
     @QueryParam("table")
     private List<String> table;
 
-    @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used.",
-            example = "Pamb0")
+    @Parameter(description = "Name of a variable in the SMEAR database. Multiple parameters can be used.")
     @QueryParam("variable")
     private List<String> variable;
 
@@ -34,15 +32,13 @@ public class VariableMetadataQueryParameters {
 
     @Parameter(description = "Name of a SMEAR station. " +
             "The parameter will be used to do a case insensitive text search. " +
-            "Multiple parameters can be used.",
-            example = "Torni")
+            "Multiple parameters can be used.")
     @QueryParam("station")
     private List<String> station;
 
     @Parameter(description = "Name of a category in the SMEAR database. " +
             "The parameter will be used to do a case insensitive text search. " +
-            "Multiple parameters can be used.",
-            example = "aerosol")
+            "Multiple parameters can be used.")
     @QueryParam("category")
     private List<String> category;
 

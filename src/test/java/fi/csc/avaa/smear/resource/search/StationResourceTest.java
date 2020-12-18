@@ -19,8 +19,8 @@ public class StationResourceTest {
                 .get(Endpoints.SEARCH_STATIONS)
                 .then()
                 .statusCode(200)
-                .body("", hasSize(10))
-                .body("id", contains(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+                .body("", hasSize(13))
+                .body("id", contains(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
                 .body("name", contains(
                         "Värriö",
                         "Hyytiälä",
@@ -31,7 +31,10 @@ public class StationResourceTest {
                         "Siikaneva 1",
                         "Siikaneva 2",
                         "Kuivajärvi",
-                        "Dome_C"
+                        "Dome_C",
+                        "Nuorttiaapa",
+                        "Viikki",
+                        "Haltiala"
                 ));
     }
 }

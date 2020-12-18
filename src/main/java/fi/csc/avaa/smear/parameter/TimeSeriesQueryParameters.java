@@ -23,7 +23,7 @@ public class TimeSeriesQueryParameters {
     @Parameter(description = "Name of a table and a variable separated by a period. " +
             "Table and variable names can be queried from the table metadata and variable metadata endpoints. " +
             "Multiple parameters can be used and at least one is required.",
-            example = "HYY_META.Pamb0")
+            required = true)
     @QueryParam("tablevariable")
     @NotEmpty
     private List<@NotEmpty @Pattern(regexp = Patterns.TABLEVARIABLE) String> tablevariable;
@@ -51,8 +51,10 @@ public class TimeSeriesQueryParameters {
     private String quality;
 
     @Parameter(description = "Type of the sample time aggregation. " +
-            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR. " +
-            "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table.",
+            "Valid values: NONE (default), ARITHMETIC, GEOMETRIC, SUM, MEDIAN, MIN, MAX, CIRCULAR, AVAILABILITY. " +
+            "MEDIAN and CIRCULAR are not supported when querying HYY_SLOW or HYY_TREE table. AVAILABILITY returns " +
+            "integer value of hunderth of a percent of the available measurements with given criteria without " +
+            "considering specified interval value.",
             example = "NONE")
     @QueryParam("aggregation")
     private String aggregation;
@@ -65,8 +67,8 @@ public class TimeSeriesQueryParameters {
     private Integer interval;
 
     @Parameter(description = "cuv_no values in the SMEAR database. Multiple parameters can be used. " +
-            "At least one value is required when querying HYY_TREE table.",
-            example = "186")
+            "If not specified when querying HYY_TREE table all of the rows in the given time interval " +
+            "are fetched.")
     @QueryParam("cuv_no")
     private List<Integer> cuv_no;
 }

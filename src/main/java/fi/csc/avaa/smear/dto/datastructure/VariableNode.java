@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class VariableNode {
 
+    private long variableId;
     private String tablevariable;
     private String title;
     private Integer sortOrder;

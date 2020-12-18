@@ -7,6 +7,8 @@ import fi.csc.avaa.smear.dao.VariableMetadataDao;
 import fi.csc.avaa.smear.dto.Station;
 import fi.csc.avaa.smear.dto.TableMetadata;
 import fi.csc.avaa.smear.dto.VariableMetadata;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -31,37 +33,102 @@ public class RestResource {
 
     @GET
     @Path(Endpoints.STATIONS)
+    @Operation(summary = "Fetch general info about the Smart SMEAR stations")
     public List<Station> stations() {
         return stationDao.findAll();
     }
 
     @GET
     @Path(Endpoints.STATION)
-    public Station station(@PathParam("stationId") Long stationId) {
+    @Operation(summary = "Fetch general info about a Smart SMEAR station")
+    public Station station(
+            @Parameter(
+                description = "Id of a station in the SMEAR database.",
+                example = "1")
+            @PathParam("stationId") Long stationId
+    ) {
         return stationDao.findById(stationId);
     }
 
     @GET
     @Path(Endpoints.TABLES)
-    public List<TableMetadata> tables(@PathParam("stationId") Long stationId) {
+    @Operation(summary = "Fetch general info about tables for a Smart SMEAR "
+        + "station")
+    public List<TableMetadata> tables(
+            @Parameter(
+                description = "Id of a station in the SMEAR database.",
+                example = "1")
+            @PathParam("stationId") Long stationId
+    ) {
         return tableMetadataDao.findByStationId(stationId);
     }
 
     @GET
     @Path(Endpoints.TABLE)
-    public TableMetadata table(@PathParam("tableId") Long tableId) {
+    @Operation(summary = "Fetch general info about a table for a Smart SMEAR "
+        + "station")
+    public TableMetadata table(
+            @Parameter(
+                description = "Id of a station in the SMEAR database.",
+                example = "1"
+            )
+            @PathParam("stationId")
+            Long stationId,
+            @Parameter(
+                description = "Id of a table in the SMEAR database.",
+                example = "11"
+            )
+            @PathParam("tableId")
+            Long tableId
+    ) {
         return tableMetadataDao.findById(tableId);
     }
 
     @GET
     @Path(Endpoints.VARIABLES)
-    public List<VariableMetadata> variables(@PathParam("tableId") Long tableId) {
+    @Operation(summary = "Fetch general info about variables in a table for a "
+        + "Smart SMEAR station")
+    public List<VariableMetadata> variables(
+            @Parameter(
+                description = "Id of a station in the SMEAR database.",
+                example = "1"
+            )
+            @PathParam("stationId")
+            Long stationId,
+            @Parameter(
+                description = "Id of a table in the SMEAR database.",
+                example = "11"
+            )
+            @PathParam("tableId")
+            Long tableId
+    ) {
         return variableMetadataDao.findByTableId(tableId);
     }
 
     @GET
     @Path(Endpoints.VARIABLE)
-    public VariableMetadata variable(@PathParam("variableId") Long variableId) {
+    @Operation(summary = "Fetch general info about a variable in a table for "
+        + "a Smart SMEAR station")
+    public VariableMetadata variable(
+            @Parameter(
+                description = "Id of a station in the SMEAR database.",
+                example = "1"
+            )
+            @PathParam("stationId")
+            Long stationId,
+            @Parameter(
+                description = "Id of a table in the SMEAR database.",
+                example = "11"
+            )
+            @PathParam("tableId")
+            Long tableId,
+            @Parameter(
+                description = "Id of a variable in the SMEAR database.",
+                example = "528"
+            )
+            @PathParam("variableId")
+            Long variableId
+    ) {
         return variableMetadataDao.findById(variableId);
     }
 }

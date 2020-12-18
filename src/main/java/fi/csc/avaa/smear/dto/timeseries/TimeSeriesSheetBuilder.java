@@ -28,6 +28,9 @@ public class TimeSeriesSheetBuilder extends TimeSeriesBuilder<TimeSeriesSheet> {
 
     @Override
     protected void addDataPoint(LocalDateTime samptime, String column, Number value) {
+        if (samptime == null) {
+            return;
+        }
         allColumns.add(column);
         String samptimeStr = ISO8601_DATETIME_FORMATTER.format(samptime);
         initSamptime(samptimeStr);
