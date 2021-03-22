@@ -152,9 +152,9 @@ public class DataStructureDao {
     private static final Comparator<VariableNode> variableNodeComparator = (node1, node2) -> {
         if (node1.getSortOrder() == null && node1.getSortOrder() == null) {
             return Long.valueOf(node1.getVariableId()).compareTo(Long.valueOf(node2.getVariableId()));
-        } else if (node1.getSortOrder() == null) {
-            return 1;
         } else if (node2.getSortOrder() == null) {
+            return 1;
+        } else if (node1.getSortOrder() == null) {
             return -1;
         } else {
             return node1.getSortOrder().compareTo(node2.getSortOrder());
