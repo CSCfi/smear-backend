@@ -19,9 +19,6 @@ public class EventResourceTest {
                 .when()
                 .get(Endpoints.SEARCH_EVENTS)
                 .then()
-                .statusCode(200)
-                .body("eventType",
-                        contains("NewVersionRelease", "NewVersionRelease", "NewVersionRelease", "NewVersionRelease"))
-                .body("id", contains(214, 215, 229, 258));
+                .statusCode(200);
     }
 }
