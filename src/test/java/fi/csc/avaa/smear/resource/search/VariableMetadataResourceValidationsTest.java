@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -23,7 +22,6 @@ public class VariableMetadataResourceValidationsTest {
                 .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("variableMetadata.params"));
     }
 }

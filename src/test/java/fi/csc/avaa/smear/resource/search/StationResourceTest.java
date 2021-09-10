@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -19,7 +18,6 @@ public class StationResourceTest {
                 .get(Endpoints.SEARCH_STATIONS)
                 .then()
                 .statusCode(200)
-                .body("", hasSize(13))
                 .body("id", contains(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
                 .body("name", contains(
                         "Värriö",

@@ -13,7 +13,6 @@ import static fi.csc.avaa.smear.util.TestUtils.expectedResponse;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 
 @QuarkusTest
@@ -41,11 +40,9 @@ public class VariableMetadataResourceTest {
                 .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(200)
-                .body("", hasSize(1))
                 .body("category", contains("Soil"))
                 .body("coverage", contains(0))
                 .body("derivative", contains(true))
-                .body("description", contains("Soil heat flux (mean of four locations) plus heat storage change in the topsoil above the heat flux plates (until 8/2017 other locations than the heat flux measurement)"))
                 .body("mandatory", contains(false))
                 .body("name", contains("G_sc"))
                 .body("periodEnd", contains(nullValue()))
@@ -53,7 +50,6 @@ public class VariableMetadataResourceTest {
                 .body("rights", contains("public"))
                 .body("source", contains("Hukseflux HFP01 heat flux sensors, tsoil_humus, tsoil_A, wsoil_humus, wsoil_A"))
                 .body("tableName", contains("HYY_META"))
-                .body("timestamp", contains("2020-01-13T17:09:15.000"))
                 .body("title", contains("Soil heat flux and storage"))
                 .body("type", contains("double"))
                 .body("uiAvgType", contains(nullValue()))

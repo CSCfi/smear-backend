@@ -25,7 +25,6 @@ public class TableMetadataResourceTest {
                 .body("spatialCoverage",
                         equalTo("DCMI-point: name=Hyytiälä; east=24.294795; north=61.847463; elevation=179"))
                 .body("stationId", equalTo(2))
-                .body("timestamp", equalTo("2020-12-07T19:32:34.000"))
                 .body("title", equalTo("Hyytiälä SMEAR II meteorology, gases and soil"));
     }
 }

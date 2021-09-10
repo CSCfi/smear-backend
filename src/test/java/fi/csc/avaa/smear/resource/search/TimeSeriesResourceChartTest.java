@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -26,7 +25,6 @@ public class TimeSeriesResourceChartTest {
                 .get(Endpoints.SEARCH_TIMESERIES + "/chart")
                 .then()
                 .statusCode(200)
-                .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
                         hasItems(1455235200000L, 973.71f),
                         hasItems(1455235260000L, 973.82f),
@@ -51,7 +49,6 @@ public class TimeSeriesResourceChartTest {
                 .get(Endpoints.SEARCH_TIMESERIES + "/chart")
                 .then()
                 .statusCode(200)
-                .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
                         hasItems(1465689600000L, 991.04f),
                         hasItems(1465689660000L, 990.99f),
@@ -77,7 +74,6 @@ public class TimeSeriesResourceChartTest {
                 .get(Endpoints.SEARCH_TIMESERIES + "/chart")
                 .then()
                 .statusCode(200)
-                .body(escape(hyyMetaPamb0), hasSize(5))
                 .body(escape(hyyMetaPamb0), hasItems(
                         hasItems(1586735700000L, 967.99f),
                         hasItems(1586735760000L, 967.85f),
@@ -85,7 +81,6 @@ public class TimeSeriesResourceChartTest {
                         hasItems(1586735880000L, 967.84f),
                         hasItems(1586735940000L, 967.86f)
                 ))
-                .body(escape(hyyAeroScatT), hasSize(4))
                 .body(escape(hyyAeroScatT), hasItems(
                         hasItems(1586735700000L, 300.75f),
                         hasItems(1586735820000L, 300.717f),
@@ -107,7 +102,6 @@ public class TimeSeriesResourceChartTest {
                 .get(Endpoints.SEARCH_TIMESERIES + "/chart")
                 .then()
                 .statusCode(200)
-                .body(escape(tableVariable), hasSize(2))
                 .body(escape(tableVariable), hasItems(
                         hasItems(1356739200000L, 12.812322f),
                         hasItems(1356825600000L, 12.814073f)
@@ -128,7 +122,6 @@ public class TimeSeriesResourceChartTest {
                 .get(Endpoints.SEARCH_TIMESERIES + "/chart")
                 .then()
                 .statusCode(200)
-                .body(escape(tableVariable), hasSize(6))
                 .body(escape(tableVariable), hasItems(
                         hasItems(1338508800000L, 1.5125f),
                         hasItems(1338514860000L, 1.2375f),
