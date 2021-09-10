@@ -43,7 +43,6 @@ public class VariableMetadataResourceTest {
                 .body("category", contains("Soil"))
                 .body("coverage", contains(0))
                 .body("derivative", contains(true))
-                .body("description", contains("Soil heat flux (mean of four locations) plus heat storage change in the topsoil above the heat flux plates (until 8/2017 other locations than the heat flux measurement)"))
                 .body("mandatory", contains(false))
                 .body("name", contains("G_sc"))
                 .body("periodEnd", contains(nullValue()))
