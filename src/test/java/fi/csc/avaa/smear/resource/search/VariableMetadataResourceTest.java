@@ -51,7 +51,6 @@ public class VariableMetadataResourceTest {
                 .body("rights", contains("public"))
                 .body("source", contains("Hukseflux HFP01 heat flux sensors, tsoil_humus, tsoil_A, wsoil_humus, wsoil_A"))
                 .body("tableName", contains("HYY_META"))
-                .body("timestamp", contains("2020-01-13T17:09:15.000"))
                 .body("title", contains("Soil heat flux and storage"))
                 .body("type", contains("double"))
                 .body("uiAvgType", contains(nullValue()))

@@ -27,7 +27,6 @@ public class MetadataResourceTest {
                 .body("project", equalTo("http://www.atm.helsinki.fi/SMEAR/"))
                 .body("ref", equalTo("Cite: Junninen, H; Lauri, A; Keronen, P; Aalto, P; Hiltunen, V; Hari, P; Kulmala, M. Smart-SMEAR: on-line data exploration and visualization tool for SMEAR stations.| BOREAL ENVIRONMENT RESEARCH (BER) Vol 14, Issue 4, pp.447-457"))
                 .body("rightsCategory", equalTo("LICENSED"))
-                .body("timestamp", equalTo("2015-05-04T11:54:57.000"))
                 .body("title", equalTo("SMEAR Station for measuring ecosystem-atmosphere relations"));
 
     }
