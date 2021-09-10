@@ -13,7 +13,6 @@ import static fi.csc.avaa.smear.util.TestUtils.expectedResponse;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 
 @QuarkusTest
@@ -41,7 +40,6 @@ public class VariableMetadataResourceTest {
                 .get(Endpoints.SEARCH_VARIABLES)
                 .then()
                 .statusCode(200)
-                .body("", hasSize(1))
                 .body("category", contains("Soil"))
                 .body("coverage", contains(0))
                 .body("derivative", contains(true))

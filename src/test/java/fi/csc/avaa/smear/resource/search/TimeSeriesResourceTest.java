@@ -9,7 +9,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
@@ -34,9 +33,7 @@ public class TimeSeriesResourceTest {
                 .body("recordCount", is(6))
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(1))
                 .body("columns", contains(tableVariable))
-                .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-02-12T00:00:00.000",
                         "2016-02-12T00:01:00.000",
@@ -67,9 +64,7 @@ public class TimeSeriesResourceTest {
                 .body("recordCount", is(6))
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(1))
                 .body("columns", contains(tableVariable))
-                .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-06-12T00:00:00.000",
                         "2016-06-12T00:01:00.000",
@@ -102,9 +97,7 @@ public class TimeSeriesResourceTest {
                 .body("recordCount", is(5))
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(2))
                 .body("columns", contains(hyyAeroScatT, hyyMetaPamb0))
-                .body("data", hasSize(5))
                 .body("data.samptime", contains(
                         "2020-04-12T23:55:00.000",
                         "2020-04-12T23:56:00.000",
@@ -136,9 +129,7 @@ public class TimeSeriesResourceTest {
                 .body("recordCount", is(2))
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(1))
                 .body("columns", contains(tablevariable))
-                .body("data", hasSize(2))
                 .body("data.samptime", contains(
                         "2012-12-29T00:00:00.000",
                         "2012-12-30T00:00:00.000"
@@ -167,9 +158,7 @@ public class TimeSeriesResourceTest {
                 .body("recordCount", is(6))
                 .body("aggregation", equalTo("NONE"))
                 .body("aggregationInterval", blankOrNullString())
-                .body("columns", hasSize(2))
                 .body("columns", contains(cuvNoColumn, tablevariable))
-                .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2012-06-01T00:00:00.000",
                         "2012-06-01T01:41:00.000",

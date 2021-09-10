@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -22,7 +21,6 @@ public class TagResourceTest {
                 .get(Endpoints.SEARCH_TAGS)
                 .then()
                 .statusCode(200)
-                .body("", hasSize(3))
                 .body("displayKeyword", containsInAnyOrder("", "meteorologia", "aerosolifysiikka"))
                 .body("id", containsInAnyOrder(37, 77, 80))
                 .body("name", containsInAnyOrder("surface_air_pressure", "p5394", "p15192"))

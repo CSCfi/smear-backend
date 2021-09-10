@@ -11,7 +11,6 @@ import java.util.Arrays;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -24,7 +23,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(3))
                 .body("parameterViolations.path", containsInAnyOrder(
                         "timeSeries.params.from",
                         "timeSeries.params.to",
@@ -42,7 +40,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.tablevariable"));
     }
 
@@ -57,7 +54,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.aggregation"));
     }
 
@@ -72,7 +68,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.quality"));
     }
 
@@ -88,7 +83,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.interval"));
 
         given()
@@ -101,7 +95,6 @@ public class TimeSeriesResourceValidationsTest {
                 .get(Endpoints.SEARCH_TIMESERIES)
                 .then()
                 .statusCode(400)
-                .body("parameterViolations", hasSize(1))
                 .body("parameterViolations.path", contains("timeSeries.params.interval"));
     }
 
@@ -131,7 +124,6 @@ public class TimeSeriesResourceValidationsTest {
                             .get(Endpoints.SEARCH_TIMESERIES)
                             .then()
                             .statusCode(400)
-                            .body("parameterViolations", hasSize(1))
                             .body("parameterViolations.path", contains("timeSeries.params.aggregation"));
 
                     given()
@@ -143,7 +135,6 @@ public class TimeSeriesResourceValidationsTest {
                             .get(Endpoints.SEARCH_TIMESERIES)
                             .then()
                             .statusCode(400)
-                            .body("parameterViolations", hasSize(1))
                             .body("parameterViolations.path", contains("timeSeries.params.aggregation"));
                 });
     }

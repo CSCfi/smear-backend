@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 @Tag("integration")
@@ -87,7 +86,6 @@ public class TimeSeriesResourceAggregationsTest {
                 .statusCode(200)
                 .body("aggregation", equalTo(aggregation))
                 .body("aggregationInterval", equalTo(30))
-                .body("data", hasSize(6))
                 .body("data.samptime", contains(
                         "2016-06-12T00:00:00.000",
                         "2016-06-12T00:30:00.000",
