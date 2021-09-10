@@ -13,8 +13,7 @@ import javax.ws.rs.core.Application;
                 version = "0.1",
                 contact = @Contact(
                         name = "SMEAR API Support",
-                        url = "http://exampleurl.com/contact",
-                        email = "techsupport@example.com"),
+                        email = "servicedesk@csc.fi"),
                 license = @License(
                         name = "Apache 2.0",
                         url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
