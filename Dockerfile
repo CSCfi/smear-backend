@@ -8,7 +8,6 @@ RUN ./mvnw clean integration-test package $MAVEN_OPTS
 # run environment
 FROM adoptopenjdk:11-hotspot
 ARG JAVA_OPTS
-COPY --from=build /build/target/lib/* /app/lib/
-COPY --from=build /build/target/*-runner.jar /app/
+COPY --from=build /build/target/quarkus-app /app/quarkus-app
 EXPOSE 8080
-CMD ls /app/*-runner.jar | xargs java -jar $JAVA_OPTS
+CMD java -jar $JAVA_OPTS /app/quarkus-app/quarkus-run.jar
