@@ -9,6 +9,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class TimeSeriesQueryParametersValidator
             "for tables HYY_SLOW and HYY_TREE";
     private static final String HYY_TREE_CUV_NO_REQUIRED = "One or more cuv_no parameters required when " +
             "querying HYY_TREE";
+    private static final String MAX_TIME_INTERVAL_FOR_CUSTOM_AGGREGATION = "Maximum time interval for MEDIAN or CIRCULAR aggregation is two years";
 
     @Override
     public boolean isValid(TimeSeriesQueryParameters params, ConstraintValidatorContext ctx) {
@@ -41,9 +43,26 @@ public class TimeSeriesQueryParametersValidator
         boolean tablevariablesValid = validateTablevariables(tableToVariables, ctx);
         boolean aggregationValid = validateAggregation(params.getAggregation(), tables, ctx);
         boolean qualityValid = validateQuality(params.getQuality(), ctx);
+        boolean timeIntervalValid = true;
+        if (aggregationValid) {
+            timeIntervalValid = validateTimeInterval(params.getFrom(), params.getTo(), params.getAggregation(), ctx);
+        }
         return tablevariablesValid
                 && aggregationValid
-                && qualityValid;
+                && qualityValid
+                && timeIntervalValid;
+    }
+
+    private Boolean validateTimeInterval(String from, String to, String aggregationParam, ConstraintValidatorContext ctx) {
+        if (from == null || to == null || aggregationParam == null) {
+            return true;
+        }
+        Aggregation aggregation = Aggregation.valueOf(aggregationParam);
+        if (aggregation.isGroupedManually() && LocalDateTime.parse(from).plusYears(2).plusDays(1).isBefore(LocalDateTime.parse(to))) {
+            return constraintViolation(ctx, "aggregation", MAX_TIME_INTERVAL_FOR_CUSTOM_AGGREGATION);
+        }
+
+        return true;
     }
 
     private Boolean validateTablevariables(Map<String, List<String>> tableToVariables, ConstraintValidatorContext ctx) {
