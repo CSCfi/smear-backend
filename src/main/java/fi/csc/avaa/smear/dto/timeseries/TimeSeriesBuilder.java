@@ -80,11 +80,13 @@ public abstract class TimeSeriesBuilder<T> {
 
     private void groupAndAddToSeries(Result<Record> result, Map<String, String> variableToColumn) {
         LocalDateTime aggregateSamptime = null;
+        LocalDateTime nextAggregateSamptime = null;
         Map<String, List<Double>> variableToValues = new HashMap<>();
         for (Record record : result) {
             LocalDateTime samptime = roundToNearestMinute(record.get(SAMPTIME, LocalDateTime.class));
             if (aggregateSamptime == null) {
-                aggregateSamptime = samptime.plusMinutes(aggregationInterval);
+                aggregateSamptime = samptime;
+                nextAggregateSamptime = aggregateSamptime.plusMinutes(aggregationInterval);
             }
             Iterator<Map.Entry<String, String>> variableIterator = variableToColumn.entrySet().iterator();
             while (variableIterator.hasNext()) {
@@ -95,16 +97,20 @@ public abstract class TimeSeriesBuilder<T> {
                 }
                 List<Double> values = variableToValues.get(variable);
                 Double value = record.get(field(variable), Double.class);
-                if (values.size() > 0 && (samptime.isAfter(aggregateSamptime) || samptime.isEqual(aggregateSamptime))) {
+                values.add(value);
+                // Using the fact that the temporal resolution is no smaller than one minute we check that the
+                // hypothetical next sampletime is part of the next aggregation interval and use it as an indicator
+                // that this iterval is complete.
+                if (!samptime.plusMinutes(1).isBefore(nextAggregateSamptime)) {
                     String column = entry.getValue();
                     Double aggregate = aggregateOf(values, aggregation);
                     addDataPoint(aggregateSamptime, column, aggregate);
                     if (!variableIterator.hasNext()) {
-                        aggregateSamptime = samptime.plusMinutes(aggregationInterval);
+                        aggregateSamptime = nextAggregateSamptime;
+                        nextAggregateSamptime = aggregateSamptime.plusMinutes(aggregationInterval);
                     }
                     values.clear();
                 }
-                values.add(value);
             }
         }
     }
