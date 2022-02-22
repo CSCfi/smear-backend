@@ -10,7 +10,7 @@ import javax.ws.rs.core.Application;
 @OpenAPIDefinition(
         info = @Info(
                 title = "SMEAR API",
-                version = "1.1.0",
+                version = "1.1.1",
                 contact = @Contact(
                         name = "SMEAR API Support",
                         email = "servicedesk@csc.fi"),
