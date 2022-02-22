@@ -58,8 +58,13 @@ public class TimeSeriesQueryParametersValidator
             return true;
         }
         Aggregation aggregation = Aggregation.valueOf(aggregationParam);
-        if (aggregation.isGroupedManually() && LocalDateTime.parse(from).plusYears(2).plusDays(1).isBefore(LocalDateTime.parse(to))) {
-            return constraintViolation(ctx, "aggregation", MAX_TIME_INTERVAL_FOR_CUSTOM_AGGREGATION);
+        int maxYears = aggregation.getMaxQueryRange();
+        if (LocalDateTime.parse(from).plusYears(maxYears).plusDays(1).isBefore(LocalDateTime.parse(to))) {
+            return constraintViolation(
+                ctx,
+                "aggregation",
+                "Maximum time range for " + aggregationParam + " aggregation is " + maxYears + " years."
+            );
         }
 
         return true;
