@@ -38,6 +38,15 @@ public enum Aggregation {
         return type.equals(Grouping.IN_QUERY);
     }
 
+    public int getMaxQueryRange() {
+        if (this.type.equals(Grouping.NONE)) {
+            return 2;
+        } else if (this.isGroupedManually()) {
+            return 2;
+        }
+        return 10;
+    }
+
     private static final List<String> queryParams = Arrays.stream(values())
             .map(Enum::name)
             .collect(Collectors.toList());
